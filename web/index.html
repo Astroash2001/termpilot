@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0b1220">
+  <title>TermPilot</title>
+  
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=24">
+  <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/favicon.svg?v=24">
+  <link rel="stylesheet" href="styles.css?v=24">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" />
+  
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-webgl@0.16.0/lib/addon-webgl.js"></script>
+</head>
+<body>
+
+  <!-- Overlay when disconnected -->
+  <div id="connection-overlay" class="overlay">
+    <div class="overlay-box">
+      <div class="status-indicator">
+        <div id="status-dot" class="dot offline"></div>
+        <h2 id="status-text">OFFLINE</h2>
+      </div>
+      <div id="pairing-section" class="pairing-section">
+        <p class="subtitle">Desktop agent is not connected.</p>
+        <button id="btn-pair" class="btn-primary">Generate Pairing Code</button>
+        <div id="pairing-display" style="display:none; margin-top:16px;">
+          <h1 id="pairing-code-box" class="pairing-code">------</h1>
+          <p class="hint">Run this on your PC:</p>
+          <code id="pairing-cmd-hint" class="code-box">python agent.py --pair ------</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Complete Antigravity Slash Commands Modal / Sheet -->
+  <div id="commands-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-sheet">
+      <div class="modal-header">
+        <span class="modal-title">⚡ ALL ANTIGRAVITY COMMANDS (40+)</span>
+        <button id="btn-close-modal" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-search-box">
+        <input type="text" id="cmd-search" class="cmd-search-input" placeholder="Search 40+ commands (/plan, /add-dir, /mcp...)" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="commands-list" id="commands-list">
+        
+        <!-- Recent History Section -->
+        <div id="history-section" style="display: none;">
+          <div class="cmd-section-title">📜 RECENT PROMPT HISTORY</div>
+          <div id="history-items-container"></div>
+        </div>
+
+        <!-- 1. WORKSPACE & CONTEXT -->
+        <div class="cmd-section-title">📁 WORKSPACE & CONTEXT</div>
+        <div class="cmd-item" data-cmd="/add-dir" onclick="insertCommand('/add-dir ')">
+          <span class="cmd-tag">/add-dir</span>
+          <span class="cmd-desc">Add a directory to the workspace context</span>
+        </div>
+        <div class="cmd-item" data-cmd="/worktree" onclick="insertCommand('/worktree ')">
+          <span class="cmd-tag">/worktree</span>
+          <span class="cmd-desc">Manage git worktrees for isolated parallel branches</span>
+        </div>
+        <div class="cmd-item" data-cmd="/files" onclick="insertCommand('/files')">
+          <span class="cmd-tag">/files</span>
+          <span class="cmd-desc">List and inspect loaded project workspace files</span>
+        </div>
+        <div class="cmd-item" data-cmd="/context" onclick="insertCommand('/context')">
+          <span class="cmd-tag">/context</span>
+          <span class="cmd-desc">View active context window tokens and loaded files</span>
+        </div>
+        <div class="cmd-item" data-cmd="/compact" onclick="insertCommand('/compact')">
+          <span class="cmd-tag">/compact</span>
+          <span class="cmd-desc">Compress conversation history to save tokens</span>
+        </div>
+        <div class="cmd-item" data-cmd="/clear" onclick="insertCommand('clear')">
+          <span class="cmd-tag">/clear</span>
+          <span class="cmd-desc">Clear terminal screen and reset view</span>
+        </div>
+        <div class="cmd-item" data-cmd="/reset" onclick="insertCommand('/reset')">
+          <span class="cmd-tag">/reset</span>
+          <span class="cmd-desc">Reset the workspace session to initial state</span>
+        </div>
+
+        <!-- 2. AGENT MODES & WORKFLOWS -->
+        <div class="cmd-section-title">🤖 AGENT MODES & WORKFLOWS</div>
+        <div class="cmd-item" data-cmd="/plan" onclick="insertCommand('/plan ')">
+          <span class="cmd-tag">/plan</span>
+          <span class="cmd-desc">Step-by-step implementation planning before execution</span>
+        </div>
+        <div class="cmd-item" data-cmd="/goal" onclick="insertCommand('/goal ')">
+          <span class="cmd-tag">/goal</span>
+          <span class="cmd-desc">Autonomous execution until goal is fully achieved</span>
+        </div>
+        <div class="cmd-item" data-cmd="/grill-me" onclick="insertCommand('/grill-me ')">
+          <span class="cmd-tag">/grill-me</span>
+          <span class="cmd-desc">Interactive interview to resolve design decisions</span>
+        </div>
+        <div class="cmd-item" data-cmd="/teamwork-preview" onclick="insertCommand('/teamwork-preview ')">
+          <span class="cmd-tag">/teamwork-preview</span>
+          <span class="cmd-desc">Coordinate a team of autonomous subagents</span>
+        </div>
+        <div class="cmd-item" data-cmd="/learn" onclick="insertCommand('/learn ')">
+          <span class="cmd-tag">/learn</span>
+          <span class="cmd-desc">Save workflow patterns & lessons for future tasks</span>
+        </div>
+        <div class="cmd-item" data-cmd="/schedule" onclick="insertCommand('/schedule ')">
+          <span class="cmd-tag">/schedule</span>
+          <span class="cmd-desc">Run recurring cron or one-time timer notifications</span>
+        </div>
+        <div class="cmd-item" data-cmd="/run" onclick="insertCommand('/run ')">
+          <span class="cmd-tag">/run</span>
+          <span class="cmd-desc">Execute scripts or commands directly with the agent</span>
+        </div>
+        <div class="cmd-item" data-cmd="/review" onclick="insertCommand('/review ')">
+          <span class="cmd-tag">/review</span>
+          <span class="cmd-desc">Review recent code changes, diffs, and pull requests</span>
+        </div>
+
+        <!-- 3. SUBAGENTS & ARTIFACTS -->
+        <div class="cmd-section-title">⚡ SUBAGENTS & ARTIFACTS</div>
+        <div class="cmd-item" data-cmd="/agents" onclick="insertCommand('/agents')">
+          <span class="cmd-tag">/agents</span>
+          <span class="cmd-desc">List available custom agents and personas</span>
+        </div>
+        <div class="cmd-item" data-cmd="/subagents" onclick="insertCommand('/subagents')">
+          <span class="cmd-tag">/subagents</span>
+          <span class="cmd-desc">Inspect active background subagents and conversations</span>
+        </div>
+        <div class="cmd-item" data-cmd="/artifact" onclick="insertCommand('/artifact')">
+          <span class="cmd-tag">/artifact</span>
+          <span class="cmd-desc">View and review generated markdown and code artifacts</span>
+        </div>
+        <div class="cmd-item" data-cmd="/diff" onclick="insertCommand('/diff')">
+          <span class="cmd-tag">/diff</span>
+          <span class="cmd-desc">View git diff of file modifications in this session</span>
+        </div>
+        <div class="cmd-item" data-cmd="/transcript" onclick="insertCommand('/transcript')">
+          <span class="cmd-tag">/transcript</span>
+          <span class="cmd-desc">Inspect full chronological conversation & tool execution logs</span>
+        </div>
+        <div class="cmd-item" data-cmd="/undo" onclick="insertCommand('/undo')">
+          <span class="cmd-tag">/undo</span>
+          <span class="cmd-desc">Revert the last batch of agent file modifications</span>
+        </div>
+        <div class="cmd-item" data-cmd="/save" onclick="insertCommand('/save')">
+          <span class="cmd-tag">/save</span>
+          <span class="cmd-desc">Save the current session state checkpoint</span>
+        </div>
+
+        <!-- 4. SKILLS, RULES & MCP TOOLS -->
+        <div class="cmd-section-title">🛠️ SKILLS, RULES & MCP EXTENSIONS</div>
+        <div class="cmd-item" data-cmd="/skills" onclick="insertCommand('/skills')">
+          <span class="cmd-tag">/skills</span>
+          <span class="cmd-desc">List, activate, and manage loaded agent skills</span>
+        </div>
+        <div class="cmd-item" data-cmd="/rules" onclick="insertCommand('/rules')">
+          <span class="cmd-tag">/rules</span>
+          <span class="cmd-desc">View and edit project rules and workflows</span>
+        </div>
+        <div class="cmd-item" data-cmd="/mcp" onclick="insertCommand('/mcp')">
+          <span class="cmd-tag">/mcp</span>
+          <span class="cmd-desc">Manage Model Context Protocol (MCP) server integrations</span>
+        </div>
+        <div class="cmd-item" data-cmd="/plugins" onclick="insertCommand('/plugins')">
+          <span class="cmd-tag">/plugins</span>
+          <span class="cmd-desc">View and configure installed Antigravity plugins</span>
+        </div>
+        <div class="cmd-item" data-cmd="/tools" onclick="insertCommand('/tools')">
+          <span class="cmd-tag">/tools</span>
+          <span class="cmd-desc">Inspect all available system tools and declarations</span>
+        </div>
+        <div class="cmd-item" data-cmd="/config" onclick="insertCommand('/config')">
+          <span class="cmd-tag">/config</span>
+          <span class="cmd-desc">View and edit CLI settings and preferences</span>
+        </div>
+
+        <!-- 5. MODELS & REASONING -->
+        <div class="cmd-section-title">🧠 MODELS & REASONING</div>
+        <div class="cmd-item" data-cmd="/model" onclick="insertCommand('/model ')">
+          <span class="cmd-tag">/model</span>
+          <span class="cmd-desc">Switch AI model (Gemini 3.7 Flash, Claude Opus, GPT, etc.)</span>
+        </div>
+        <div class="cmd-item" data-cmd="/models" onclick="insertCommand('/models')">
+          <span class="cmd-tag">/models</span>
+          <span class="cmd-desc">List all supported LLM models and providers</span>
+        </div>
+        <div class="cmd-item" data-cmd="/params" onclick="insertCommand('/params ')">
+          <span class="cmd-tag">/params</span>
+          <span class="cmd-desc">Configure temperature, thinking depth, and model parameters</span>
+        </div>
+        <div class="cmd-item" data-cmd="/permissions" onclick="insertCommand('/permissions')">
+          <span class="cmd-tag">/permissions</span>
+          <span class="cmd-desc">Manage auto-execution and tool safety approvals</span>
+        </div>
+
+        <!-- 6. CHAT & INTERACTION -->
+        <div class="cmd-section-title">💬 CHAT & INTERACTION</div>
+        <div class="cmd-item" data-cmd="/btw" onclick="insertCommand('/btw ')">
+          <span class="cmd-tag">/btw</span>
+          <span class="cmd-desc">Ask a side question without interrupting current task</span>
+        </div>
+        <div class="cmd-item" data-cmd="/voice" onclick="insertCommand('/voice')">
+          <span class="cmd-tag">/voice</span>
+          <span class="cmd-desc">Toggle voice transcription / speech interactions</span>
+        </div>
+        <div class="cmd-item" data-cmd="/prompt" onclick="insertCommand('/prompt ')">
+          <span class="cmd-tag">/prompt</span>
+          <span class="cmd-desc">Load or manage custom system prompt templates</span>
+        </div>
+        <div class="cmd-item" data-cmd="/feedback" onclick="insertCommand('/feedback ')">
+          <span class="cmd-tag">/feedback</span>
+          <span class="cmd-desc">Provide feedback or report an issue on agent behavior</span>
+        </div>
+
+        <!-- 7. SYSTEM, BILLING & UTILITIES -->
+        <div class="cmd-section-title">⚙️ SYSTEM, BILLING & UTILITIES</div>
+        <div class="cmd-item" data-cmd="/help" onclick="insertCommand('/help')">
+          <span class="cmd-tag">/help</span>
+          <span class="cmd-desc">Display full CLI command reference & shortcuts</span>
+        </div>
+        <div class="cmd-item" data-cmd="/status" onclick="insertCommand('/status')">
+          <span class="cmd-tag">/status</span>
+          <span class="cmd-desc">View active tasks, subagents, and memory state</span>
+        </div>
+        <div class="cmd-item" data-cmd="/usage" onclick="insertCommand('/usage')">
+          <span class="cmd-tag">/usage</span>
+          <span class="cmd-desc">Check API quota, token consumption, and credits</span>
+        </div>
+        <div class="cmd-item" data-cmd="/cost" onclick="insertCommand('/cost')">
+          <span class="cmd-tag">/cost</span>
+          <span class="cmd-desc">View token cost breakdown for the current session</span>
+        </div>
+        <div class="cmd-item" data-cmd="/changelog" onclick="insertCommand('/changelog')">
+          <span class="cmd-tag">/changelog</span>
+          <span class="cmd-desc">Show Antigravity release notes and changes</span>
+        </div>
+        <div class="cmd-item" data-cmd="/version" onclick="insertCommand('/version')">
+          <span class="cmd-tag">/version</span>
+          <span class="cmd-desc">Show current Antigravity CLI version</span>
+        </div>
+        <div class="cmd-item" data-cmd="/theme" onclick="insertCommand('/theme ')">
+          <span class="cmd-tag">/theme</span>
+          <span class="cmd-desc">Switch terminal UI theme and color scheme</span>
+        </div>
+        <div class="cmd-item" data-cmd="/login" onclick="insertCommand('/login')">
+          <span class="cmd-tag">/login</span>
+          <span class="cmd-desc">Sign in and authenticate Antigravity account</span>
+        </div>
+        <div class="cmd-item" data-cmd="/logout" onclick="insertCommand('/logout')">
+          <span class="cmd-tag">/logout</span>
+          <span class="cmd-desc">Sign out of current Antigravity account</span>
+        </div>
+        <div class="cmd-item" data-cmd="agy" onclick="insertCommand('agy')">
+          <span class="cmd-tag">agy</span>
+          <span class="cmd-desc">Launch Antigravity assistant</span>
+        </div>
+        <div class="cmd-item" data-cmd="/exit" onclick="insertCommand('/exit')">
+          <span class="cmd-tag">/exit</span>
+          <span class="cmd-desc">Terminate and exit current session</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Features & Shortcuts Guide Modal -->
+  <div id="features-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-sheet features-sheet">
+      <div class="modal-header">
+        <span class="modal-title">💡 TERMPILOT FEATURES & SHORTCUTS</span>
+        <button id="btn-close-features" class="modal-close-btn">✕</button>
+      </div>
+      
+      <div class="features-scroll-content">
+        
+        <div class="feature-card">
+          <div class="feature-icon-box">🎙️</div>
+          <div class="feature-info">
+            <div class="feature-title">Voice Dictation (Speech-to-Text)</div>
+            <div class="feature-desc">Tap the 🎙️ mic button and speak prompts or commands. The view automatically scrolls to follow your speech in real time.</div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">📜</div>
+          <div class="feature-info">
+            <div class="feature-title">Smart Prompt History & Gestures</div>
+            <div class="feature-desc">Swipe left/right across the prompt box or tap ▲ / ▼ on the Touch Bar to instantly recall previously sent prompts and questions.</div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">⚡</div>
+          <div class="feature-info">
+            <div class="feature-title">40+ Antigravity Slash Commands</div>
+            <div class="feature-desc">Type <span class="feature-badge">/</span> or tap <span class="feature-badge">/ COMMANDS</span> to search, filter, and run any Antigravity CLI command (/plan, /goal, /mcp, /skills, etc.) with 1 tap.</div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">🚀</div>
+          <div class="feature-info">
+            <div class="feature-title">Quick Action Snippets Bar</div>
+            <div class="feature-desc">1-tap pills for <span class="feature-badge">git status</span>, <span class="feature-badge">git diff</span>, <span class="feature-badge">dir</span>, and <span class="feature-badge">python</span>. Tap <span class="feature-badge">+ Add</span> to pin your own custom command buttons permanently.</div>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">⌨️</div>
+          <div class="feature-info">
+            <div class="feature-title">Mobile Touch Bar Shortcuts</div>
+            <div class="feature-desc">Instant access to <span class="feature-badge">⌃C</span> interrupt, <span class="feature-badge">CLR</span> screen clear, and arrow navigation keys.</div>
+          </div>
+        </div>
+
+        <button id="btn-got-it" class="btn-got-it">GOT IT, START CODING</button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast" style="display: none;">✓ Copied to clipboard!</div>
+
+  <!-- Select & Copy Plain Text Modal -->
+  <div id="select-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-sheet select-sheet">
+      <div class="modal-header">
+        <span class="modal-title">📋 SELECT & COPY TERMINAL TEXT</span>
+        <button id="btn-close-select" class="modal-close-btn">✕</button>
+      </div>
+      <div class="select-actions-bar">
+        <button class="btn-select-action" onclick="copyFromSelectModal()">📋 Copy All</button>
+        <button class="btn-select-action" onclick="copyLastResponse()">📄 Copy Last Output</button>
+        <span class="select-hint">Long-press text below to select with blue pins</span>
+      </div>
+      <div class="select-text-content" id="select-text-box"></div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div class="app-layout">
+    
+    <header class="app-header">
+      <div class="logo">TERMPILOT</div>
+      <div class="header-actions">
+        <button id="btn-features" class="header-btn features-btn" title="View All Features & Shortcuts">💡 FEATURES</button>
+        <button id="btn-sound-toggle" class="header-btn" title="Toggle Completion Sound Alert">🔔</button>
+        <div class="connection-badge">
+          <div id="header-status-dot" class="dot offline"></div>
+          <span id="header-status-label">OFFLINE</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Terminal Display (read-only) -->
+    <div id="xterm-container" class="xterm-wrapper"></div>
+
+    <!-- Quick Action Snippets Pills Bar -->
+    <div class="snippets-bar" id="snippets-bar">
+      <button class="snippet-pill" onclick="sendSnippet('git status\r')">git status</button>
+      <button class="snippet-pill" onclick="sendSnippet('git diff\r')">git diff</button>
+      <button class="snippet-pill" onclick="sendSnippet('git log -n 5\r')">git log</button>
+      <button class="snippet-pill" onclick="sendSnippet('dir\r')">dir</button>
+      <button class="snippet-pill" onclick="sendSnippet('python main.py\r')">python main.py</button>
+      <button class="snippet-pill add-snippet" onclick="promptAddSnippet()">+ Add</button>
+    </div>
+
+    <!-- Input Bar with Voice Mic & Send Button -->
+    <div class="input-bar">
+      <button id="btn-mic" class="mic-btn" title="Voice Input" aria-label="Microphone">🎙️</button>
+      <textarea 
+        id="mobile-input" 
+        class="cmd-input" 
+        rows="2"
+        placeholder="Type / for commands, or speak prompt…" 
+        autocomplete="off" 
+        spellcheck="false" 
+        autocorrect="off" 
+        autocapitalize="none"
+      ></textarea>
+      <button id="btn-send" class="send-btn">▶</button>
+    </div>
+
+    <!-- Mobile Touch Bar -->
+    <div class="touch-bar">
+      <button class="tb-btn cmd-trigger" id="btn-commands">/ COMMANDS</button>
+      <button class="tb-btn" onclick="openTextSelectModal()" title="Select & Copy Terminal Output">📋 COPY</button>
+      <button class="tb-btn danger" onclick="sendInput('\x03')">⌃C</button>
+      <button class="tb-btn" onclick="sendInput('clear\r')">CLR</button>
+      <button class="tb-btn arrow" onclick="handleHistoryNav('up')" title="Previous Command in History">▲</button>
+      <button class="tb-btn arrow" onclick="handleHistoryNav('down')" title="Next Command in History">▼</button>
+      <button class="tb-btn arrow" onclick="sendInput('\x1b[D')">◀</button>
+      <button class="tb-btn arrow" onclick="sendInput('\x1b[C')">▶</button>
+    </div>
+
+  </div>
+
+  <script src="app.js?v=24"></script>
+</body>
+</html>
