@@ -11,7 +11,7 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=24">
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
-  <link rel="stylesheet" href="styles.css?v=24">
+  <link rel="stylesheet" href="styles.css?v=33">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" />
   
   <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
@@ -97,6 +97,10 @@
         <div class="cmd-item" data-cmd="/goal" onclick="insertCommand('/goal ')">
           <span class="cmd-tag">/goal</span>
           <span class="cmd-desc">Autonomous execution until goal is fully achieved</span>
+        </div>
+        <div class="cmd-item" data-cmd="/resume" onclick="insertCommand('/resume ')">
+          <span class="cmd-tag">/resume</span>
+          <span class="cmd-desc">Resume a paused task, session, or checkpoint</span>
         </div>
         <div class="cmd-item" data-cmd="/grill-me" onclick="insertCommand('/grill-me ')">
           <span class="cmd-tag">/grill-me</span>
@@ -291,8 +295,8 @@
         <div class="feature-card">
           <div class="feature-icon-box">📜</div>
           <div class="feature-info">
-            <div class="feature-title">Smart Prompt History & Gestures</div>
-            <div class="feature-desc">Swipe left/right across the prompt box or tap ▲ / ▼ on the Touch Bar to instantly recall previously sent prompts and questions.</div>
+            <div class="feature-title">Smart Prompt History & Menu Navigation</div>
+            <div class="feature-desc">Swipe left/right across prompt box for history. Tap <span class="feature-badge">▲</span> / <span class="feature-badge">▼</span> to navigate slash commands, interactive CLI prompt menus, or recall past commands.</div>
           </div>
         </div>
 
@@ -393,16 +397,17 @@
     <div class="touch-bar">
       <button class="tb-btn cmd-trigger" id="btn-commands">/ COMMANDS</button>
       <button class="tb-btn" onclick="openTextSelectModal()" title="Select & Copy Terminal Output">📋 COPY</button>
-      <button class="tb-btn danger" onclick="sendInput('\x03')">⌃C</button>
+      <button class="tb-btn danger" onclick="handleEscKey()" title="Escape / Exit Options & Menus">ESC</button>
+      <button class="tb-btn danger" onclick="sendInput('\x03')" title="Cancel / Interrupt">⌃C</button>
       <button class="tb-btn" onclick="sendInput('clear\r')">CLR</button>
-      <button class="tb-btn arrow" onclick="handleHistoryNav('up')" title="Previous Command in History">▲</button>
-      <button class="tb-btn arrow" onclick="handleHistoryNav('down')" title="Next Command in History">▼</button>
+      <button class="tb-btn arrow" onclick="handleSmartArrowNav('up')" title="Up / Navigate Options / History">▲</button>
+      <button class="tb-btn arrow" onclick="handleSmartArrowNav('down')" title="Down / Navigate Options / History">▼</button>
       <button class="tb-btn arrow" onclick="sendInput('\x1b[D')">◀</button>
       <button class="tb-btn arrow" onclick="sendInput('\x1b[C')">▶</button>
     </div>
 
   </div>
 
-  <script src="app.js?v=24"></script>
+  <script src="app.js?v=33"></script>
 </body>
 </html>

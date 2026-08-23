@@ -44,6 +44,9 @@ def load_registered_devices():
         except Exception as e:
             print(f"Error loading devices.json: {e}")
 
+# Immediately populate registered devices on startup
+load_registered_devices()
+
 def save_registered_devices():
     with open(DEVICES_FILE, "w") as f:
         json.dump(registered_devices, f, indent=4)
@@ -185,10 +188,14 @@ def verify_pairing(req: PairingVerifyRequest):
 # 3. Authenticated Agent WebSocket Endpoint
 @app.websocket("/ws/agent")
 async def websocket_agent(websocket: WebSocket, device_id: str = None, secret_key: str = None):
+    # Ensure registered devices cache is fresh
+    load_registered_devices()
+    
     device_info = registered_devices.get(device_id)
-    if not device_info or device_info["secret_key"] != secret_key:
+    if not device_info or device_info.get("secret_key") != secret_key:
         print(f"⛔ Unauthorized connection attempt by device_id: {device_id}")
-        await websocket.close(code=4001)
+        await websocket.accept()
+        await websocket.close(code=4001, reason="Unauthorized")
         return
 
     await manager.connect_agent(websocket)

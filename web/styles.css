@@ -19,9 +19,15 @@
 }
 
 html, body {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   height: 100%;
   width: 100%;
   overflow: hidden;
+  overscroll-behavior: none;
   background-color: var(--bg-color);
   color: var(--text-main);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -123,11 +129,18 @@ html, body {
 
 /* ==================== APP LAYOUT ==================== */
 .app-layout {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  height: 100dvh; /* Dynamic viewport height — accounts for mobile keyboard */
-  width: 100%;
+  overflow: hidden;
+  background-color: var(--bg-color);
 }
 
 .app-header {
@@ -201,11 +214,17 @@ html, body {
   flex: 1;
   min-height: 0; /* Critical for flex children to shrink properly */
   width: 100%;
+  height: 100%;
   position: relative;
   overflow: hidden;
-  padding: 4px 6px;
-  touch-action: pan-y;
-  overscroll-behavior-y: contain !important;
+  padding: 0;
+  background-color: var(--bg-color);
+}
+
+.xterm {
+  width: 100%;
+  height: 100%;
+  padding: 2px 4px;
 }
 
 /* Let touches pass through the canvas directly to the native scrollable viewport */
@@ -218,6 +237,8 @@ html, body {
 /* 100% Native Mobile GPU Momentum Scrolling with Zero Drag */
 .xterm-viewport {
   pointer-events: auto !important;
+  width: 100% !important;
+  height: 100% !important;
   overflow-y: scroll !important;
   -webkit-overflow-scrolling: touch !important;
   overscroll-behavior-y: contain !important;
@@ -507,9 +528,11 @@ html, body {
   transition: background 0.15s, border-color 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
-.cmd-item:active {
-  background: rgba(56, 189, 248, 0.15);
+.cmd-item:active,
+.cmd-item.selected {
+  background: rgba(56, 189, 248, 0.16);
   border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
 }
 
 .cmd-tag {

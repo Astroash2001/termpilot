@@ -1,9 +1,28 @@
 // ── Terminal Setup ──────────────────────────────────────────────────────
 
+function getSavedOrOptimalFontSize() {
+  try {
+    const saved = localStorage.getItem('termpilot_font_size');
+    if (saved) {
+      const parsed = parseFloat(saved);
+      if (parsed >= 8 && parsed <= 24) return parsed;
+    }
+  } catch (e) {}
+
+  const w = window.innerWidth || document.documentElement.clientWidth || 400;
+  // On mobile (< 500px), use 10px so 75-80 columns fit across the full screen without clipping text descriptions
+  if (w < 420) return 9.5;
+  if (w < 600) return 10.5;
+  if (w < 900) return 12;
+  return 13;
+}
+
+let currentFontSize = getSavedOrOptimalFontSize();
+
 const term = new Terminal({
   cursorBlink: true,
   cursorStyle: 'block',
-  fontSize: 13,
+  fontSize: currentFontSize,
   fontFamily: "'Courier New', Courier, monospace",
   theme: {
     background: '#070d18',
@@ -76,10 +95,10 @@ const WS_URL = `${wsProtocol}//${window.location.host}/ws/client`;
 let ws = null;
 
 function updateResize() {
-  fitAddon.fit();
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type: "RESIZE", cols: term.cols, rows: term.rows }));
-  }
+  try {
+    fitAddon.fit();
+  } catch (e) {}
+  term.scrollToBottom();
 }
 
 function setConnected(on) {
@@ -88,7 +107,6 @@ function setConnected(on) {
     headerDot.className = "dot online pulse";
     headerLabel.textContent = "LIVE";
     headerLabel.style.color = "#10b981";
-    mobileInput.focus();
     setTimeout(updateResize, 150);
   } else {
     overlay.style.display = "flex";
@@ -108,7 +126,9 @@ function connect() {
   ws.onmessage = (event) => {
     const payload = JSON.parse(event.data);
     if (payload.type === "RAW") {
-      term.write(payload.data);
+      term.write(payload.data, () => {
+        term.scrollToBottom();
+      });
 
       // Detect task completion after running a command
       if (isCommandRunning && (performance.now() - lastCommandTime > 3000)) {
@@ -304,10 +324,16 @@ function autoGrowInput() {
 
 function sendCommand() {
   const text = mobileInput.value;
-  if (!text) return;
   
   if (!ws || ws.readyState !== WebSocket.OPEN) {
     term.write("\r\n\x1b[31mNot connected to server.\x1b[0m\r\n");
+    return;
+  }
+
+  // If input is empty, sending Enter/Carriage Return selects or confirms active terminal prompt/options
+  if (!text) {
+    triggerHaptic(15);
+    ws.send(JSON.stringify({ type: "INPUT", data: "\r" }));
     return;
   }
   
@@ -329,15 +355,69 @@ btnSend.addEventListener("click", (e) => {
   sendCommand();
 });
 
+// Prevent mobile keyboard from scrolling the whole browser window
+mobileInput.addEventListener("focus", () => {
+  setTimeout(() => {
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    term.scrollToBottom();
+  }, 50);
+});
+
+mobileInput.addEventListener("blur", () => {
+  setTimeout(() => {
+    window.scrollTo(0, 0);
+    document.body.scrollTop = 0;
+    term.scrollToBottom();
+  }, 50);
+});
+
 // Keyboard Enter key (Shift+Enter for newline, Enter to submit)
 mobileInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) {
     e.preventDefault();
     sendCommand();
+  } else if (e.key === "ArrowUp") {
+    if (mobileInput.selectionStart === 0 && mobileInput.selectionEnd === 0) {
+      e.preventDefault();
+      handleSmartArrowNav('up');
+    }
+  } else if (e.key === "ArrowDown") {
+    if (mobileInput.selectionStart === mobileInput.value.length && mobileInput.selectionEnd === mobileInput.value.length) {
+      e.preventDefault();
+      handleSmartArrowNav('down');
+    }
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    handleEscKey();
   }
 });
 
 // ── Touch Bar ───────────────────────────────────────────────────────────
+
+window.handleEscKey = function() {
+  triggerHaptic(15);
+  // 1. Close any open UI modal
+  if (commandsModal && (commandsModal.style.display === "flex" || commandsModal.style.display === "block")) {
+    commandsModal.style.display = "none";
+    mobileInput.focus();
+    return;
+  }
+  if (featuresModal && (featuresModal.style.display === "flex" || featuresModal.style.display === "block")) {
+    featuresModal.style.display = "none";
+    return;
+  }
+  if (selectModal && (selectModal.style.display === "flex" || selectModal.style.display === "block")) {
+    selectModal.style.display = "none";
+    return;
+  }
+
+  // 2. Send ANSI Escape sequence (\x1b) to PTY to exit interactive options, menus, and selection prompts
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: "INPUT", data: "\x1b" }));
+  }
+  mobileInput.focus();
+};
 
 window.sendInput = function(sequence) {
   triggerHaptic(12);
@@ -434,8 +514,85 @@ btnMic.addEventListener("click", (e) => {
 // ── Slash Commands Modal & Auto-Trigger ─────────────────────────────────
 
 const cmdSearch = document.getElementById("cmd-search");
-const cmdItems = document.querySelectorAll(".cmd-item");
 const cmdSections = document.querySelectorAll(".cmd-section-title");
+
+let modalSelectedIndex = -1;
+
+function getVisibleCommandItems() {
+  const items = document.querySelectorAll(".cmd-item");
+  const visible = [];
+  items.forEach(item => {
+    if (item.style.display !== "none") {
+      visible.push(item);
+    }
+  });
+  return visible;
+}
+
+function updateModalSelection(index, shouldScroll = true) {
+  const visible = getVisibleCommandItems();
+  if (visible.length === 0) {
+    modalSelectedIndex = -1;
+    return;
+  }
+  
+  if (index < 0) index = visible.length - 1;
+  if (index >= visible.length) index = 0;
+  modalSelectedIndex = index;
+
+  visible.forEach((item, i) => {
+    if (i === modalSelectedIndex) {
+      item.classList.add("selected");
+      if (shouldScroll) {
+        item.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }
+    } else {
+      item.classList.remove("selected");
+    }
+  });
+}
+
+function selectCurrentModalCommand() {
+  const visible = getVisibleCommandItems();
+  if (visible.length > 0 && modalSelectedIndex >= 0 && modalSelectedIndex < visible.length) {
+    const selectedItem = visible[modalSelectedIndex];
+    selectedItem.click();
+    return true;
+  }
+  return false;
+}
+
+window.handleSmartArrowNav = function(dir) {
+  triggerHaptic(12);
+
+  // 1. If Slash Commands Modal is open -> Navigate visible options
+  if (commandsModal && (commandsModal.style.display === "flex" || commandsModal.style.display === "block")) {
+    const visible = getVisibleCommandItems();
+    if (visible.length === 0) return;
+    
+    let newIndex = modalSelectedIndex;
+    if (dir === 'up') {
+      newIndex = (newIndex <= 0) ? visible.length - 1 : newIndex - 1;
+    } else if (dir === 'down') {
+      newIndex = (newIndex >= visible.length - 1) ? 0 : newIndex + 1;
+    }
+    updateModalSelection(newIndex, true);
+    return;
+  }
+
+  // 2. If user is currently typing/editing text in prompt box -> Cycle command history
+  if (mobileInput.value.trim() !== "" && document.activeElement === mobileInput) {
+    handleHistoryNav(dir);
+    return;
+  }
+
+  // 3. Default / Interactive Mode -> Send ANSI Up/Down arrow directly to active terminal PTY
+  // This enables navigating interactive terminal menus, CLI options, and choice prompts
+  const arrowCode = dir === 'up' ? '\x1b[A' : '\x1b[B';
+  if (ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: "INPUT", data: arrowCode }));
+  }
+};
 
 function renderHistorySection() {
   const sec = document.getElementById("history-section");
@@ -495,11 +652,34 @@ function filterCommands(query) {
   sections.forEach(sec => {
     sec.style.display = q ? "none" : "block";
   });
+
+  // Highlight first match by default
+  updateModalSelection(0, false);
 }
 
 if (cmdSearch) {
   cmdSearch.addEventListener("input", (e) => {
     filterCommands(e.target.value);
+  });
+
+  cmdSearch.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      handleSmartArrowNav('down');
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      handleSmartArrowNav('up');
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (!selectCurrentModalCommand()) {
+        if (cmdSearch.value.trim()) {
+          insertCommand(cmdSearch.value.trim());
+        }
+      }
+    } else if (e.key === "Escape") {
+      commandsModal.style.display = "none";
+      mobileInput.focus();
+    }
   });
 }
 

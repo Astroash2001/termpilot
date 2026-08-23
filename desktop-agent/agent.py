@@ -5,6 +5,7 @@ import asyncio
 import platform
 import shutil
 import threading
+import msvcrt
 import urllib.request
 import websockets
 from winpty import PtyProcess
@@ -71,10 +72,11 @@ def start_pty_session(ws, loop):
     cwd = os.path.expanduser("~")
     env = os.environ.copy()
     
+    # Detect natural terminal size from the host console
+    ts = shutil.get_terminal_size(fallback=(100, 30))
     try:
-        # Default starting dimensions, will be resized by client
-        active_pty = PtyProcess.spawn([shell_bin], cwd=cwd, env=env, dimensions=(24, 80))
-        print(f"🚀 Started persistent PTY session (PID: {active_pty.pid})")
+        active_pty = PtyProcess.spawn([shell_bin], cwd=cwd, env=env, dimensions=(ts.lines, ts.columns))
+        print(f"🚀 Started persistent PTY session (PID: {active_pty.pid}, size: {ts.columns}x{ts.lines})")
     except Exception as e:
         print(f"❌ Failed to spawn PTY process: {e}")
         import traceback
@@ -111,6 +113,53 @@ def start_pty_session(ws, loop):
     reader_thread = threading.Thread(target=read_pty_output, daemon=True)
     reader_thread.start()
 
+    def read_local_input():
+        """Read keyboard input and track console resize — keeps PTY in sync with the laptop window."""
+        import time
+        SPECIAL_KEYS = {
+            b'H': '\x1b[A',   # Up arrow
+            b'P': '\x1b[B',   # Down arrow
+            b'M': '\x1b[C',   # Right arrow
+            b'K': '\x1b[D',   # Left arrow
+            b'G': '\x1b[H',   # Home
+            b'O': '\x1b[F',   # End
+            b'I': '\x1b[5~',  # Page Up
+            b'Q': '\x1b[6~',  # Page Down
+            b'S': '\x1b[3~',  # Delete
+            b'R': '\x1b[2~',  # Insert
+            b';': '\x1bOP',   # F1
+            b'<': '\x1bOQ',   # F2
+            b'=': '\x1bOR',   # F3
+            b'>': '\x1bOS',   # F4
+        }
+        last_cols, last_rows = ts.columns, ts.lines
+        while active_pty and active_pty.isalive():
+            try:
+                # Sync PTY size with actual console window (same as normal terminal behaviour)
+                cur = shutil.get_terminal_size(fallback=(last_cols, last_rows))
+                if cur.columns != last_cols or cur.lines != last_rows:
+                    last_cols, last_rows = cur.columns, cur.lines
+                    if active_pty and active_pty.isalive():
+                        active_pty.setwinsize(last_rows, last_cols)
+
+                if msvcrt.kbhit():
+                    ch = msvcrt.getwch()
+                    if ch in ('\x00', '\xe0'):
+                        scan = msvcrt.getch()
+                        seq = SPECIAL_KEYS.get(scan, '')
+                        if seq and active_pty and active_pty.isalive():
+                            active_pty.write(seq)
+                    else:
+                        if active_pty and active_pty.isalive():
+                            active_pty.write(ch)
+                else:
+                    time.sleep(0.01)
+            except Exception:
+                break
+
+    input_thread = threading.Thread(target=read_local_input, daemon=True)
+    input_thread.start()
+
 async def start_agent():
     global active_pty
     config = load_config()
@@ -142,18 +191,20 @@ async def start_agent():
                         data = payload.get("data", "")
                         if active_pty and active_pty.isalive():
                             active_pty.write(data)
-                    
-                    elif msg_type == "RESIZE":
-                        cols = payload.get("cols", 80)
-                        rows = payload.get("rows", 24)
-                        if active_pty and active_pty.isalive():
-                            try:
-                                active_pty.setwinsize(rows, cols)
-                            except Exception as e:
-                                print(f"Error resizing PTY: {e}")
                                 
-        except websockets.exceptions.ConnectionClosed:
+        except websockets.exceptions.ConnectionClosed as e:
+            if e.code == 4001:
+                print("❌ Authentication failed: Server rejected device credentials.")
+                print("👉 Please re-pair your device by running: python agent.py --pair <6-digit-code>\n")
+                return
             print("⚠️ Connection to relay lost. Retrying in 3 seconds...")
+            await asyncio.sleep(3)
+        except websockets.exceptions.InvalidStatusCode as e:
+            if e.status_code in (401, 403, 4001, 500):
+                print(f"❌ Server rejected connection (HTTP {e.status_code}). Device credentials may need re-pairing.")
+                print("👉 Please re-pair your device by running: python agent.py --pair <6-digit-code>\n")
+                return
+            print(f"⚠️ Error: {e}. Retrying in 3 seconds...")
             await asyncio.sleep(3)
         except Exception as e:
             print(f"⚠️ Error: {e}. Retrying in 3 seconds...")
