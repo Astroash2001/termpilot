@@ -20,18 +20,71 @@ TermPilot is a low-latency, mobile-first terminal interface and relay pipeline d
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Comprehensive System Architecture
 
 ```mermaid
-graph TD
-    A["📱 Phone Web Client (xterm.js + Mobile UI)"] <-->|"WebSocket /ws/client"| B["🌐 FastAPI Relay Server (main.py)"]
-    B <-->|"WebSocket /ws/agent"| C["💻 Desktop Agent (agent.py)"]
-    C <-->|"winpty PTY Stream"| D["⚡ PowerShell / Antigravity CLI (agy)"]
+graph TB
+    subgraph Client["📱 Frontend Client (web/)"]
+        direction TB
+        UI["🖥️ UI Components<br/>• Auto-Growing Prompt Box<br/>• Mobile Touch Bar (^C, ESC, CLR, Arrows)<br/>• Quick Action Snippets Bar<br/>• 40+ Slash Commands Modal<br/>• Features Guide & Plaintext Copy Sheet"]
+        Terminal["📟 xterm.js Terminal Engine<br/>• GPU-Accelerated WebGL/Canvas<br/>• Dynamic PTY Dimension Scaling<br/>• Zero-Drag Momentum Scrolling"]
+        VoiceEngine["🎙️ Web Speech API Engine<br/>• Continuous Dictation & Text Tracking<br/>• Non-Destructive Speech Appending"]
+        Feedback["🔔 Feedback System<br/>• Web Audio API Synthesized Chime<br/>• Tactile Vibration Haptics"]
+    end
+
+    subgraph RelayServer["🌐 FastAPI Relay Backend (backend/)"]
+        direction TB
+        HTTPRoutes["📡 HTTP REST Endpoints<br/>• /api/pairing/create (6-Digit OTP)<br/>• /api/pairing/verify (Device Auth)<br/>• Static UI Server (HTML/CSS/JS)"]
+        Tunnel["🚇 ngrok Tunneling Service<br/>• Auto-Provisioned HTTPS Public URL<br/>• Encrypted LTE/5G Mobile Access"]
+        WSManager["⚡ Connection & Buffer Manager<br/>• /ws/client (Client WebSockets)<br/>• /ws/agent (Authenticated Agent WS)<br/>• 100KB Rolling Scrollback Buffer<br/>• PTY Dimension Relay & Broadcasting"]
+        DeviceStore[("💾 devices.json<br/>Registered Device Keys")]
+    end
+
+    subgraph Agent["💻 Desktop Agent Bridge (desktop-agent/)"]
+        direction TB
+        AuthModule["🔑 Pairing & Auth Handler<br/>• Token Verification<br/>• config.json Device Credentials"]
+        PTYEngine["⚙️ winpty Session Controller<br/>• Persistent PtyProcess Engine<br/>• clean_pty_output DA/CPR Probe Filter<br/>• Async WebSocket Event Loop"]
+        ConsoleSync["📐 Local Console Monitor<br/>• Dynamic Window Size Tracker<br/>• Host Keyboard Input Thread"]
+        Flusher["🧹 Startup Buffer Flusher<br/>• PSReadLine Input Drainer<br/>• Screen State Initializer"]
+    end
+
+    subgraph Environment["⚡ Host System & Execution Environment"]
+        direction TB
+        Shell["🐚 Windows PowerShell (5.1 / 7+)<br/>Native Environment & PATH Tools"]
+        AgyCLI["🤖 Google Antigravity (agy)<br/>• Interactive Session & Model Selectors<br/>• Multi-Agent Coordination (/goal, /plan)<br/>• Dynamic In-Place ANSI Redraws"]
+        DevTools["🛠️ Developer CLI Stack<br/>• Git, Python, Node.js, npm, compilers"]
+    end
+
+    %% Client Interactions
+    UI -->|User Input & Keystrokes| Terminal
+    VoiceEngine -->|Dictated Prompts| UI
+    Terminal -->|"JSON Payload: {type: 'INPUT'}"| WSManager
+    WSManager -->|"JSON Stream: {type: 'RAW', 'PTY_SIZE'}"| Terminal
+    Terminal -->|Task Finished Signal| Feedback
+
+    %% Relay Server Internals
+    HTTPRoutes <-->|Store & Validate Auth| DeviceStore
+    HTTPRoutes --- WSManager
+    Tunnel -->|HTTPS Proxy| HTTPRoutes
+    Tunnel -->|WSS Proxy| WSManager
+
+    %% Agent Interactions
+    WSManager <-->|"Bi-directional WebSocket (/ws/agent)"| PTYEngine
+    AuthModule -->|Device Handshake| HTTPRoutes
+    ConsoleSync -->|"Window Resize Signals (PTY_SIZE)"| WSManager
+    ConsoleSync -->|Direct setwinsize| PTYEngine
+    Flusher -->|Startup Sequence| PTYEngine
+
+    %% PTY to Shell Execution
+    PTYEngine <-->|"Win32 Pseudo-Console Pipe"| Shell
+    Shell <-->|Command Execution| AgyCLI
+    Shell <-->|Subprocesses| DevTools
 ```
 
-* **`backend/`**: FastAPI relay server managing bidirectional WebSockets, 6-digit device pairing authentication, static caching headers, and automatic ngrok tunneling.
-* **`desktop-agent/`**: Python bridge using `winpty.PtyProcess` to maintain a persistent Windows PowerShell session with bidirectional terminal streaming.
-* **`web/`**: Mobile web application featuring `xterm.js`, Web Speech API dictation, touch gestures, and a dark neon cyberpunk design.
+* **`web/`**: Mobile-first cyberpunk web app powered by `xterm.js`, Web Speech API voice transcription, kinetic touch scrolling, and dynamic layout scaling.
+* **`backend/`**: FastAPI relay server managing bidirectional WebSockets, 6-digit device pairing authentication, rolling scrollback history replay, static asset caching, and automated ngrok tunneling.
+* **`desktop-agent/`**: Python bridge maintaining a persistent `winpty` PowerShell session, host terminal window size synchronization, and ANSI device attribute probe filtering.
+* **`Target System`**: Full interactive PowerShell environment hosting the Google Antigravity CLI (`agy`), AI orchestration loops, and developer tooling.
 
 ---
 
