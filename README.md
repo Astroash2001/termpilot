@@ -24,9 +24,9 @@ TermPilot is a low-latency, mobile-first terminal interface and relay pipeline d
 
 ```mermaid
 graph TD
-    A[📱 Phone Web Client (xterm.js + Mobile UI)] <-->|WebSocket /ws/client| B[🌐 FastAPI Relay Server (main.py)]
-    B <-->|WebSocket /ws/agent| C[💻 Desktop Agent (agent.py)]
-    C <-->|winpty PTY Stream| D[⚡ PowerShell / Antigravity CLI (agy)]
+    A["📱 Phone Web Client (xterm.js + Mobile UI)"] <-->|"WebSocket /ws/client"| B["🌐 FastAPI Relay Server (main.py)"]
+    B <-->|"WebSocket /ws/agent"| C["💻 Desktop Agent (agent.py)"]
+    C <-->|"winpty PTY Stream"| D["⚡ PowerShell / Antigravity CLI (agy)"]
 ```
 
 * **`backend/`**: FastAPI relay server managing bidirectional WebSockets, 6-digit device pairing authentication, static caching headers, and automatic ngrok tunneling.
