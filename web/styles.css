@@ -827,19 +827,15 @@ html, body {
     height: 70vh;
   }
   .snippets-bar {
-    justify-content: center;
     padding: 6px 14px;
+    width: 100%;
   }
   .input-bar {
     padding: 8px 14px 6px;
-    max-width: 900px;
-    margin: 0 auto;
     width: 100%;
   }
   .touch-bar {
     padding: 6px 14px 10px;
-    max-width: 900px;
-    margin: 0 auto;
     width: 100%;
   }
   .tb-btn {

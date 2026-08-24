@@ -101,37 +101,20 @@ function adaptFontSizeToPty() {
   const container = document.getElementById('xterm-container');
   if (!container) return;
   const availableWidth = container.clientWidth || window.innerWidth || 400;
-  const availableHeight = container.clientHeight || (window.innerHeight - 150) || 500;
   
   if (ptyCols && ptyCols >= 20) {
-    // 1. Calculate optimal font size so ptyCols fit naturally across screen width without line-wrapping
+    // 1. Calculate natural, comfortable font size so ptyCols fit naturally across screen width without line-wrapping
     const widthBasedSize = (availableWidth - 8) / (ptyCols * 0.605);
-    let targetSize = widthBasedSize;
-    
-    // Check if height also needs gentle scaling
-    if (ptyRows && ptyRows >= 10) {
-      const heightBasedSize = (availableHeight - 8) / (ptyRows * 1.15);
-      targetSize = Math.min(widthBasedSize, Math.max(7.0, heightBasedSize));
-    }
-    
-    const clampedSize = Math.max(6.5, Math.min(16, targetSize));
+    const clampedSize = Math.max(9.0, Math.min(15.5, widthBasedSize));
     if (Math.abs(term.options.fontSize - clampedSize) > 0.1) {
       term.options.fontSize = clampedSize;
     }
-    
-    // 2. Synchronize xterm.js buffer size strictly with the PTY so ANSI cursor repositioning (CUU/CUP) works 1-to-1
-    if (ptyRows && ptyRows >= 10) {
-      try {
-        term.resize(ptyCols, ptyRows);
-      } catch (e) {
-        fitAddon.fit();
-      }
-    } else {
-      fitAddon.fit();
-    }
-  } else {
-    fitAddon.fit();
   }
+  
+  // 2. Fill 100% of vertical container height cleanly without dead zones or empty black blocks
+  try {
+    fitAddon.fit();
+  } catch (e) {}
 }
 
 function setConnected(on) {
