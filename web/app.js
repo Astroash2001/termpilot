@@ -322,6 +322,12 @@ function autoGrowInput() {
   mobileInput.scrollTop = mobileInput.scrollHeight;
 }
 
+function sanitizeTerminalInput(str) {
+  if (!str) return str;
+  // Strip any ANSI Device Attributes (DA1 / DA2 / CPR) probe sequences
+  return str.replace(/(\x1b)?\[\?[0-9;]*[a-zA-Z]/g, '').replace(/(\x1b)?\[>[0-9;]*[a-zA-Z]/g, '').replace(/(\x1b)?\[[0-9;]*R/g, '');
+}
+
 function sendCommand() {
   const text = mobileInput.value;
   
@@ -342,8 +348,9 @@ function sendCommand() {
   lastCommandTime = performance.now();
   isCommandRunning = true;
 
-  // Send the typed text + carriage return to execute
-  ws.send(JSON.stringify({ type: "INPUT", data: text + "\r" }));
+  // Send the sanitized typed text + carriage return to execute
+  const cleanText = sanitizeTerminalInput(text);
+  ws.send(JSON.stringify({ type: "INPUT", data: cleanText + "\r" }));
   mobileInput.value = "";
   mobileInput.style.height = "48px";
   mobileInput.focus();
@@ -421,8 +428,9 @@ window.handleEscKey = function() {
 
 window.sendInput = function(sequence) {
   triggerHaptic(12);
-  if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type: "INPUT", data: sequence }));
+  const clean = sanitizeTerminalInput(sequence);
+  if (clean && ws && ws.readyState === WebSocket.OPEN) {
+    ws.send(JSON.stringify({ type: "INPUT", data: clean }));
   }
   mobileInput.focus();
 };

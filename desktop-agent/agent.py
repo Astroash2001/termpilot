@@ -1,10 +1,12 @@
 import os
 import sys
+import re
 import json
 import asyncio
 import platform
 import shutil
 import threading
+import time
 import msvcrt
 import urllib.request
 import websockets
@@ -14,6 +16,25 @@ CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 BACKEND_HTTP_URL = "http://localhost:8000"
 
 active_pty = None
+
+# Regex to match and strip ANSI Device Attributes (DA1 / DA2 / CPR) probe responses
+# e.g., \x1b[?61;4;6;7;14;21;22;23;24;28;32;42;52c or raw [?61;...c
+DA_RESPONSE_REGEX = re.compile(r'(\x1b)?\[\?[0-9;]*[a-zA-Z]|(\x1b)?\[>[0-9;]*[a-zA-Z]|(\x1b)?\[[0-9;]*R')
+
+def clean_pty_output(data: str) -> str:
+    """Strip Device Attribute / probe response sequences from PTY output."""
+    if not data:
+        return data
+    cleaned = DA_RESPONSE_REGEX.sub('', data)
+    return cleaned
+
+def safe_pty_write(data: str):
+    """Write input to PTY while stripping any leaked Device Attribute / probe sequences."""
+    if not data or not active_pty or not active_pty.isalive():
+        return
+    cleaned = DA_RESPONSE_REGEX.sub('', data)
+    if cleaned:
+        active_pty.write(cleaned)
 
 def get_system_shell_cmd():
     """Return PowerShell as a single string for PTY spawning."""
@@ -83,7 +104,12 @@ def start_pty_session(ws, loop):
             "-NoLogo",
             "-NoExit",
             "-Command",
-            "Remove-Module PSReadLine -ErrorAction SilentlyContinue; Clear-Host"
+            (
+                "Remove-Module PSReadLine -ErrorAction SilentlyContinue; "
+                "Start-Sleep -Milliseconds 500; "
+                "try { $Host.UI.RawUI.FlushInputBuffer() } catch {}; "
+                "Clear-Host"
+            )
         ]
         active_pty = PtyProcess.spawn(spawn_cmd, cwd=cwd, env=env, dimensions=(ts.lines, ts.columns))
         print(f"🚀 Started persistent PTY session (PID: {active_pty.pid}, size: {ts.columns}x{ts.lines})")
@@ -99,6 +125,11 @@ def start_pty_session(ws, loop):
             try:
                 data = active_pty.read(4096)
                 if data:
+                    # Strip DA/DA2/CPR probe responses so they never reach
+                    # the local console or the browser terminal
+                    data = clean_pty_output(data)
+                    if not data:
+                        continue
                     # Print locally for debugging
                     sys.stdout.write(data)
                     sys.stdout.flush()
@@ -125,7 +156,6 @@ def start_pty_session(ws, loop):
 
     def read_local_input():
         """Read keyboard input and track console resize — keeps PTY in sync with the laptop window."""
-        import time
         SPECIAL_KEYS = {
             b'H': '\x1b[A',   # Up arrow
             b'P': '\x1b[B',   # Down arrow
@@ -157,11 +187,10 @@ def start_pty_session(ws, loop):
                     if ch in ('\x00', '\xe0'):
                         scan = msvcrt.getch()
                         seq = SPECIAL_KEYS.get(scan, '')
-                        if seq and active_pty and active_pty.isalive():
-                            active_pty.write(seq)
+                        if seq:
+                            safe_pty_write(seq)
                     else:
-                        if active_pty and active_pty.isalive():
-                            active_pty.write(ch)
+                        safe_pty_write(ch)
                 else:
                     time.sleep(0.01)
             except Exception:
@@ -169,6 +198,20 @@ def start_pty_session(ws, loop):
 
     input_thread = threading.Thread(target=read_local_input, daemon=True)
     input_thread.start()
+
+    def _flush_startup_garbage():
+        """Wait for PowerShell to fully initialize, then flush any DA probe
+        data that leaked into the input buffer so the first real command
+        executes cleanly."""
+        time.sleep(2.0)
+        if active_pty and active_pty.isalive():
+            # Submit whatever garbage is in the buffer (harmless blank or error)
+            active_pty.write("\r")
+            time.sleep(0.5)
+            # Clear the screen so the user sees a pristine prompt
+            active_pty.write("Clear-Host\r")
+
+    threading.Thread(target=_flush_startup_garbage, daemon=True).start()
 
 async def start_agent():
     global active_pty
@@ -199,8 +242,7 @@ async def start_agent():
 
                     if msg_type == "INPUT":
                         data = payload.get("data", "")
-                        if active_pty and active_pty.isalive():
-                            active_pty.write(data)
+                        safe_pty_write(data)
                                 
         except websockets.exceptions.ConnectionClosed as e:
             if e.code == 4001:
