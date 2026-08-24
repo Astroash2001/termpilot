@@ -492,6 +492,7 @@ new ResizeObserver(() => {
 
 let recognition = null;
 let isListening = false;
+let voiceBasePrompt = "";
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -503,6 +504,8 @@ if (SpeechRecognitionAPI) {
 
   recognition.onstart = () => {
     isListening = true;
+    // Capture current prompt text so new speech appends seamlessly without erasing prior input
+    voiceBasePrompt = (mobileInput.value || "").trim();
     btnMic.classList.add("listening");
     btnMic.title = "Listening... tap to stop";
   };
@@ -513,7 +516,8 @@ if (SpeechRecognitionAPI) {
       transcript += event.results[i][0].transcript;
     }
     if (transcript) {
-      mobileInput.value = transcript;
+      const cleanTranscript = transcript.trim();
+      mobileInput.value = voiceBasePrompt ? `${voiceBasePrompt} ${cleanTranscript}` : cleanTranscript;
       autoGrowInput();
       // Auto-scroll to the end so newest spoken words are always visible
       mobileInput.scrollTop = mobileInput.scrollHeight;
