@@ -101,20 +101,37 @@ function adaptFontSizeToPty() {
   const container = document.getElementById('xterm-container');
   if (!container) return;
   const availableWidth = container.clientWidth || window.innerWidth || 400;
+  const availableHeight = container.clientHeight || (window.innerHeight - 150) || 500;
   
   if (ptyCols && ptyCols >= 20) {
-    // Dynamically calculate font size so all ptyCols fit naturally across available screen width
-    // This prevents premature line-wrapping which breaks ANSI cursor repositioning in interactive menus like agy
-    const targetSize = (availableWidth - 10) / (ptyCols * 0.605);
+    // 1. Calculate optimal font size so ptyCols fit naturally across screen width without line-wrapping
+    const widthBasedSize = (availableWidth - 8) / (ptyCols * 0.605);
+    let targetSize = widthBasedSize;
+    
+    // Check if height also needs gentle scaling
+    if (ptyRows && ptyRows >= 10) {
+      const heightBasedSize = (availableHeight - 8) / (ptyRows * 1.15);
+      targetSize = Math.min(widthBasedSize, Math.max(7.0, heightBasedSize));
+    }
+    
     const clampedSize = Math.max(6.5, Math.min(16, targetSize));
-    if (Math.abs(term.options.fontSize - clampedSize) > 0.15) {
+    if (Math.abs(term.options.fontSize - clampedSize) > 0.1) {
       term.options.fontSize = clampedSize;
     }
-  }
-  try {
+    
+    // 2. Synchronize xterm.js buffer size strictly with the PTY so ANSI cursor repositioning (CUU/CUP) works 1-to-1
+    if (ptyRows && ptyRows >= 10) {
+      try {
+        term.resize(ptyCols, ptyRows);
+      } catch (e) {
+        fitAddon.fit();
+      }
+    } else {
+      fitAddon.fit();
+    }
+  } else {
     fitAddon.fit();
-  } catch (e) {}
-  term.scrollToBottom();
+  }
 }
 
 function setConnected(on) {
@@ -146,9 +163,8 @@ function connect() {
   ws.onmessage = (event) => {
     const payload = JSON.parse(event.data);
     if (payload.type === "RAW") {
-      term.write(payload.data, () => {
-        term.scrollToBottom();
-      });
+      // Native xterm.js ANSI rendering without forced scrolling interference
+      term.write(payload.data);
 
       // Detect task completion after running a command
       if (isCommandRunning && (performance.now() - lastCommandTime > 3000)) {
