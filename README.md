@@ -20,71 +20,87 @@ TermPilot is a low-latency, mobile-first terminal interface and relay pipeline d
 
 ---
 
-## 🏗️ Comprehensive System Architecture
+## 🏗️ Comprehensive System Architecture & Execution Flow
 
 ```mermaid
 graph TB
-    subgraph Client["📱 Frontend Client (web/)"]
+    subgraph S1["[STEP 1] 🌐 Relay Server Startup & Tunneling (backend/)"]
         direction TB
-        UI["🖥️ UI Components<br/>• Auto-Growing Prompt Box<br/>• Mobile Touch Bar (^C, ESC, CLR, Arrows)<br/>• Quick Action Snippets Bar<br/>• 40+ Slash Commands Modal<br/>• Features Guide & Plaintext Copy Sheet"]
-        Terminal["📟 xterm.js Terminal Engine<br/>• GPU-Accelerated WebGL/Canvas<br/>• Dynamic PTY Dimension Scaling<br/>• Zero-Drag Momentum Scrolling"]
-        VoiceEngine["🎙️ Web Speech API Engine<br/>• Continuous Dictation & Text Tracking<br/>• Non-Destructive Speech Appending"]
-        Feedback["🔔 Feedback System<br/>• Web Audio API Synthesized Chime<br/>• Tactile Vibration Haptics"]
+        HTTPRoutes["📡 HTTP REST Endpoints<br/>• /api/pairing/create (6-Digit OTP)<br/>• /api/pairing/verify (Device Auth)<br/>• Static Web Assets Server"]
+        Tunnel["🚇 ngrok Tunnel Engine<br/>• Auto-Provisioned HTTPS Public URL<br/>• Secure Encrypted 5G/LTE Tunnel"]
+        WSManager["⚡ Connection & Buffer Manager<br/>• /ws/client (Client WebSockets)<br/>• /ws/agent (Authenticated Agent WS)<br/>• 100KB Scrollback History Ring Buffer<br/>• PTY Dimension Caching & Relay"]
+        DeviceStore[("💾 devices.json<br/>Registered Device Store")]
     end
 
-    subgraph RelayServer["🌐 FastAPI Relay Backend (backend/)"]
+    subgraph S2["[STEP 2 & 3] 💻 Desktop Agent Bridge (desktop-agent/)"]
         direction TB
-        HTTPRoutes["📡 HTTP REST Endpoints<br/>• /api/pairing/create (6-Digit OTP)<br/>• /api/pairing/verify (Device Auth)<br/>• Static UI Server (HTML/CSS/JS)"]
-        Tunnel["🚇 ngrok Tunneling Service<br/>• Auto-Provisioned HTTPS Public URL<br/>• Encrypted LTE/5G Mobile Access"]
-        WSManager["⚡ Connection & Buffer Manager<br/>• /ws/client (Client WebSockets)<br/>• /ws/agent (Authenticated Agent WS)<br/>• 100KB Rolling Scrollback Buffer<br/>• PTY Dimension Relay & Broadcasting"]
-        DeviceStore[("💾 devices.json<br/>Registered Device Keys")]
-    end
-
-    subgraph Agent["💻 Desktop Agent Bridge (desktop-agent/)"]
-        direction TB
-        AuthModule["🔑 Pairing & Auth Handler<br/>• Token Verification<br/>• config.json Device Credentials"]
-        PTYEngine["⚙️ winpty Session Controller<br/>• Persistent PtyProcess Engine<br/>• clean_pty_output DA/CPR Probe Filter<br/>• Async WebSocket Event Loop"]
-        ConsoleSync["📐 Local Console Monitor<br/>• Dynamic Window Size Tracker<br/>• Host Keyboard Input Thread"]
+        AuthModule["🔑 Pairing & Auth Handler<br/>• 6-Digit OTP Handshake<br/>• config.json Device Keys"]
+        PTYEngine["⚙️ winpty Session Controller<br/>• Persistent PtyProcess Spawn<br/>• clean_pty_output ANSI DA Filter<br/>• Bidirectional WS Event Loop"]
+        ConsoleSync["📐 Local Console Monitor<br/>• Native Window Size Tracker<br/>• Host Keyboard Input Thread"]
         Flusher["🧹 Startup Buffer Flusher<br/>• PSReadLine Input Drainer<br/>• Screen State Initializer"]
     end
 
-    subgraph Environment["⚡ Host System & Execution Environment"]
+    subgraph S3["[STEP 4 & 6] 📱 Mobile & Web Client (web/)"]
+        direction TB
+        UI["🖥️ UI Components<br/>• Auto-Growing Prompt Box<br/>• Mobile Touch Bar (^C, ESC, CLR, Arrows)<br/>• Quick Action Snippets Bar<br/>• 40+ Slash Commands Modal<br/>• Features Guide & Plaintext Copy Sheet"]
+        VoiceEngine["🎙️ Web Speech API Engine<br/>• Continuous Dictation & Text Tracking<br/>• Non-Destructive Speech Appending"]
+        Terminal["📟 xterm.js Terminal Engine<br/>• GPU-Accelerated WebGL/Canvas<br/>• Dynamic PTY Dimension Scaling<br/>• Zero-Drag Momentum Scrolling"]
+        Feedback["🔔 Feedback System<br/>• Web Audio API Synthesized Chime<br/>• Tactile Vibration Haptics"]
+    end
+
+    subgraph S4["[STEP 5] ⚡ Host System & Execution Environment"]
         direction TB
         Shell["🐚 Windows PowerShell (5.1 / 7+)<br/>Native Environment & PATH Tools"]
         AgyCLI["🤖 Google Antigravity (agy)<br/>• Interactive Session & Model Selectors<br/>• Multi-Agent Coordination (/goal, /plan)<br/>• Dynamic In-Place ANSI Redraws"]
         DevTools["🛠️ Developer CLI Stack<br/>• Git, Python, Node.js, npm, compilers"]
     end
 
-    %% Client Interactions
-    UI -->|User Input & Keystrokes| Terminal
-    VoiceEngine -->|Dictated Prompts| UI
-    Terminal -->|"JSON Payload: {type: 'INPUT'}"| WSManager
-    WSManager -->|"JSON Stream: {type: 'RAW', 'PTY_SIZE'}"| Terminal
-    Terminal -->|Task Finished Signal| Feedback
+    %% Step 1: Startup
+    HTTPRoutes <-->|1. Validate Registered Keys| DeviceStore
+    Tunnel -->|1. Expose HTTPS URL| HTTPRoutes
+    Tunnel -->|1. Expose WSS Gateway| WSManager
 
-    %% Relay Server Internals
-    HTTPRoutes <-->|Store & Validate Auth| DeviceStore
-    HTTPRoutes --- WSManager
-    Tunnel -->|HTTPS Proxy| HTTPRoutes
-    Tunnel -->|WSS Proxy| WSManager
+    %% Step 2: Pairing & Handshake
+    UI -.->|"2. Request 6-Digit Code"| HTTPRoutes
+    AuthModule -.->|"2. Verify Token & Handshake"| HTTPRoutes
 
-    %% Agent Interactions
-    WSManager <-->|"Bi-directional WebSocket (/ws/agent)"| PTYEngine
-    AuthModule -->|Device Handshake| HTTPRoutes
-    ConsoleSync -->|"Window Resize Signals (PTY_SIZE)"| WSManager
-    ConsoleSync -->|Direct setwinsize| PTYEngine
-    Flusher -->|Startup Sequence| PTYEngine
+    %% Step 3: Agent Connect & PTY Spawn
+    PTYEngine <-->|"3. Authenticated WS (/ws/agent)"| WSManager
+    ConsoleSync -->|"3. Broadcast PTY_SIZE"| WSManager
+    Flusher -->|"3. Clean Buffer"| PTYEngine
+    PTYEngine <-->|"3. Win32 Pseudo-Console Pipe"| Shell
 
-    %% PTY to Shell Execution
-    PTYEngine <-->|"Win32 Pseudo-Console Pipe"| Shell
-    Shell <-->|Command Execution| AgyCLI
-    Shell <-->|Subprocesses| DevTools
+    %% Step 4: Client Connect & User Input
+    WSManager -->|"4. Replay 100KB Scrollback & PTY_SIZE"| Terminal
+    VoiceEngine -->|"4. Dictate & Append Text"| UI
+    UI -->|"4. Send Keystrokes / Commands"| Terminal
+    Terminal -->|"4. Send JSON {type: 'INPUT'}"| WSManager
+    WSManager -->|"4. Forward Input"| PTYEngine
+
+    %% Step 5: Execution
+    PTYEngine -->|"5. Write to PTY Pipe"| Shell
+    Shell <-->|"5. Interactive AI Commands"| AgyCLI
+    Shell <-->|"5. Run System Subprocesses"| DevTools
+
+    %% Step 6: Output & Feedback
+    Shell -->|"6. Terminal Output"| PTYEngine
+    PTYEngine -->|"6. Filter DA Codes & Stream RAW"| WSManager
+    WSManager -->|"6. Broadcast RAW Stream"| Terminal
+    Terminal -->|"6. Trigger Completion Chime & Haptic"| Feedback
 ```
 
-* **`web/`**: Mobile-first cyberpunk web app powered by `xterm.js`, Web Speech API voice transcription, kinetic touch scrolling, and dynamic layout scaling.
-* **`backend/`**: FastAPI relay server managing bidirectional WebSockets, 6-digit device pairing authentication, rolling scrollback history replay, static asset caching, and automated ngrok tunneling.
-* **`desktop-agent/`**: Python bridge maintaining a persistent `winpty` PowerShell session, host terminal window size synchronization, and ANSI device attribute probe filtering.
-* **`Target System`**: Full interactive PowerShell environment hosting the Google Antigravity CLI (`agy`), AI orchestration loops, and developer tooling.
+---
+
+### 🗺️ Step-by-Step Operational Lifecycle
+
+| Step | Stage | What Happens |
+| :--- | :--- | :--- |
+| **`STEP 1`** | **Relay Startup** | `python main.py` starts the FastAPI backend, mounts static web assets, loads `devices.json`, provisions the public `ngrok` HTTPS tunnel, and initializes the 100KB rolling scrollback buffer. |
+| **`STEP 2`** | **Device Pairing** | On first use, the mobile client requests a 6-digit OTP code. The desktop agent verifies the code via `python agent.py --pair <code>`, receiving an authenticated `device_id` and `secret_key` saved to `config.json`. |
+| **`STEP 3`** | **PTY Session Spawn** | Desktop agent connects to `/ws/agent`, spawns a persistent PowerShell session using `winpty`, drains initial probe codes, and broadcasts native console dimensions (`PTY_SIZE`). |
+| **`STEP 4`** | **Mobile Connect & Input** | Mobile client connects to `/ws/client`, immediately receives replayed scrollback history, dynamically scales font size to match `PTY_SIZE`, and sends typed, spoken (`🎙️`), or touch-bar (`▲`, `▼`, `⌃C`) commands as `{type: "INPUT"}` JSON payloads. |
+| **`STEP 5`** | **Execution & AI Orchestration** | Input is piped to the persistent Win32 ConPTY. PowerShell and Google Antigravity (`agy`) execute instructions, run subagent reasoning loops, and handle interactive in-place menu shuffling. |
+| **`STEP 6`** | **Output Stream & Feedback** | PTY output is filtered for device attribute artifacts and streamed over WebSocket to `xterm.js`. Upon command completion, a melodic Web Audio chime triggers and tactile haptic vibrations pulse. |
 
 ---
 
