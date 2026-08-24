@@ -92,9 +92,25 @@ const btnCloseModal = document.getElementById("btn-close-modal");
 
 const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const WS_URL = `${wsProtocol}//${window.location.host}/ws/client`;
-let ws = null;
+// ── Dynamic PTY Dimension Sync & Responsive Scaling ───────────────────
 
-function updateResize() {
+let ptyCols = 0;
+let ptyRows = 0;
+
+function adaptFontSizeToPty() {
+  const container = document.getElementById('xterm-container');
+  if (!container) return;
+  const availableWidth = container.clientWidth || window.innerWidth || 400;
+  
+  if (ptyCols && ptyCols >= 20) {
+    // Dynamically calculate font size so all ptyCols fit naturally across available screen width
+    // This prevents premature line-wrapping which breaks ANSI cursor repositioning in interactive menus like agy
+    const targetSize = (availableWidth - 10) / (ptyCols * 0.605);
+    const clampedSize = Math.max(6.5, Math.min(16, targetSize));
+    if (Math.abs(term.options.fontSize - clampedSize) > 0.15) {
+      term.options.fontSize = clampedSize;
+    }
+  }
   try {
     fitAddon.fit();
   } catch (e) {}
@@ -107,7 +123,8 @@ function setConnected(on) {
     headerDot.className = "dot online pulse";
     headerLabel.textContent = "LIVE";
     headerLabel.style.color = "#10b981";
-    setTimeout(updateResize, 150);
+    setTimeout(adaptFontSizeToPty, 50);
+    setTimeout(adaptFontSizeToPty, 200);
   } else {
     overlay.style.display = "flex";
     statusDot.className = "dot offline";
@@ -121,7 +138,10 @@ function setConnected(on) {
 function connect() {
   ws = new WebSocket(WS_URL);
 
-  ws.onopen = () => setConnected(true);
+  ws.onopen = () => {
+    setConnected(true);
+    adaptFontSizeToPty();
+  };
 
   ws.onmessage = (event) => {
     const payload = JSON.parse(event.data);
@@ -138,6 +158,10 @@ function connect() {
           triggerHaptic([25, 40, 25]);
         }
       }
+    } else if (payload.type === "PTY_SIZE") {
+      ptyCols = payload.cols;
+      ptyRows = payload.rows;
+      adaptFontSizeToPty();
     } else if (payload.type === "STDERR") {
       // Show errors visibly in the terminal
       term.write("\r\n\x1b[31m" + payload.data + "\x1b[0m\r\n");
@@ -324,8 +348,8 @@ function autoGrowInput() {
 
 function sanitizeTerminalInput(str) {
   if (!str) return str;
-  // Strip any ANSI Device Attributes (DA1 / DA2 / CPR) probe sequences
-  return str.replace(/(\x1b)?\[\?[0-9;]*[a-zA-Z]/g, '').replace(/(\x1b)?\[>[0-9;]*[a-zA-Z]/g, '').replace(/(\x1b)?\[[0-9;]*R/g, '');
+  // Strip ONLY actual ANSI Device Attributes (DA1: \x1b[?...c, DA2: \x1b[>...c, CPR: \x1b[...R) probe sequences
+  return str.replace(/(\x1b)?\[\?[0-9;]*c/g, '').replace(/(\x1b)?\[>[0-9;]*c/g, '').replace(/(\x1b)?\[[0-9]+;[0-9]+R/g, '');
 }
 
 function sendCommand() {
@@ -440,12 +464,12 @@ window.sendInput = function(sequence) {
 let resizeTimer;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(updateResize, 200);
+  resizeTimer = setTimeout(adaptFontSizeToPty, 150);
 });
 
 new ResizeObserver(() => {
   clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(updateResize, 200);
+  resizeTimer = setTimeout(adaptFontSizeToPty, 150);
 }).observe(xtermContainer);
 
 // ── Voice Input (Speech-to-Text) ────────────────────────────────────────
@@ -611,12 +635,22 @@ function renderHistorySection() {
     sec.style.display = "none";
     return;
   }
+
+  // Collect all static command names already in the modal so we never duplicate them
+  const staticCmds = new Set();
+  document.querySelectorAll(".cmd-item[data-cmd]").forEach(el => {
+    staticCmds.add(el.getAttribute("data-cmd").trim().toLowerCase());
+  });
   
-  sec.style.display = "block";
   container.innerHTML = "";
+  let added = 0;
   
-  // Show up to 6 most recent prompts
-  commandHistory.slice(0, 6).forEach(cmd => {
+  // Show up to 6 most recent prompts that are NOT already a static command
+  for (const cmd of commandHistory) {
+    if (added >= 6) break;
+    const key = cmd.trim().toLowerCase().replace(/\s+$/, '');
+    if (staticCmds.has(key)) continue;   // skip duplicates of built-in commands
+
     const item = document.createElement("div");
     item.className = "cmd-item";
     item.onclick = () => insertCommand(cmd);
@@ -632,7 +666,10 @@ function renderHistorySection() {
     item.appendChild(tag);
     item.appendChild(desc);
     container.appendChild(item);
-  });
+    added++;
+  }
+  
+  sec.style.display = added > 0 ? "block" : "none";
 }
 
 function openCommandsModal(filter = "") {
@@ -821,7 +858,7 @@ btnPair.addEventListener("click", async () => {
 // Ensure column calculation updates once custom monospace fonts finish rendering
 if (document.fonts) {
   document.fonts.ready.then(() => {
-    setTimeout(updateResize, 100);
+    setTimeout(adaptFontSizeToPty, 100);
   });
 }
 

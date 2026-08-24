@@ -56,9 +56,17 @@ class PairingVerifyRequest(BaseModel):
     device_name: str = "Windows-PC"
 
 class ConnectionManager:
+    # Maximum bytes of terminal output to keep in the scrollback buffer
+    MAX_BUFFER_BYTES = 100_000
+
     def __init__(self):
         self.agent_ws: WebSocket = None
         self.client_ws: list[WebSocket] = []
+        # Ring buffer of RAW terminal output for replay on client reconnect
+        self._output_buffer: list[str] = []
+        self._buffer_size: int = 0
+        self.pty_cols: int = None
+        self.pty_rows: int = None
 
     async def connect_agent(self, websocket: WebSocket):
         await websocket.accept()
@@ -72,10 +80,38 @@ class ConnectionManager:
     async def connect_client(self, websocket: WebSocket):
         await websocket.accept()
         self.client_ws.append(websocket)
+        # Send current PTY dimensions if known
+        if self.pty_cols and self.pty_rows:
+            try:
+                await websocket.send_text(json.dumps({
+                    "type": "PTY_SIZE",
+                    "cols": self.pty_cols,
+                    "rows": self.pty_rows
+                }))
+            except Exception:
+                pass
+        # Replay buffered terminal output so the client sees full history
+        if self._output_buffer:
+            try:
+                replay = "".join(self._output_buffer)
+                await websocket.send_text(json.dumps({
+                    "type": "RAW",
+                    "data": replay
+                }))
+            except Exception:
+                pass
 
     def disconnect_client(self, websocket: WebSocket):
         if websocket in self.client_ws:
             self.client_ws.remove(websocket)
+
+    def _buffer_output(self, data: str):
+        """Append terminal output to the scrollback buffer, trimming old data if over cap."""
+        self._output_buffer.append(data)
+        self._buffer_size += len(data)
+        while self._buffer_size > self.MAX_BUFFER_BYTES and self._output_buffer:
+            removed = self._output_buffer.pop(0)
+            self._buffer_size -= len(removed)
 
     async def send_to_agent(self, message: dict):
         if self.agent_ws:
@@ -84,6 +120,13 @@ class ConnectionManager:
         return False
 
     async def broadcast_to_clients(self, message: dict):
+        # Cache PTY dimensions when agent reports them
+        if message.get("type") == "PTY_SIZE":
+            self.pty_cols = message.get("cols")
+            self.pty_rows = message.get("rows")
+        # Buffer RAW terminal output for replay on future client connects
+        elif message.get("type") == "RAW":
+            self._buffer_output(message.get("data", ""))
         for ws in self.client_ws:
             try:
                 await ws.send_text(json.dumps(message))

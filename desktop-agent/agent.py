@@ -17,9 +17,10 @@ BACKEND_HTTP_URL = "http://localhost:8000"
 
 active_pty = None
 
-# Regex to match and strip ANSI Device Attributes (DA1 / DA2 / CPR) probe responses
+# Regex to match and strip ONLY actual ANSI Device Attributes (DA1: \x1b[?...c, DA2: \x1b[>...c, CPR: \x1b[...R) probe responses
 # e.g., \x1b[?61;4;6;7;14;21;22;23;24;28;32;42;52c or raw [?61;...c
-DA_RESPONSE_REGEX = re.compile(r'(\x1b)?\[\?[0-9;]*[a-zA-Z]|(\x1b)?\[>[0-9;]*[a-zA-Z]|(\x1b)?\[[0-9;]*R')
+# We MUST NOT match other DEC private modes like \x1b[?25h, \x1b[?25l, \x1b[?1049h, \x1b[?7l which are needed for in-place menu redraws!
+DA_RESPONSE_REGEX = re.compile(r'(\x1b)?\[\?[0-9;]*c|(\x1b)?\[>[0-9;]*c|(\x1b)?\[[0-9]+;[0-9]+R')
 
 def clean_pty_output(data: str) -> str:
     """Strip Device Attribute / probe response sequences from PTY output."""
@@ -92,19 +93,29 @@ def start_pty_session(ws, loop):
     shell_bin = get_system_shell_cmd()
     cwd = os.path.expanduser("~")
     env = os.environ.copy()
+    # Explicitly configure standard terminal environment so interactive CLI tools (like agy)
+    # know that full ANSI cursor repositioning and truecolor rendering are supported.
+    env["TERM"] = "xterm-256color"
+    env["COLORTERM"] = "truecolor"
+    env["FORCE_COLOR"] = "3"
+    env["PYTHONIOENCODING"] = "utf-8"
     
     # Detect natural terminal size from the host console
     ts = shutil.get_terminal_size(fallback=(100, 30))
     try:
-        # Spawn PowerShell with PSReadLine disabled so that terminal resize events
-        # don't trigger PSReadLine VT attribute probes (\x1b[c) that leak DA responses
-        # (\x1b[?61;...c) into stdin.
+        # Spawn PowerShell with UTF-8 encoding and PSReadLine disabled so that
+        # terminal resize events don't trigger PSReadLine VT attribute probes.
         spawn_cmd = [
             shell_bin,
             "-NoLogo",
             "-NoExit",
             "-Command",
             (
+                "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; "
+                "[Console]::InputEncoding = [System.Text.Encoding]::UTF8; "
+                "$OutputEncoding = [System.Text.Encoding]::UTF8; "
+                "$env:TERM = 'xterm-256color'; "
+                "$env:COLORTERM = 'truecolor'; "
                 "Remove-Module PSReadLine -ErrorAction SilentlyContinue; "
                 "Start-Sleep -Milliseconds 500; "
                 "try { $Host.UI.RawUI.FlushInputBuffer() } catch {}; "
@@ -113,6 +124,15 @@ def start_pty_session(ws, loop):
         ]
         active_pty = PtyProcess.spawn(spawn_cmd, cwd=cwd, env=env, dimensions=(ts.lines, ts.columns))
         print(f"🚀 Started persistent PTY session (PID: {active_pty.pid}, size: {ts.columns}x{ts.lines})")
+        # Announce initial PTY dimensions to backend & phone client
+        asyncio.run_coroutine_threadsafe(
+            ws.send(json.dumps({
+                "type": "PTY_SIZE",
+                "cols": ts.columns,
+                "rows": ts.lines
+            })),
+            loop
+        )
     except Exception as e:
         print(f"❌ Failed to spawn PTY process: {e}")
         import traceback
@@ -155,7 +175,7 @@ def start_pty_session(ws, loop):
     reader_thread.start()
 
     def read_local_input():
-        """Read keyboard input and track console resize — keeps PTY in sync with the laptop window."""
+        """Read keyboard input and track console resize on the host laptop."""
         SPECIAL_KEYS = {
             b'H': '\x1b[A',   # Up arrow
             b'P': '\x1b[B',   # Down arrow
@@ -175,12 +195,21 @@ def start_pty_session(ws, loop):
         last_cols, last_rows = ts.columns, ts.lines
         while active_pty and active_pty.isalive():
             try:
-                # Sync PTY size with the laptop console window
+                # Sync PTY size with the host laptop window dynamically
                 cur = shutil.get_terminal_size(fallback=(last_cols, last_rows))
                 if cur.columns != last_cols or cur.lines != last_rows:
                     last_cols, last_rows = cur.columns, cur.lines
                     if active_pty and active_pty.isalive():
                         active_pty.setwinsize(last_rows, last_cols)
+                        # Notify connected clients of laptop window dimension update
+                        asyncio.run_coroutine_threadsafe(
+                            ws.send(json.dumps({
+                                "type": "PTY_SIZE",
+                                "cols": last_cols,
+                                "rows": last_rows
+                            })),
+                            loop
+                        )
 
                 if msvcrt.kbhit():
                     ch = msvcrt.getwch()
