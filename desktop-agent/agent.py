@@ -75,7 +75,17 @@ def start_pty_session(ws, loop):
     # Detect natural terminal size from the host console
     ts = shutil.get_terminal_size(fallback=(100, 30))
     try:
-        active_pty = PtyProcess.spawn([shell_bin], cwd=cwd, env=env, dimensions=(ts.lines, ts.columns))
+        # Spawn PowerShell with PSReadLine disabled so that terminal resize events
+        # don't trigger PSReadLine VT attribute probes (\x1b[c) that leak DA responses
+        # (\x1b[?61;...c) into stdin.
+        spawn_cmd = [
+            shell_bin,
+            "-NoLogo",
+            "-NoExit",
+            "-Command",
+            "Remove-Module PSReadLine -ErrorAction SilentlyContinue; Clear-Host"
+        ]
+        active_pty = PtyProcess.spawn(spawn_cmd, cwd=cwd, env=env, dimensions=(ts.lines, ts.columns))
         print(f"🚀 Started persistent PTY session (PID: {active_pty.pid}, size: {ts.columns}x{ts.lines})")
     except Exception as e:
         print(f"❌ Failed to spawn PTY process: {e}")
@@ -135,7 +145,7 @@ def start_pty_session(ws, loop):
         last_cols, last_rows = ts.columns, ts.lines
         while active_pty and active_pty.isalive():
             try:
-                # Sync PTY size with actual console window (same as normal terminal behaviour)
+                # Sync PTY size with the laptop console window
                 cur = shutil.get_terminal_size(fallback=(last_cols, last_rows))
                 if cur.columns != last_cols or cur.lines != last_rows:
                     last_cols, last_rows = cur.columns, cur.lines
