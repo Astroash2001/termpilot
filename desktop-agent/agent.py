@@ -12,27 +12,56 @@ import urllib.request
 import websockets
 from winpty import PtyProcess
 
+# Ensure UTF-8 output encoding on Windows consoles so emojis and unicode symbols print cleanly
+if sys.platform == "win32":
+    try:
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
 BACKEND_HTTP_URL = "http://localhost:8000"
 
 active_pty = None
 
-# Regex to match and strip ONLY actual ANSI Device Attributes (DA1: \x1b[?...c, DA2: \x1b[>...c, CPR: \x1b[...R) probe responses
-# e.g., \x1b[?61;4;6;7;14;21;22;23;24;28;32;42;52c or raw [?61;...c
-# We MUST NOT match other DEC private modes like \x1b[?25h, \x1b[?25l, \x1b[?1049h, \x1b[?7l which are needed for in-place menu redraws!
-DA_RESPONSE_REGEX = re.compile(r'(\x1b)?\[\?[0-9;]*c|(\x1b)?\[>[0-9;]*c|(\x1b)?\[[0-9]+;[0-9]+R')
+# Regexes to match DA queries (sent by agy) and DA responses (sent by terminal)
+# We must strip DA queries from the PTY output before printing to sys.stdout,
+# otherwise the Windows host terminal will auto-reply and inject [?61...c into our stdin buffer!
+DA_QUERY_REGEX = re.compile(r'\x1b\[[>=]?c|\x1b\[5n')
+# We still strip responses in case winpty passes one through from internal buffers
+DA_RESPONSE_REGEX = re.compile(r'\x1b\[\?[0-9]+(?:;[0-9]+)*c|\x1b\[>[0-9]+(?:;[0-9]+)*c|\x1b\[[0-9]+;[0-9]+R')
+
+def enable_virtual_terminal_processing():
+    """Enable VT100 / ANSI escape sequence processing on the Windows host console."""
+    if platform.system() == "Windows":
+        try:
+            import ctypes
+            kernel32 = ctypes.windll.kernel32
+            for handle_id in (-11, -12):  # STD_OUTPUT_HANDLE (-11), STD_ERROR_HANDLE (-12)
+                h = kernel32.GetStdHandle(handle_id)
+                mode = ctypes.c_ulong()
+                if kernel32.GetConsoleMode(h, ctypes.byref(mode)):
+                    # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004, DISABLE_NEWLINE_AUTO_RETURN = 0x0008
+                    kernel32.SetConsoleMode(h, mode.value | 0x0004 | 0x0008)
+        except Exception:
+            pass
 
 def clean_pty_output(data: str) -> str:
-    """Strip Device Attribute / probe response sequences from PTY output."""
+    """Strip DA queries and responses from PTY output."""
     if not data:
         return data
-    cleaned = DA_RESPONSE_REGEX.sub('', data)
+    cleaned = DA_QUERY_REGEX.sub('', data)
+    cleaned = DA_RESPONSE_REGEX.sub('', cleaned)
     return cleaned
 
 def safe_pty_write(data: str):
-    """Write input to PTY while stripping any leaked Device Attribute / probe sequences."""
+    """Write input to PTY cleanly."""
     if not data or not active_pty or not active_pty.isalive():
         return
+    # Strip any leaked responses from websocket input just in case
     cleaned = DA_RESPONSE_REGEX.sub('', data)
     if cleaned:
         active_pty.write(cleaned)
@@ -86,6 +115,8 @@ def start_pty_session(ws, loop):
     """Start a persistent PowerShell session using winpty."""
     global active_pty
     
+    enable_virtual_terminal_processing()
+    
     if active_pty and active_pty.isalive():
         print("PTY is already running.")
         return
@@ -93,30 +124,30 @@ def start_pty_session(ws, loop):
     shell_bin = get_system_shell_cmd()
     cwd = os.path.expanduser("~")
     env = os.environ.copy()
-    # Explicitly configure standard terminal environment so interactive CLI tools (like agy)
-    # know that full ANSI cursor repositioning and truecolor rendering are supported.
+    env["PYTHONIOENCODING"] = "utf-8"
     env["TERM"] = "xterm-256color"
     env["COLORTERM"] = "truecolor"
     env["FORCE_COLOR"] = "3"
-    env["PYTHONIOENCODING"] = "utf-8"
     
     # Detect natural terminal size from the host console
     ts = shutil.get_terminal_size(fallback=(100, 30))
     try:
-        # Spawn PowerShell with UTF-8 encoding and PSReadLine disabled so that
-        # terminal resize events don't trigger PSReadLine VT attribute probes.
         spawn_cmd = [
             shell_bin,
             "-NoLogo",
             "-NoExit",
             "-Command",
             (
+                "& { "
                 "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; "
                 "[Console]::InputEncoding = [System.Text.Encoding]::UTF8; "
                 "$OutputEncoding = [System.Text.Encoding]::UTF8; "
                 "$env:TERM = 'xterm-256color'; "
                 "$env:COLORTERM = 'truecolor'; "
-                "Clear-Host"
+                "Start-Sleep -Milliseconds 400; "
+                "try { (Get-Host).UI.RawUI.FlushInputBuffer() } catch { $null }; "
+                "Clear-Host "
+                "}"
             )
         ]
         active_pty = PtyProcess.spawn(spawn_cmd, cwd=cwd, env=env, dimensions=(ts.lines, ts.columns))
@@ -270,9 +301,10 @@ async def start_agent():
                 return
             print("⚠️ Connection to relay lost. Retrying in 3 seconds...")
             await asyncio.sleep(3)
-        except websockets.exceptions.InvalidStatusCode as e:
-            if e.status_code in (401, 403, 4001, 500):
-                print(f"❌ Server rejected connection (HTTP {e.status_code}). Device credentials may need re-pairing.")
+        except websockets.exceptions.InvalidStatus as e:
+            status_code = e.response.status_code if hasattr(e, "response") else getattr(e, "status_code", None)
+            if status_code in (401, 403, 4001, 500):
+                print(f"❌ Server rejected connection (HTTP {status_code}). Device credentials may need re-pairing.")
                 print("👉 Please re-pair your device by running: python agent.py --pair <6-digit-code>\n")
                 return
             print(f"⚠️ Error: {e}. Retrying in 3 seconds...")
