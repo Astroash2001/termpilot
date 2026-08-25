@@ -30,12 +30,12 @@ active_pty = None
 # Regexes to match DA queries (sent by agy) and DA responses (sent by terminal)
 # We must strip DA queries from the PTY output before printing to sys.stdout,
 # otherwise the Windows host terminal will auto-reply and inject [?61...c into our stdin buffer!
-DA_QUERY_REGEX = re.compile(r'\x1b\[[>=]?c|\x1b\[5n')
+DA_QUERY_REGEX = re.compile(r'\x1b\[[>=]?c|\x1b\[0c|\x1b\[5n')
 # We still strip responses in case winpty passes one through from internal buffers
 DA_RESPONSE_REGEX = re.compile(r'\x1b\[\?[0-9]+(?:;[0-9]+)*c|\x1b\[>[0-9]+(?:;[0-9]+)*c|\x1b\[[0-9]+;[0-9]+R')
 
 def enable_virtual_terminal_processing():
-    """Enable VT100 / ANSI escape sequence processing on the Windows host console."""
+    """Enable VT100 / ANSI escape sequence processing on the Windows host console while preserving auto-return on newlines."""
     if platform.system() == "Windows":
         try:
             import ctypes
@@ -44,8 +44,9 @@ def enable_virtual_terminal_processing():
                 h = kernel32.GetStdHandle(handle_id)
                 mode = ctypes.c_ulong()
                 if kernel32.GetConsoleMode(h, ctypes.byref(mode)):
-                    # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004, DISABLE_NEWLINE_AUTO_RETURN = 0x0008
-                    kernel32.SetConsoleMode(h, mode.value | 0x0004 | 0x0008)
+                    # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+                    # MUST NOT set DISABLE_NEWLINE_AUTO_RETURN (0x0008) because winpty assumes \n returns to column 0!
+                    kernel32.SetConsoleMode(h, (mode.value | 0x0004) & ~0x0008)
         except Exception:
             pass
 
