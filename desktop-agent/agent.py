@@ -116,9 +116,6 @@ def start_pty_session(ws, loop):
                 "$OutputEncoding = [System.Text.Encoding]::UTF8; "
                 "$env:TERM = 'xterm-256color'; "
                 "$env:COLORTERM = 'truecolor'; "
-                "Remove-Module PSReadLine -ErrorAction SilentlyContinue; "
-                "Start-Sleep -Milliseconds 500; "
-                "try { $Host.UI.RawUI.FlushInputBuffer() } catch {}; "
                 "Clear-Host"
             )
         ]
@@ -175,22 +172,22 @@ def start_pty_session(ws, loop):
     reader_thread.start()
 
     def read_local_input():
-        """Read keyboard input and track console resize on the host laptop."""
-        SPECIAL_KEYS = {
-            b'H': '\x1b[A',   # Up arrow
-            b'P': '\x1b[B',   # Down arrow
-            b'M': '\x1b[C',   # Right arrow
-            b'K': '\x1b[D',   # Left arrow
-            b'G': '\x1b[H',   # Home
-            b'O': '\x1b[F',   # End
-            b'I': '\x1b[5~',  # Page Up
-            b'Q': '\x1b[6~',  # Page Down
-            b'S': '\x1b[3~',  # Delete
-            b'R': '\x1b[2~',  # Insert
-            b';': '\x1bOP',   # F1
-            b'<': '\x1bOQ',   # F2
-            b'=': '\x1bOR',   # F3
-            b'>': '\x1bOS',   # F4
+        """Read keyboard input and track console resize on the host laptop in strict FIFO order."""
+        SPECIAL_KEYS_WIDE = {
+            'H': '\x1b[A',   # Up arrow
+            'P': '\x1b[B',   # Down arrow
+            'M': '\x1b[C',   # Right arrow
+            'K': '\x1b[D',   # Left arrow
+            'G': '\x1b[H',   # Home
+            'O': '\x1b[F',   # End
+            'I': '\x1b[5~',  # Page Up
+            'Q': '\x1b[6~',  # Page Down
+            'S': '\x1b[3~',  # Delete
+            'R': '\x1b[2~',  # Insert
+            ';': '\x1bOP',   # F1
+            '<': '\x1bOQ',   # F2
+            '=': '\x1bOR',   # F3
+            '>': '\x1bOS',   # F4
         }
         last_cols, last_rows = ts.columns, ts.lines
         while active_pty and active_pty.isalive():
@@ -211,36 +208,29 @@ def start_pty_session(ws, loop):
                             loop
                         )
 
+                # Process all buffered keystrokes immediately in exact arrival order
                 if msvcrt.kbhit():
-                    ch = msvcrt.getwch()
-                    if ch in ('\x00', '\xe0'):
-                        scan = msvcrt.getch()
-                        seq = SPECIAL_KEYS.get(scan, '')
-                        if seq:
-                            safe_pty_write(seq)
-                    else:
-                        safe_pty_write(ch)
+                    while msvcrt.kbhit():
+                        ch = msvcrt.getwch()
+                        if ch in ('\x00', '\xe0'):
+                            # Consistent wide-character read for 2-byte special keys
+                            scan = msvcrt.getwch()
+                            seq = SPECIAL_KEYS_WIDE.get(scan, '')
+                            if seq:
+                                safe_pty_write(seq)
+                        elif ch == '\r':
+                            safe_pty_write('\r')
+                        elif ch == '\x08':
+                            safe_pty_write('\x08')
+                        else:
+                            safe_pty_write(ch)
                 else:
-                    time.sleep(0.01)
+                    time.sleep(0.005)
             except Exception:
                 break
 
     input_thread = threading.Thread(target=read_local_input, daemon=True)
     input_thread.start()
-
-    def _flush_startup_garbage():
-        """Wait for PowerShell to fully initialize, then flush any DA probe
-        data that leaked into the input buffer so the first real command
-        executes cleanly."""
-        time.sleep(2.0)
-        if active_pty and active_pty.isalive():
-            # Submit whatever garbage is in the buffer (harmless blank or error)
-            active_pty.write("\r")
-            time.sleep(0.5)
-            # Clear the screen so the user sees a pristine prompt
-            active_pty.write("Clear-Host\r")
-
-    threading.Thread(target=_flush_startup_garbage, daemon=True).start()
 
 async def start_agent():
     global active_pty
