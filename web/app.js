@@ -97,23 +97,77 @@ const WS_URL = `${wsProtocol}//${window.location.host}/ws/client`;
 let ptyCols = 0;
 let ptyRows = 0;
 
+const TERM_FONT_FAMILY = "'Courier New', Courier, monospace";
+
+// Cell width scales linearly with font size, so measure the real advance width once and
+// derive the rest. A guessed ratio drifts from the actual font metric and leaves the
+// terminal a column or two off the PTY, which is enough to break redraws.
+let charWidthRatio = null;
+function getCharWidthRatio() {
+  if (charWidthRatio) return charWidthRatio;
+  try {
+    const probe = document.createElement('span');
+    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:pre;' +
+                          'font-size:100px;font-family:' + TERM_FONT_FAMILY;
+    probe.textContent = '0'.repeat(100);
+    document.body.appendChild(probe);
+    const w = probe.getBoundingClientRect().width / 100 / 100;
+    probe.remove();
+    if (w > 0) charWidthRatio = w;
+  } catch (e) {}
+  return charWidthRatio || 0.605;
+}
+
+// Manual text-size control. This scales the FONT only - never the column count, which
+// stays pinned to ptyCols below. Zooming by changing columns would make the phone wrap
+// lines the PTY never wrapped and bring the duplicated-menu bug straight back.
+const ZOOM_MIN = 0.6, ZOOM_MAX = 2.6, ZOOM_STEP = 0.15;
+let termZoom = 1.0;
+try {
+  const savedZoom = parseFloat(localStorage.getItem('termpilot_zoom'));
+  if (savedZoom >= ZOOM_MIN && savedZoom <= ZOOM_MAX) termZoom = savedZoom;
+} catch (e) {}
+
+window.adjustTerminalZoom = function(dir) {
+  triggerHaptic(12);
+  const next = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, termZoom + dir * ZOOM_STEP));
+  if (Math.abs(next - termZoom) < 0.001) return;
+  termZoom = next;
+  try { localStorage.setItem('termpilot_zoom', String(termZoom)); } catch (e) {}
+  adaptFontSizeToPty();
+  showToast("Text size " + Math.round(termZoom * 100) + "%");
+};
+
 function adaptFontSizeToPty() {
   const container = document.getElementById('xterm-container');
   if (!container) return;
   const availableWidth = container.clientWidth || window.innerWidth || 400;
-  
+
+  // Past 1x the grid is wider than the screen, so let the wrapper pan horizontally.
+  // At 1x this class is absent and the layout is byte-for-byte what it was before.
+  container.classList.toggle('zoomed', termZoom > 1.001);
+
   if (ptyCols && ptyCols >= 20) {
-    // 1. Calculate natural, comfortable font size so ptyCols fit naturally across screen width without line-wrapping
-    const widthBasedSize = (availableWidth - 8) / (ptyCols * 0.605);
-    const clampedSize = Math.max(9.0, Math.min(15.5, widthBasedSize));
+    // 1. Size the font so all ptyCols fit across the screen. No comfort floor here: a
+    // terminal showing fewer columns than the PTY wraps lines the PTY never wrapped, so
+    // an app that repaints by moving the cursor up N lines lands short of its old output
+    // and leaves a duplicate copy behind on every redraw.
+    const widthBasedSize = (availableWidth - 8) / (ptyCols * getCharWidthRatio());
+    const baseSize = Math.max(4.0, Math.min(15.5, widthBasedSize));
+    const clampedSize = Math.max(4.0, Math.min(40, baseSize * termZoom));
     if (Math.abs(term.options.fontSize - clampedSize) > 0.1) {
       term.options.fontSize = clampedSize;
     }
   }
-  
+
   // 2. Fill 100% of vertical container height cleanly without dead zones or empty black blocks
   try {
     fitAddon.fit();
+    // fit() derives columns from the container, which can still land a column or two off.
+    // Wrapping must match the PTY exactly, so pin the columns and keep the fitted rows.
+    if (ptyCols && ptyCols >= 20 && term.cols !== ptyCols) {
+      term.resize(ptyCols, term.rows);
+    }
   } catch (e) {}
 }
 

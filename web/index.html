@@ -365,6 +365,8 @@
 
     <!-- Quick Action Snippets Pills Bar -->
     <div class="snippets-bar" id="snippets-bar">
+      <button class="snippet-pill zoom-pill" onclick="adjustTerminalZoom(-1)" title="Decrease terminal text size" aria-label="Decrease terminal text size">A−</button>
+      <button class="snippet-pill zoom-pill" onclick="adjustTerminalZoom(1)" title="Increase terminal text size" aria-label="Increase terminal text size">A+</button>
       <button class="snippet-pill" onclick="sendSnippet('git status\r')">git status</button>
       <button class="snippet-pill" onclick="sendSnippet('git diff\r')">git diff</button>
       <button class="snippet-pill" onclick="sendSnippet('git log -n 5\r')">git log</button>
@@ -404,6 +406,6 @@
 
   </div>
 
-  <script src="app.js?v=37"></script>
+  <script src="app.js?v=38"></script>
 </body>
 </html>

@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import json
+import atexit
 import asyncio
 import platform
 import shutil
@@ -10,15 +11,20 @@ import time
 import msvcrt
 import urllib.request
 import websockets
+import winpty
 from winpty import PtyProcess
 
-# Ensure UTF-8 output encoding on Windows consoles so emojis and unicode symbols print cleanly
+# Ensure UTF-8 output encoding on Windows consoles so emojis and unicode symbols print cleanly.
+# newline="" disables the text layer's newline translation. Without it Python rewrites every
+# bare \n as \r\n on the way to the console, which destroys the distinction ConPTY relies on:
+# it emits \r\n when it means "next line, column 0" and a bare \n when it means "down one row,
+# keep the column". Translating the second into the first drops rendering at column 0.
 if sys.platform == "win32":
     try:
         if hasattr(sys.stdout, "reconfigure"):
-            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace", newline="")
         if hasattr(sys.stderr, "reconfigure"):
-            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace", newline="")
     except Exception:
         pass
 
@@ -27,10 +33,115 @@ BACKEND_HTTP_URL = "http://localhost:8000"
 
 active_pty = None
 
-# Regexes to match DA queries (sent by agy) and DA responses (sent by terminal)
-# We must strip DA queries from the PTY output before printing to sys.stdout,
-# otherwise the Windows host terminal will auto-reply and inject [?61...c into our stdin buffer!
-DA_QUERY_REGEX = re.compile(r'\x1b\[[>=]?c|\x1b\[0c|\x1b\[5n')
+_console_owned_by_pty = False
+_original_console_mode = None
+AGENT_LOG_FILE = os.path.join(os.path.dirname(__file__), "agent.log")
+
+# DISABLE_NEWLINE_AUTO_RETURN. Clear it and the console turns every \n into CR+LF;
+# set it and \n is a pure line feed that leaves the column alone, which is what ConPTY
+# and the VT apps running inside it assume.
+DISABLE_NEWLINE_AUTO_RETURN = 0x0008
+
+def _set_newline_auto_return(enabled: bool):
+    """Choose what a bare \\n means on the host console, remembering the mode we found."""
+    global _original_console_mode
+    if platform.system() != "Windows":
+        return
+    try:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        for handle_id in (-11, -12):  # STD_OUTPUT_HANDLE, STD_ERROR_HANDLE
+            h = kernel32.GetStdHandle(handle_id)
+            mode = ctypes.c_ulong()
+            if not kernel32.GetConsoleMode(h, ctypes.byref(mode)):
+                continue
+            if handle_id == -11 and _original_console_mode is None:
+                _original_console_mode = mode.value
+            new = (mode.value & ~DISABLE_NEWLINE_AUTO_RETURN) if enabled \
+                else (mode.value | DISABLE_NEWLINE_AUTO_RETURN)
+            kernel32.SetConsoleMode(h, new)
+    except Exception:
+        pass
+
+def restore_console_mode():
+    """Put the console back the way we found it, so the user's shell isn't left with
+    pure-linefeed semantics (which would staircase every command they run afterwards)."""
+    if _original_console_mode is None or platform.system() != "Windows":
+        return
+    try:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        for handle_id in (-11, -12):
+            kernel32.SetConsoleMode(kernel32.GetStdHandle(handle_id), _original_console_mode)
+    except Exception:
+        pass
+
+atexit.register(restore_console_mode)
+
+def agent_print(msg):
+    """Agent status output.
+
+    Goes to the console until the PTY takes the console over, and to agent.log after
+    that. Once the mirror is running the console belongs to the PTY replay alone -- see
+    align_console_origin() for why a single stray line breaks rendering permanently.
+    """
+    if _console_owned_by_pty:
+        try:
+            with open(AGENT_LOG_FILE, "a", encoding="utf-8") as f:
+                f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} {msg}\n")
+        except Exception:
+            pass
+    else:
+        print(msg)
+
+def align_console_origin():
+    """Align the host console's viewport origin with the ConPTY buffer origin.
+
+    The host console is a second terminal replaying the ConPTY's VT stream. ConPTY
+    addresses rows absolutely (ESC[row;colH) counted from the top of its own buffer, so
+    the two only agree while the host viewport starts on the same row the ConPTY buffer
+    does. Clear the screen and the scrollback, home the cursor, and they coincide.
+
+    After this the console belongs to the PTY: anything else that writes to it scrolls
+    the host by a line the ConPTY never made, and every absolute cursor move from then
+    on lands one row off. That offset never heals, which is why agent status messages
+    switch to agent.log here.
+    """
+    global _console_owned_by_pty
+    try:
+        sys.stdout.write("\x1b[2J\x1b[3J\x1b[H")
+        sys.stdout.flush()
+        if platform.system() == "Windows":
+            # ESC[3J scrollback support varies across conhost builds, so home via the
+            # API as well rather than trusting the escape alone.
+            import ctypes
+            from ctypes import wintypes
+
+            class _COORD(ctypes.Structure):
+                _fields_ = [("X", wintypes.SHORT), ("Y", wintypes.SHORT)]
+
+            kernel32 = ctypes.windll.kernel32
+            kernel32.SetConsoleCursorPosition(kernel32.GetStdHandle(-11), _COORD(0, 0))
+            # Now that only the PTY writes here, give \n the meaning ConPTY assumes:
+            # a pure line feed that keeps the column. Until this point auto-return was
+            # left on so the agent's own banner printed normally instead of staircasing.
+            _set_newline_auto_return(False)
+    except Exception:
+        pass
+    _console_owned_by_pty = True
+
+# Regexes to match terminal queries (sent by the child app) and their responses.
+# We strip these queries from the PTY output before printing to sys.stdout, otherwise the
+# Windows host terminal auto-replies and injects the answer ([?61...c, ESC[24;1R) straight
+# into our stdin buffer, where the input reader would forward it to the PTY as typed text.
+TERMINAL_QUERY_REGEX = re.compile(
+    r'\x1b\[[>=?]?[0-9;]*[cn]'                # DA1/DA2/DA3 and DSR/CPR requests (incl. ESC[6n)
+    r'|\x1b\[\?[0-9;]*u'                      # kitty keyboard protocol query
+    r'|\x1b\[>[0-9;]*q'                       # XTVERSION query
+    r'|\x1b\[\?[0-9;]*\$p'                    # DECRQM mode request
+    r'|\x1bP\+q[0-9A-Fa-f;]*(?:\x1b\\|\x07)'  # XTGETTCAP
+    r'|\x1b\][0-9]+;\?(?:\x1b\\|\x07)'        # OSC foreground/background colour queries
+)
 # We still strip responses in case winpty passes one through from internal buffers
 DA_RESPONSE_REGEX = re.compile(r'\x1b\[\?[0-9]+(?:;[0-9]+)*c|\x1b\[>[0-9]+(?:;[0-9]+)*c|\x1b\[[0-9]+;[0-9]+R')
 
@@ -44,17 +155,19 @@ def enable_virtual_terminal_processing():
                 h = kernel32.GetStdHandle(handle_id)
                 mode = ctypes.c_ulong()
                 if kernel32.GetConsoleMode(h, ctypes.byref(mode)):
-                    # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
-                    # MUST NOT set DISABLE_NEWLINE_AUTO_RETURN (0x0008) because winpty assumes \n returns to column 0!
-                    kernel32.SetConsoleMode(h, (mode.value | 0x0004) & ~0x0008)
+                    # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004.
+                    # Auto-return stays on for now (DISABLE_NEWLINE_AUTO_RETURN cleared) so the
+                    # agent's own startup messages print normally. align_console_origin() turns
+                    # it off once the PTY owns the console and \n must mean a pure line feed.
+                    kernel32.SetConsoleMode(h, (mode.value | 0x0004) & ~DISABLE_NEWLINE_AUTO_RETURN)
         except Exception:
             pass
 
 def clean_pty_output(data: str) -> str:
-    """Strip DA queries and responses from PTY output."""
+    """Strip terminal queries and responses from PTY output."""
     if not data:
         return data
-    cleaned = DA_QUERY_REGEX.sub('', data)
+    cleaned = TERMINAL_QUERY_REGEX.sub('', data)
     cleaned = DA_RESPONSE_REGEX.sub('', cleaned)
     return cleaned
 
@@ -116,11 +229,14 @@ def start_pty_session(ws, loop):
     """Start a persistent PowerShell session using winpty."""
     global active_pty
     
-    enable_virtual_terminal_processing()
-    
+    # Check before touching console modes: on a relay reconnect the PTY is still alive and
+    # still owns the console. Re-running enable_virtual_terminal_processing() here would put
+    # auto-return back on and break \n semantics for a session we never re-align.
     if active_pty and active_pty.isalive():
-        print("PTY is already running.")
+        agent_print("PTY is already running.")
         return
+
+    enable_virtual_terminal_processing()
 
     shell_bin = get_system_shell_cmd()
     cwd = os.path.expanduser("~")
@@ -151,8 +267,16 @@ def start_pty_session(ws, loop):
                 "}"
             )
         ]
-        active_pty = PtyProcess.spawn(spawn_cmd, cwd=cwd, env=env, dimensions=(ts.lines, ts.columns))
-        print(f"🚀 Started persistent PTY session (PID: {active_pty.pid}, size: {ts.columns}x{ts.lines})")
+        # Use native Windows 10/11 ConPTY backend to eliminate legacy WinPTY buffer scraping bugs
+        pty_backend = getattr(winpty.Backend, "ConPTY", None) if hasattr(winpty, "Backend") else None
+        active_pty = PtyProcess.spawn(
+            spawn_cmd,
+            cwd=cwd,
+            env=env,
+            dimensions=(ts.lines, ts.columns),
+            backend=pty_backend
+        )
+        agent_print(f"🚀 Started persistent PTY session (PID: {active_pty.pid}, size: {ts.columns}x{ts.lines}, backend: {pty_backend or 'default'})")
         # Announce initial PTY dimensions to backend & phone client
         asyncio.run_coroutine_threadsafe(
             ws.send(json.dumps({
@@ -163,9 +287,9 @@ def start_pty_session(ws, loop):
             loop
         )
     except Exception as e:
-        print(f"❌ Failed to spawn PTY process: {e}")
+        agent_print(f"❌ Failed to spawn PTY process: {e}")
         import traceback
-        traceback.print_exc()
+        agent_print(traceback.format_exc())
         return
 
     def read_pty_output():
@@ -191,14 +315,18 @@ def start_pty_session(ws, loop):
                         loop
                     )
             except EOFError:
-                print("📄 PTY EOF reached.")
+                agent_print("📄 PTY EOF reached.")
                 break
             except Exception as e:
-                print(f"❌ PTY read error: {e}")
+                agent_print(f"❌ PTY read error: {e}")
                 import traceback
-                traceback.print_exc()
+                agent_print(traceback.format_exc())
                 break
-        print("🛑 PTY session ended.")
+        agent_print("🛑 PTY session ended.")
+
+    # Hand the console to the PTY. Must happen after every startup message above and
+    # before the first byte of PTY output is mirrored, so the two origins coincide.
+    align_console_origin()
 
     reader_thread = threading.Thread(target=read_pty_output, daemon=True)
     reader_thread.start()
@@ -221,6 +349,33 @@ def start_pty_session(ws, loop):
             '=': '\x1bOR',   # F3
             '>': '\x1bOS',   # F4
         }
+
+        def swallow_terminal_reply(intro: str):
+            """Discard the rest of an ANSI reply the host terminal injected into our stdin.
+
+            Windows console keys never arrive as ANSI sequences (they come through as
+            '\\x00'/'\\xe0' scan-code pairs), so an ESC followed immediately by '[', ']' or 'P'
+            can only be a terminal auto-reply. Forwarding it to the PTY would make agy treat
+            the coordinates as typed text and mis-place the caret.
+            """
+            deadline = time.time() + 0.05
+            while time.time() < deadline:
+                if not msvcrt.kbhit():
+                    time.sleep(0.001)
+                    continue
+                c = msvcrt.getwch()
+                deadline = time.time() + 0.05
+                if intro == '[':
+                    if '\x40' <= c <= '\x7e':  # final byte of a CSI sequence
+                        return
+                else:  # OSC / DCS reply, terminated by BEL or ST
+                    if c == '\x07':
+                        return
+                    if c == '\x1b':
+                        if msvcrt.kbhit():
+                            msvcrt.getwch()  # the '\' of ST
+                        return
+
         last_cols, last_rows = ts.columns, ts.lines
         while active_pty and active_pty.isalive():
             try:
@@ -242,6 +397,7 @@ def start_pty_session(ws, loop):
 
                 # Process all buffered keystrokes immediately in exact arrival order
                 if msvcrt.kbhit():
+                    pending = []
                     while msvcrt.kbhit():
                         ch = msvcrt.getwch()
                         if ch in ('\x00', '\xe0'):
@@ -249,13 +405,28 @@ def start_pty_session(ws, loop):
                             scan = msvcrt.getwch()
                             seq = SPECIAL_KEYS_WIDE.get(scan, '')
                             if seq:
-                                safe_pty_write(seq)
+                                pending.append(seq)
+                        elif ch == '\x1b':
+                            # A lone ESC is the user's Escape key; ESC + '[', ']' or 'P'
+                            # is an auto-reply from the host terminal, so drop it.
+                            if not msvcrt.kbhit():
+                                pending.append('\x1b')
+                            else:
+                                nxt = msvcrt.getwch()
+                                if nxt in ('[', ']', 'P'):
+                                    swallow_terminal_reply(nxt)
+                                else:
+                                    pending.append('\x1b')
+                                    pending.append(nxt)
                         elif ch == '\r':
-                            safe_pty_write('\r')
+                            pending.append('\r')
                         elif ch == '\x08':
-                            safe_pty_write('\x08')
+                            pending.append('\x08')
                         else:
-                            safe_pty_write(ch)
+                            pending.append(ch)
+                    # Send the whole burst as one PTY write so ordering is preserved
+                    if pending:
+                        safe_pty_write(''.join(pending))
                 else:
                     time.sleep(0.005)
             except Exception:
@@ -281,7 +452,7 @@ async def start_agent():
     while True:
         try:
             async with websockets.connect(server_url) as ws:
-                print("🟢 Authenticated Desktop Agent Connected & Ready!\n")
+                agent_print("🟢 Authenticated Desktop Agent Connected & Ready!\n")
                 
                 # Start the persistent terminal session when connected
                 start_pty_session(ws, asyncio.get_running_loop())
@@ -297,21 +468,21 @@ async def start_agent():
                                 
         except websockets.exceptions.ConnectionClosed as e:
             if e.code == 4001:
-                print("❌ Authentication failed: Server rejected device credentials.")
-                print("👉 Please re-pair your device by running: python agent.py --pair <6-digit-code>\n")
+                agent_print("❌ Authentication failed: Server rejected device credentials.")
+                agent_print("👉 Please re-pair your device by running: python agent.py --pair <6-digit-code>\n")
                 return
-            print("⚠️ Connection to relay lost. Retrying in 3 seconds...")
+            agent_print("⚠️ Connection to relay lost. Retrying in 3 seconds...")
             await asyncio.sleep(3)
         except websockets.exceptions.InvalidStatus as e:
             status_code = e.response.status_code if hasattr(e, "response") else getattr(e, "status_code", None)
             if status_code in (401, 403, 4001, 500):
-                print(f"❌ Server rejected connection (HTTP {status_code}). Device credentials may need re-pairing.")
-                print("👉 Please re-pair your device by running: python agent.py --pair <6-digit-code>\n")
+                agent_print(f"❌ Server rejected connection (HTTP {status_code}). Device credentials may need re-pairing.")
+                agent_print("👉 Please re-pair your device by running: python agent.py --pair <6-digit-code>\n")
                 return
-            print(f"⚠️ Error: {e}. Retrying in 3 seconds...")
+            agent_print(f"⚠️ Error: {e}. Retrying in 3 seconds...")
             await asyncio.sleep(3)
         except Exception as e:
-            print(f"⚠️ Error: {e}. Retrying in 3 seconds...")
+            agent_print(f"⚠️ Error: {e}. Retrying in 3 seconds...")
             await asyncio.sleep(3)
 
 if __name__ == "__main__":

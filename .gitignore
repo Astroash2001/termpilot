@@ -15,6 +15,9 @@ devices.json
 config.json
 *.local
 
+# Agent status log (written once the PTY owns the console)
+agent.log
+
 # System files
 .DS_Store
 Thumbs.db
