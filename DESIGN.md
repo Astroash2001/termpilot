@@ -2,8 +2,9 @@
 name: TermPilot
 description: A surveyor's field book for watching and steering a PC terminal run from the phone.
 colors:
-  press: "#f2c230"
-  press-deep: "#d9a915"
+  press: "#2456ff"
+  press-deep: "#1846e8"
+  press-ink: "#ffffff"
   pencil: "#1846e8"
   pencil-light: "#5b8cff"
   stamp-red: "#7f2214"
@@ -186,7 +187,7 @@ components:
 
 **Creative North Star: "The Field Book"**
 
-The phone is the all-weather surveyor's field book carried away from the desk, and the agent run on the PC is the entry being checked on. Three materials make the whole world: a khaki cover board with graphite ink across the top, the graphite terminal pane filling the middle, and waterproof paper wherever the user writes (the prompt field and every sheet). Rubber-stamp ink states the run, a green level-book ruling measures it, and field-book yellow marks everything that can be pressed.
+The phone is the all-weather surveyor's field book carried away from the desk, and the agent run on the PC is the entry being checked on. Three materials make the whole world: a khaki cover board with graphite ink across the top, the graphite terminal pane filling the middle, and waterproof paper wherever the user writes (the prompt field and every sheet). Rubber-stamp ink states the run, a green level-book ruling measures it, and loud cobalt marks everything that can be pressed.
 
 Density is that of a working instrument: one cover row carries the stamp, the prompt that was sent, the elapsed clock and the chime toggle; the terminal takes every remaining pixel; the bottom carries three thumb rows (snippet keys, prompt row, key row). Chrome serves the terminal and never crowds it. Type is a condensed grotesk for everything that is a label, stamp or numeral, a plain grotesk for sentences, and system monospace for anything that is or will become terminal text.
 
@@ -196,15 +197,15 @@ The world explicitly rejects the category default of a black SSH screen with one
 - Three materials: cover board (header band, sheet headers, unlock card), graphite (terminal and key rows), paper (prompt field, sheets, toast).
 - Rubber stamps for run state, re-inked per surface for contrast.
 - One 4px spacing module; every gap is a multiple of it.
-- Yellow means pressable, and nothing else is yellow.
+- Cobalt is the loud third colour: it means pressable, and it marks the run.
 - Code-led: inline SVG stroke icons, CSS stamps and ruling, self-hosted webfonts; no rasters.
 
 ## Colors
 
-An olive-warm palette of khaki, graphite and paper, with two inks (stamp red, ruling green), one signal yellow, and surveyor's blue pencil as the contrast colour, the opposite of khaki on the colour wheel.
+An olive-warm palette of khaki, graphite and paper, with two inks (stamp red, ruling green) and one loud cobalt, the opposite of khaki on the colour wheel, so it reads apart from the khaki and graphite pair instead of blending in.
 
 ### Primary
-- **Field-Book Yellow** (press): the fill of every pressable primary action: Send, mic, Unlock/Connect, Copy actions; also the focus ring and (at 42% alpha) the selected command row. **Pressed Yellow** (press-deep) is its active state.
+- **Cobalt** (press, 3.1:1 against graphite, white ink at 5.9:1): the fill of every pressable primary action: Send, mic, Unlock/Connect, Copy actions; at 16% alpha the selected command row. **Pressed Cobalt** (press-deep) is its active state.
 
 ### Secondary
 - **Stamp Red, cover ink** (stamp-red): stamp ink on the khaki band (RUNNING, OFFLINE, NO PC) and the mic while listening. Darkened from the brief's #c4412f to clear 4.6:1 on khaki.
@@ -226,11 +227,11 @@ An olive-warm palette of khaki, graphite and paper, with two inks (stamp red, ru
 - **Graphite Text** (text) and **Graphite Soft Text** (text-soft): text on graphite; soft for readouts and secondary keys (Pin, Guide, zoom %).
 
 ### Named Rules
-**The Pressables-Only Rule.** Field-book yellow fills only things that can be pressed (plus the focus ring). Never yellow for decoration, status or headings.
+**The Pressables-Only Rule.** Cobalt fills only things that can be pressed. Beyond fills, cobalt appears only as the run marks below. Never cobalt for decoration, surfaces or body text.
 
 **The Re-Inked Stamp Rule.** Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on cover, stamp-red-paper on paper, stamp-red-light on graphite), never the other way round.
 
-**The Blue Pencil Rule.** Blue contrasts with the khaki and graphite pair instead of matching it, so it stays scarce: the clock, the run fill, hairlines and the cursor only. Never a blue button, never a blue surface, never blue body text.
+**The Blue Pencil Rule.** Beyond pressables, cobalt marks the run: the clock, the run fill, hairlines, the focus ring and the cursor. Never a cobalt surface, never blue body text.
 
 **The Three Materials Rule.** Every surface is cover, graphite or paper. A new surface picks one of the three; it does not invent a fourth tint.
 
@@ -269,13 +270,13 @@ Sheets are bottom sheets (max 500px wide, 78-86vh) on phones and become centered
 Mostly flat material with soft, ambient shadows on things that lift off the page. Depth inside the world is tonal (raised key graphite-2, pressed key graphite-3) and ruled (1-1.5px ink borders), not shadowed.
 
 ### Shadow Vocabulary
-- **Press** (`box-shadow: 0 2px 4px rgba(0,0,0,0.35)`): the one soft depth under every yellow pressable.
+- **Press** (`box-shadow: 0 2px 4px rgba(0,0,0,0.35)`): the one soft depth under every cobalt pressable.
 - **Toast** (`box-shadow: 0 6px 18px rgba(0,0,0,0.35)`): the floating paper slip.
 - **Sheet** (`box-shadow: 0 -8px 28px rgba(0,0,0,0.4)`; centered dialog `0 20px 60px rgba(0,0,0,0.55)`): sheets over a graphite scrim (rgba(20,21,17,0.72)).
 - **Card** (`box-shadow: 0 18px 40px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)`): the unlock/reconnect cover card over a denser scrim (0.88).
 
 ### Named Rules
-**The One Press Shadow Rule.** Every yellow pressable carries the same soft press shadow and drops 1px on press; nothing else on the key rows has a shadow.
+**The One Press Shadow Rule.** Every cobalt pressable carries the same soft press shadow and drops 1px on press; nothing else on the key rows has a shadow.
 
 ## Shapes
 
@@ -288,8 +289,8 @@ The duration rule is the signature silhouette: a 7px band between a 1.5px cover-
 ### Buttons
 Tactile, few, and unmistakably pressable.
 - **Shape:** 6px keys; Send 10px; mic round.
-- **Primary (press):** field-book yellow with graphite text, Condensed 700 at 16-18px, 48px tall full-width in cards and sheets, 40px inline in the copy sheet. Press shadow.
-- **Active / Focus:** active swaps to press-deep and translates 1px down (120ms ease-out). Focus-visible is a 2px yellow outline offset 2px everywhere.
+- **Primary (press):** cobalt with white text, Condensed 700 at 16-18px, 48px tall full-width in cards and sheets, 40px inline in the copy sheet. Press shadow.
+- **Active / Focus:** active swaps to press-deep and translates 1px down (120ms ease-out). Focus-visible is a 2px pencil-light outline offset 2px everywhere.
 - **Mic listening:** turns stamp-red with paper icon and a red ring pulse (1.4s).
 - **Cover icon button:** 40px, transparent, 1.5px cover-ink border at 55%; active fills cover-deep; muted state goes dashed and soft.
 
@@ -300,13 +301,13 @@ Tactile, few, and unmistakably pressable.
 - **Zoom group:** A-, a tabular % readout between hairlines, A+, sharing one bordered 36px housing.
 
 ### Inputs / Fields
-- **Prompt field:** paper, 10px radius, transparent 1.5px border, Barlow 16px, stamp-red caret; focus turns the border yellow. Auto-grows from 48px to 110px.
+- **Prompt field:** paper, 10px radius, transparent 1.5px border, Barlow 16px, stamp-red caret; focus turns the border cobalt. Auto-grows from 48px to 110px.
 - **Paper input / search:** 1.5px ink border, 6px radius, 44-48px; the unlock input sets typed text in mono with a Barlow placeholder.
 
 ### Sheets
 - **Corner Style:** 14px.
 - **Background:** paper body under a cover-colored header (Condensed 700 20px title, 44px close button) separated by a 1.5px cover-ink rule.
-- **Rows:** command rows are fixed furniture: mono command name, then a one-line paper-ink-soft note that ellipsizes and never wraps; 1px paper-rule dividers; selected or pressed fills yellow at 42%.
+- **Rows:** command rows are fixed furniture: mono command name, then a one-line paper-ink-soft note that ellipsizes and never wraps; 1px paper-rule dividers; selected or pressed fills cobalt at 16%.
 
 ### Run Entry (signature)
 The cover band reads the run at a glance: a rotated stamp (RUNNING, DONE, READY, OFFLINE, NO PC, LOCKED), the sent prompt with "TERMPILOT No. n · time" beneath, the big tabular clock, and the chime toggle; the duration rule fills under it. Each new state re-stamps at a fresh tilt between -3deg and -1deg and plays the one authored motion: a 420ms press-in (rotate -6deg, scale 1.35, fade in, settle). READY is dashed graphite ink; DONE is green; LOCKED is graphite.
@@ -320,7 +321,7 @@ xterm on graphite with an olive-warm theme: foreground #e4e0d2, cursor blue penc
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep yellow (#f2c230) on pressables, the focus ring and the cursor only.
+- **Do** keep cobalt (#2456ff) on pressables and the run marks only.
 - **Do** pick the stamp-red ink by surface: #7f2214 on cover, #a93624 on paper, #e8735f on graphite.
 - **Do** build every gap from the 4px module and keep touch targets 44-48px.
 - **Do** set every count, clock and readout in Barlow Condensed with tabular numerals.

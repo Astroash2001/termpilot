@@ -1,8 +1,7 @@
 /* TermPilot · Field Book
    Khaki cover band, graphite terminal, green level-book ruling, red stamp ink.
-   Field-book yellow appears only on things that can be pressed.
-   Surveyor's blue pencil is the contrast colour: the opposite of khaki on the wheel. It marks the run
-   (clock, duration fill, hairlines, cursor) and never fills a button. */
+   Cobalt is the one loud third colour: the opposite of khaki on the wheel, so it reads apart from the
+   khaki and graphite pair. It fills every pressable and marks the run (clock, duration fill, cursor). */
 
 @font-face { font-family: "Barlow"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/barlow-400.woff2") format("woff2"); }
 @font-face { font-family: "Barlow"; font-weight: 500; font-style: normal; font-display: swap; src: url("/fonts/barlow-500.woff2") format("woff2"); }
@@ -30,8 +29,9 @@
   --stamp-red-paper: #a93624;/* stamp ink on paper (4.9:1) */
   --stamp-red-light: #e8735f;/* stamp ink on graphite */
   --stamp-green: #2c4f23;    /* DONE ink on the cover (4.7:1) */
-  --press: #f2c230;          /* field-book yellow: pressables only */
-  --press-deep: #d9a915;
+  --press: #2456ff;          /* cobalt: every pressable (3.1:1 against graphite) */
+  --press-deep: #1846e8;     /* pressed cobalt */
+  --press-ink: #ffffff;      /* icon and label on cobalt (5.9:1) */
   --pencil: #1846e8;         /* vivid cobalt on cover and paper: pops by chroma (3.5:1 on --cover, large text and lines only) */
   --pencil-light: #5b8cff;   /* vivid cobalt on graphite (5.3:1) */
   --text: #ece6d3;
@@ -43,7 +43,7 @@
   --font-label: "Barlow Condensed", "Barlow", system-ui, sans-serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Roboto Mono", monospace;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --press-shadow: 0 2px 4px rgba(0, 0, 0, 0.35); /* one soft depth for every yellow pressable */
+  --press-shadow: 0 2px 4px rgba(0, 0, 0, 0.35); /* one soft depth for every cobalt pressable */
 }
 
 * {
@@ -81,7 +81,7 @@ button {
 
 :focus { outline: none; }
 :focus-visible {
-  outline: 2px solid var(--press);
+  outline: 2px solid var(--pencil-light);
   outline-offset: 2px;
 }
 
@@ -200,7 +200,7 @@ button {
   width: 100%;
   height: 48px;
   background: var(--press);
-  color: var(--graphite);
+  color: var(--press-ink);
   border: none;
   border-radius: var(--radius);
   font-family: var(--font-label);
@@ -586,7 +586,7 @@ button {
   height: 40px;
   padding: 0 calc(var(--m) * 3);
   background: var(--press);
-  color: var(--graphite);
+  color: var(--press-ink);
   border: none;
   border-radius: var(--radius);
   font-family: var(--font-label);
@@ -679,7 +679,7 @@ button {
 }
 .cmd-item:active,
 .cmd-item.selected {
-  background: rgba(242, 194, 48, 0.42);
+  background: rgba(36, 86, 255, 0.16);
 }
 
 .cmd-tag {
@@ -804,7 +804,7 @@ button {
   display: grid;
   place-items: center;
   background: var(--press);
-  color: var(--graphite);
+  color: var(--press-ink);
   border: none;
   border-radius: 24px;
   box-shadow: var(--press-shadow);
@@ -844,7 +844,7 @@ button {
   -webkit-overflow-scrolling: touch;
 }
 .cmd-input:focus-visible { outline: none; }
-.cmd-input:focus { border-color: var(--press); }
+.cmd-input:focus { border-color: var(--pencil); }
 .cmd-input::placeholder { color: var(--paper-ink-soft); }
 
 .send-btn {
@@ -854,7 +854,7 @@ button {
   display: grid;
   place-items: center;
   background: var(--press);
-  color: var(--graphite);
+  color: var(--press-ink);
   border: none;
   border-radius: 10px;
   box-shadow: var(--press-shadow);
