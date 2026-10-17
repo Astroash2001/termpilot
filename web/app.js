@@ -23,29 +23,31 @@ const term = new Terminal({
   cursorBlink: true,
   cursorStyle: 'block',
   fontSize: currentFontSize,
-  fontFamily: "'Courier New', Courier, monospace",
+  fontFamily: 'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Roboto Mono", monospace',
+  // Field Book graphite pane. ANSI hues are tuned to stay readable on it: dim text
+  // (brightBlack) holds ~4.9:1, because agents print a lot of it.
   theme: {
-    background: '#070d18',
-    foreground: '#e2e8f0',
-    cursor: '#38bdf8',
-    cursorAccent: '#070d18',
-    selectionBackground: 'rgba(56, 189, 248, 0.3)',
-    black: '#0b1220',
-    red: '#f87171',
-    green: '#4ade80',
-    yellow: '#f59e0b',
-    blue: '#2563eb',
-    magenta: '#818cf8',
-    cyan: '#38bdf8',
-    white: '#e2e8f0',
-    brightBlack: '#64748b',
-    brightRed: '#fca5a5',
-    brightGreen: '#86efac',
-    brightYellow: '#fde047',
-    brightBlue: '#60a5fa',
-    brightMagenta: '#a5b4fc',
-    brightCyan: '#67e8f9',
-    brightWhite: '#f8fafc',
+    background: '#1c1e19',
+    foreground: '#e4e0d2',
+    cursor: '#c9a24f', // brass: the cursor is not a pressable
+    cursorAccent: '#1c1e19',
+    selectionBackground: 'rgba(176, 138, 58, 0.4)',
+    black: '#24271f',
+    red: '#e8735f',
+    green: '#9cc27f',
+    yellow: '#f2c230',
+    blue: '#86a9cf',
+    magenta: '#c995bd',
+    cyan: '#86c4b5',
+    white: '#d9d6c8',
+    brightBlack: '#8e8b7c',
+    brightRed: '#f29a88',
+    brightGreen: '#b8d79f',
+    brightYellow: '#f7d66b',
+    brightBlue: '#a9c3e0',
+    brightMagenta: '#ddb4d3',
+    brightCyan: '#a8d8cc',
+    brightWhite: '#f5f1e4',
   },
   scrollback: 10000,
   allowProposedApi: true,
@@ -73,10 +75,7 @@ try {
 // ── DOM Elements ────────────────────────────────────────────────────────
 
 const overlay = document.getElementById("connection-overlay");
-const statusDot = document.getElementById("status-dot");
 const statusText = document.getElementById("status-text");
-const headerDot = document.getElementById("header-status-dot");
-const headerLabel = document.getElementById("header-status-label");
 const btnPair = document.getElementById("btn-pair");
 const pairingDisplay = document.getElementById("pairing-display");
 const pairingCodeBox = document.getElementById("pairing-code-box");
@@ -126,6 +125,9 @@ function showAccessKeyPrompt() {
   authSection.style.display = "block";
   pairingSection.style.display = "none";
   statusText.textContent = "LOCKED";
+  statusText.dataset.state = "locked";
+  setStamp("locked", "LOCKED");
+  runMeta.textContent = "key needed";
 }
 
 document.getElementById("btn-access-key").addEventListener("click", () => {
@@ -142,7 +144,8 @@ document.getElementById("btn-access-key").addEventListener("click", () => {
 let ptyCols = 0;
 let ptyRows = 0;
 
-const TERM_FONT_FAMILY = "'Courier New', Courier, monospace";
+// Must match the Terminal fontFamily above: the cell width is measured from it
+const TERM_FONT_FAMILY = 'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Roboto Mono", monospace';
 
 // Cell width scales linearly with font size, so measure the real advance width once and
 // derive the rest. A guessed ratio drifts from the actual font metric and leaves the
@@ -180,8 +183,15 @@ window.adjustTerminalZoom = function(dir) {
   termZoom = next;
   try { localStorage.setItem('termpilot_zoom', String(termZoom)); } catch (e) {}
   adaptFontSizeToPty();
-  showToast("Text size " + Math.round(termZoom * 100) + "%");
+  paintZoomReadout();
 };
+
+// Live readout between A− and A+, so the size is visible without a toast
+function paintZoomReadout() {
+  const el = document.getElementById("zoom-readout");
+  if (el) el.textContent = Math.round(termZoom * 100) + "%";
+}
+paintZoomReadout();
 
 function adaptFontSizeToPty() {
   const container = document.getElementById('xterm-container');
@@ -216,21 +226,130 @@ function adaptFontSizeToPty() {
   } catch (e) {}
 }
 
+// ── Run Entry (the cover band) ──────────────────────────────────────────
+// Answers "is it working, done, or stuck?" in one glance: a stamp, what was sent,
+// the elapsed time, and a ruled line that fills over an hour.
+
+const runStamp = document.getElementById("run-stamp");
+const runPrompt = document.getElementById("run-prompt");
+const runMeta = document.getElementById("run-meta");
+const runClock = document.getElementById("run-clock");
+const runRule = document.getElementById("run-rule");
+const RUN_RULE_FULL_MS = 60 * 60 * 1000;
+
+let runStartedAt = 0;
+let runEndedAt = 0;
+let runTimer = null;
+let runChimes = true;
+let runCount = 0; // entries are numbered for the session, like a field book
+
+function formatElapsed(ms) {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const pad = (n) => String(n).padStart(2, "0");
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  return h ? `${h}:${pad(m)}:${pad(s % 60)}` : `${pad(m)}:${pad(s % 60)}`;
+}
+
+function clockTime(ts) {
+  return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+}
+
+function setStamp(state, label) {
+  if (runStamp.dataset.state === state && runStamp.textContent === label) return;
+  runStamp.dataset.state = state;
+  runStamp.textContent = label;
+  // A rubber stamp never lands at quite the same angle twice
+  runStamp.style.setProperty("--tilt", (-3 + Math.random() * 2).toFixed(2) + "deg");
+  // Restart the press-in animation for every new state
+  runStamp.classList.remove("pressed");
+  void runStamp.offsetWidth;
+  runStamp.classList.add("pressed");
+}
+
+function paintRunClock() {
+  if (!runStartedAt) {
+    runClock.textContent = "--:--";
+    runRule.style.transform = "scaleX(0)";
+    return;
+  }
+  const elapsed = (runEndedAt || Date.now()) - runStartedAt;
+  runClock.textContent = formatElapsed(elapsed);
+  runRule.style.transform = `scaleX(${Math.min(elapsed / RUN_RULE_FULL_MS, 1)})`;
+}
+
+function startRun(label, { chime = true } = {}) {
+  runStartedAt = Date.now();
+  runCount += 1;
+  runEndedAt = 0;
+  runChimes = chime;
+  runPrompt.textContent = label;
+  runMeta.textContent = `No. ${runCount} · ${clockTime(runStartedAt)}`;
+  setStamp("running", "RUNNING");
+  clearInterval(runTimer);
+  runTimer = setInterval(paintRunClock, 1000);
+  paintRunClock();
+}
+
+function finishRun() {
+  if (!runStartedAt || runEndedAt) return;
+  runEndedAt = Date.now();
+  clearInterval(runTimer);
+  paintRunClock();
+  // The frozen clock already shows how long it took
+  runMeta.textContent = "finished " + clockTime(runEndedAt);
+  setStamp("done", "DONE");
+}
+
+// Stop the clock without claiming success (agent dropped, connection lost)
+function abandonRun(reason) {
+  isCommandRunning = false;
+  if (runStartedAt && !runEndedAt) {
+    runEndedAt = Date.now();
+    clearInterval(runTimer);
+    paintRunClock();
+  }
+  runMeta.textContent = reason;
+}
+
+// True when the line under the cursor is a bare PowerShell prompt ("PS C:\path>")
+function terminalShowsPrompt() {
+  const buf = term.buffer.active;
+  const line = buf.getLine(buf.baseY + buf.cursorY);
+  return !!line && /^PS [A-Za-z]:\\.*>$/.test(line.translateToString(true));
+}
+
+// Called after output lands and once shortly after each send. The 3s guard skips the
+// echo of the command itself, which also starts with "PS ".
+function checkRunComplete(chunk = "") {
+  if (!isCommandRunning || performance.now() - lastCommandTime <= 3000) return;
+  const chunkSaysDone = chunk.includes("PS ") || chunk.includes("> ") || chunk.includes("? for shortcuts");
+  if (!chunkSaysDone && !terminalShowsPrompt()) return;
+  isCommandRunning = false;
+  finishRun();
+  if (runChimes) {
+    playCompletionChime();
+    triggerHaptic([25, 40, 25]);
+  }
+}
+
 function setConnected(on) {
   if (on) {
     overlay.style.display = "none";
-    headerDot.className = "dot online pulse";
-    headerLabel.textContent = "LIVE";
-    headerLabel.style.color = "#10b981";
+    if (!runStartedAt) {
+      setStamp("ready", "READY");
+      runMeta.textContent = "connected";
+    } else if (runEndedAt && runStamp.dataset.state === "offline") {
+      setStamp("ready", "READY");
+    }
     setTimeout(adaptFontSizeToPty, 50);
     setTimeout(adaptFontSizeToPty, 200);
   } else {
     overlay.style.display = "flex";
-    statusDot.className = "dot offline";
     statusText.textContent = "OFFLINE";
-    headerDot.className = "dot offline";
-    headerLabel.textContent = "OFFLINE";
-    headerLabel.style.color = "#ef4444";
+    statusText.dataset.state = "offline";
+    setStamp("offline", "OFFLINE");
+    abandonRun("relay lost");
   }
 }
 
@@ -252,17 +371,10 @@ function connect() {
       setConnected(true);
       adaptFontSizeToPty();
     } else if (payload.type === "RAW") {
-      // Native xterm.js ANSI rendering without forced scrolling interference
-      term.write(payload.data);
-
-      // Detect task completion after running a command
-      if (isCommandRunning && (performance.now() - lastCommandTime > 3000)) {
-        if (payload.data.includes("PS ") || payload.data.includes("> ") || payload.data.includes("? for shortcuts")) {
-          isCommandRunning = false;
-          playCompletionChime();
-          triggerHaptic([25, 40, 25]);
-        }
-      }
+      // Native xterm.js ANSI rendering without forced scrolling interference.
+      // Completion is checked once the chunk is parsed, so the cursor line is current.
+      const chunk = payload.data;
+      term.write(chunk, () => checkRunComplete(chunk));
     } else if (payload.type === "PTY_SIZE") {
       ptyCols = payload.cols;
       ptyRows = payload.rows;
@@ -270,6 +382,10 @@ function connect() {
     } else if (payload.type === "STDERR") {
       // Show errors visibly in the terminal
       term.write("\r\n\x1b[31m" + payload.data + "\x1b[0m\r\n");
+      if (payload.data.includes("Desktop Agent is OFFLINE")) {
+        setStamp("offline", "NO PC");
+        abandonRun("PC agent off");
+      }
     }
   };
 
@@ -332,8 +448,8 @@ function playCompletionChime() {
 if (btnSoundToggle) {
   btnSoundToggle.addEventListener("click", () => {
     soundEnabled = !soundEnabled;
-    btnSoundToggle.textContent = soundEnabled ? "🔔" : "🔕";
     btnSoundToggle.classList.toggle("muted", !soundEnabled);
+    btnSoundToggle.setAttribute("aria-pressed", String(soundEnabled));
     triggerHaptic(25);
     if (soundEnabled) playCompletionChime();
   });
@@ -395,6 +511,11 @@ window.sendSnippet = function(cmd) {
   saveToHistory(cmd.replace(/\r$/, ''));
   if (ws && ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify({ type: "INPUT", data: cmd }));
+    // Pinned commands are quick; stamp them, but keep the chime for real runs
+    lastCommandTime = performance.now();
+    isCommandRunning = true;
+    startRun(cmd.replace(/\r$/, ''), { chime: false });
+    setTimeout(checkRunComplete, 3100);
   }
 };
 
@@ -482,6 +603,9 @@ function sendCommand() {
   saveToHistory(text);
   lastCommandTime = performance.now();
   isCommandRunning = true;
+  startRun(text);
+  // Fast commands are back at the prompt before the 3s guard ends; look once after it
+  setTimeout(checkRunComplete, 3100);
 
   // Send the sanitized typed text + carriage return to execute
   const cleanText = sanitizeTerminalInput(text);
@@ -638,7 +762,7 @@ function stopListening() {
 
 function toggleListening() {
   if (!SpeechRecognitionAPI) {
-    alert("Voice input is not supported in this browser. Please use Chrome or Safari.");
+    showToast("Voice input needs Chrome or Safari");
     return;
   }
   if (isListening) {
@@ -772,7 +896,7 @@ function renderHistorySection() {
     
     const tag = document.createElement("span");
     tag.className = "cmd-tag";
-    tag.textContent = "⏱️ " + (cmd.length > 35 ? cmd.substring(0, 35) + "…" : cmd);
+    tag.textContent = cmd;
     
     const desc = document.createElement("span");
     desc.className = "cmd-desc";
@@ -969,8 +1093,8 @@ btnPair.addEventListener("click", async () => {
     pairingDisplay.style.display = "block";
     btnPair.style.display = "none";
   } catch (err) {
-    alert("Failed to generate pairing code");
-    btnPair.innerText = "Generate Pairing Code";
+    showToast("Could not make a pairing code. Is the server running?");
+    btnPair.innerText = "Generate pairing code";
   }
 });
 
@@ -983,7 +1107,7 @@ if (document.fonts) {
 
 // ── Select & Copy Terminal Text ─────────────────────────────────────────
 
-function showToast(text = "✓ Copied to clipboard!") {
+function showToast(text = "Copied to clipboard") {
   const toast = document.getElementById("toast");
   if (!toast) return;
   toast.textContent = text;
@@ -1018,7 +1142,7 @@ function copyTextToClipboard(text) {
   triggerHaptic(20);
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text).then(() => {
-      showToast("✓ Copied to clipboard!");
+      showToast("Copied to clipboard");
     }).catch(() => {
       fallbackCopyText(text);
     });
@@ -1037,9 +1161,9 @@ function fallbackCopyText(text) {
   ta.select();
   try {
     document.execCommand('copy');
-    showToast("✓ Copied to clipboard!");
+    showToast("Copied to clipboard");
   } catch (e) {
-    alert("Could not copy text.");
+    showToast("Could not copy. Long-press the text instead");
   }
   document.body.removeChild(ta);
 }

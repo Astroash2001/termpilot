@@ -22,3 +22,9 @@ agent.log
 # System files
 .DS_Store
 Thumbs.db
+
+# Impeccable design scratch (screenshots, decision mocks, question rolls)
+.impeccable/review/
+.impeccable/mocks/
+.impeccable/questions/
+.impeccable/brief-body.md

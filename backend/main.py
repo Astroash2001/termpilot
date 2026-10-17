@@ -263,6 +263,17 @@ def serve_js():
         content = f.read()
     return Response(content=content, media_type="application/javascript", headers=NO_CACHE_HEADERS)
 
+FONTS_DIR = os.path.join(WEB_DIR, "fonts")
+
+@app.get("/fonts/{name}")
+def serve_font(name: str):
+    # Exact match against the files on disk, so a crafted name can't walk out of the folder
+    if not name.endswith(".woff2") or name not in os.listdir(FONTS_DIR):
+        raise HTTPException(status_code=404)
+    with open(os.path.join(FONTS_DIR, name), "rb") as f:
+        content = f.read()
+    return Response(content=content, media_type="font/woff2", headers={"Cache-Control": "public, max-age=31536000, immutable"})
+
 @app.get("/favicon.svg")
 @app.get("/favicon.ico")
 def serve_favicon():
