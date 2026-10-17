@@ -12,11 +12,11 @@
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
   <link rel="stylesheet" href="styles.css?v=37">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" />
-  
-  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-webgl@0.16.0/lib/addon-webgl.js"></script>
+  <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.js" integrity="sha384-M169f14mRZOXm3hD/v2Ti0ThIT/RnAQagXA9nlE15yHAtrW19gdePJh/HaTzUOe/" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.js" integrity="sha384-iF+jqbuti4XlB64clWgFWYEscb+UnSRv3VgVikGYZu+otNFnSHr7y7NcKfBnGizn" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -26,6 +26,11 @@
       <div class="status-indicator">
         <div id="status-dot" class="dot offline"></div>
         <h2 id="status-text">OFFLINE</h2>
+      </div>
+      <div id="auth-section" class="pairing-section" style="display:none;">
+        <p class="subtitle">Enter the access key printed in the TermPilot server window, or open the link it shows.</p>
+        <input id="access-key-input" type="password" class="code-box" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Access key" style="width:100%; margin-bottom:12px;">
+        <button id="btn-access-key" class="btn-primary">Unlock</button>
       </div>
       <div id="pairing-section" class="pairing-section">
         <p class="subtitle">Desktop agent is not connected.</p>
@@ -406,6 +411,6 @@
 
   </div>
 
-  <script src="app.js?v=38"></script>
+  <script src="app.js?v=39"></script>
 </body>
 </html>

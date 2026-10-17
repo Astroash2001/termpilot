@@ -92,6 +92,51 @@ const btnCloseModal = document.getElementById("btn-close-modal");
 
 const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const WS_URL = `${wsProtocol}//${window.location.host}/ws/client`;
+
+// ── Access Key ──────────────────────────────────────────────────────────
+// The server rejects any WebSocket that doesn't open with this key. It arrives once via
+// the link the server prints (#key=...; fragments never leave the browser) or by hand,
+// then lives in localStorage.
+const ACCESS_KEY_STORAGE = "termpilot_access_key";
+const authSection = document.getElementById("auth-section");
+const pairingSection = document.getElementById("pairing-section");
+const accessKeyInput = document.getElementById("access-key-input");
+
+function getAccessKey() {
+  try { return localStorage.getItem(ACCESS_KEY_STORAGE) || ""; } catch (e) { return ""; }
+}
+
+function setAccessKey(key) {
+  try {
+    if (key) localStorage.setItem(ACCESS_KEY_STORAGE, key);
+    else localStorage.removeItem(ACCESS_KEY_STORAGE);
+  } catch (e) {}
+}
+
+(function captureKeyFromLink() {
+  const m = window.location.hash.match(/[#&]key=([^&]+)/);
+  if (!m) return;
+  setAccessKey(decodeURIComponent(m[1]));
+  // Drop it from the address bar and history so it isn't shared by accident
+  history.replaceState(null, "", window.location.pathname + window.location.search);
+})();
+
+function showAccessKeyPrompt() {
+  setConnected(false);
+  authSection.style.display = "block";
+  pairingSection.style.display = "none";
+  statusText.textContent = "LOCKED";
+}
+
+document.getElementById("btn-access-key").addEventListener("click", () => {
+  const key = accessKeyInput.value.trim();
+  if (!key) return;
+  setAccessKey(key);
+  accessKeyInput.value = "";
+  authSection.style.display = "none";
+  pairingSection.style.display = "";
+  connect();
+});
 // ── Dynamic PTY Dimension Sync & Responsive Scaling ───────────────────
 
 let ptyCols = 0;
@@ -190,16 +235,23 @@ function setConnected(on) {
 }
 
 function connect() {
+  const accessKey = getAccessKey();
+  if (!accessKey) {
+    showAccessKeyPrompt();
+    return;
+  }
   ws = new WebSocket(WS_URL);
 
   ws.onopen = () => {
-    setConnected(true);
-    adaptFontSizeToPty();
+    ws.send(JSON.stringify({ type: "AUTH", key: accessKey }));
   };
 
   ws.onmessage = (event) => {
     const payload = JSON.parse(event.data);
-    if (payload.type === "RAW") {
+    if (payload.type === "AUTH_OK") {
+      setConnected(true);
+      adaptFontSizeToPty();
+    } else if (payload.type === "RAW") {
       // Native xterm.js ANSI rendering without forced scrolling interference
       term.write(payload.data);
 
@@ -221,7 +273,13 @@ function connect() {
     }
   };
 
-  ws.onclose = () => {
+  ws.onclose = (event) => {
+    if (event.code === 4001) {
+      // Wrong or rotated key: retrying with it would only fail again
+      setAccessKey("");
+      showAccessKeyPrompt();
+      return;
+    }
     setConnected(false);
     setTimeout(connect, 3000);
   };
@@ -900,7 +958,11 @@ try {
 btnPair.addEventListener("click", async () => {
   try {
     btnPair.innerText = "Generating...";
-    const res = await fetch("/api/pairing/create", { method: "POST" });
+    const res = await fetch("/api/pairing/create", {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${getAccessKey()}` }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     pairingCodeBox.innerText = data.code;
     pairingCmdHint.innerText = `python agent.py --pair ${data.code} "Phone"`;

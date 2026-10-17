@@ -13,6 +13,7 @@ ENV/
 .env
 devices.json
 config.json
+auth.json
 *.local
 
 # Agent status log (written once the PTY owns the console)
