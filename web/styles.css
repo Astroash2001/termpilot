@@ -1,7 +1,7 @@
 /* TermPilot · Field Book, Atlas palette
-   Three colours from the "Atlas Field Notes" reference: ivory cover band and sheets, deep atlas navy
-   terminal and ink, gold for pressables and fine lines. Gold and navy sit opposite on the wheel, so
-   gold pops on navy and navy reads bold on ivory. Red and green survive only as status ink. */
+   Two main colours from the "Atlas Field Notes" reference, gold covers and an ivory page, plus deep
+   atlas navy as the one contrast colour: ink, the run marks and every pressable. Navy sits opposite
+   gold on the wheel, so it pops wherever it lands. Red and green survive only as status ink. */
 
 @font-face { font-family: "Barlow"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/barlow-400.woff2") format("woff2"); }
 @font-face { font-family: "Barlow"; font-weight: 500; font-style: normal; font-display: swap; src: url("/fonts/barlow-500.woff2") format("woff2"); }
@@ -11,32 +11,33 @@
 @font-face { font-family: "Barlow Condensed"; font-weight: 700; font-style: normal; font-display: swap; src: url("/fonts/barlow-condensed-700.woff2") format("woff2"); }
 
 :root {
-  /* Atlas palette, taken straight from the reference: Ivory #E8E0D2, Gold #B89A5A, Deep Atlas Navy #0E1D61 */
-  --cover: #e8e0d2;          /* ivory: header band, sheet heads, cards */
-  --cover-deep: #d9cfbd;     /* pressed ivory */
-  --cover-ink: #0e1d61;      /* deep atlas navy ink on ivory (11.7:1) */
-  --cover-ink-soft: #4a5078; /* secondary navy ink on ivory (5.9:1) */
-  --graphite: #0e1d61;       /* deep atlas navy: terminal pane and app ground */
-  --graphite-2: #1a2b80;     /* raised key */
-  --graphite-3: #24379a;     /* pressed key */
-  --graphite-line: #33459a;
+  /* Atlas palette from the reference: Ivory #E8E0D2 and Gold #B89A5A are the two main colours;
+     Deep Atlas Navy #0E1D61 is the contrast colour, kept to ink, marks and pressables. */
+  --cover: #b89a5a;          /* gold: header band, sheet heads, cards, key-row bars */
+  --cover-deep: #a3864a;     /* pressed gold */
+  --cover-ink: #0e1d61;      /* navy ink on gold (5.7:1) */
+  --cover-ink-soft: #262d5c; /* secondary ink on gold (4.8:1) */
+  --graphite: #e8e0d2;       /* ivory: terminal page and app ground (token name kept for the role) */
+  --graphite-2: #f4efe6;     /* raised key: lifted ivory on the gold bars */
+  --graphite-3: #e3d9c6;     /* pressed key */
+  --graphite-line: #9c8250;  /* key edge: deep gold */
   --paper: #f4efe6;          /* lifted ivory: writing surfaces */
   --paper-ink: #0e1d61;
   --paper-ink-soft: #4a5078;
   --paper-rule: #ddd2bc;     /* gold-tinted ruling on paper */
-  --rule-green: #b89a5a;     /* gold ruling ticks on ivory (name kept for the ruling role) */
-  --stamp-red: #7f2214;      /* problem stamps on ivory: OFFLINE, NO PC (7.5:1) */
+  --rule-green: #735b2a;     /* deep gold ruling ticks on the gold band (name kept for the ruling role) */
+  --stamp-red: #5c1810;      /* problem stamps on gold: OFFLINE, NO PC (4.9:1) */
   --stamp-red-paper: #a93624;/* stamp ink on paper */
-  --stamp-red-light: #ff8a75;/* interrupt keys on navy (6.7:1) */
-  --stamp-green: #2c4f23;    /* DONE ink on ivory (7.1:1) */
-  --press: #b89a5a;          /* gold: every pressable on navy (5.7:1 with navy ink) */
-  --press-deep: #a3864a;     /* pressed gold */
-  --press-ink: #0e1d61;      /* navy icon and label on gold */
-  --pencil: #0e1d61;         /* navy marks on ivory: clock, run fill */
-  --pencil-light: #b89a5a;   /* gold hairlines, focus ring and cursor */
-  --gold-ink: #735b2a;       /* gold deepened for text on ivory and paper (4.9:1 / 5.6:1) */
-  --text: #e8e0d2;           /* ivory text on navy */
-  --text-soft: #a9adc8;      /* soft text on navy (7:1) */
+  --stamp-red-light: #a93624;/* interrupt keys on lifted ivory (5.7:1) */
+  --stamp-green: #1f3a18;    /* DONE ink on gold (4.7:1) */
+  --press: #0e1d61;          /* navy: the contrast colour fills every pressable */
+  --press-deep: #1a2b80;     /* pressed navy */
+  --press-ink: #f4efe6;      /* ivory icon and label on navy (11.7:1) */
+  --pencil: #0e1d61;         /* navy marks: clock, run fill */
+  --pencil-light: #0e1d61;   /* navy hairlines, focus ring and cursor */
+  --gold-ink: #735b2a;       /* gold deepened for text on ivory and paper (5.6:1 on paper) */
+  --text: #0e1d61;           /* navy text on ivory */
+  --text-soft: #262d5c;      /* soft navy text on gold bars and keys */
 
   --m: 4px;                  /* the one spacing module */
   --radius: 6px;
@@ -137,7 +138,7 @@ button {
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7, 14, 48, 0.88);
+  background: rgba(43, 34, 16, 0.72);
   z-index: 100;
   display: flex;
   align-items: center;
@@ -213,9 +214,7 @@ button {
   transition: transform 120ms var(--ease-out), background 120ms;
 }
 .btn-primary:active { background: var(--press-deep); transform: translateY(1px); }
-/* On ivory, gold fades into the card (2:1), so primaries there are navy blocks, as in the reference */
-.btn-primary, .btn-select-action { background: var(--cover-ink); color: var(--cover); }
-.btn-primary:active, .btn-select-action:active { background: #1a2b80; }
+
 
 #pairing-display { margin-top: calc(var(--m) * 5); }
 
@@ -346,7 +345,7 @@ button {
   position: relative;
   height: 7px;
   border-top: 1.5px solid var(--cover-ink);
-  border-bottom: 1.5px solid var(--pencil-light); /* gold edge keeps the navy fill from fusing into the navy terminal */
+  border-bottom: 1.5px solid var(--pencil-light); /* navy edge closes the gold band above the ivory page */
   background-image: repeating-linear-gradient(90deg, var(--rule-green) 0 1px, transparent 1px calc(100% / 12));
 }
 .rule i {
@@ -424,7 +423,7 @@ button {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(7, 14, 48, 0.72);
+  background: rgba(43, 34, 16, 0.55);
   z-index: 90;
   display: flex;
   align-items: flex-end; /* Bottom sheet on mobile */
@@ -461,7 +460,7 @@ button {
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
   border-bottom: 1.5px solid var(--cover-ink);
-  box-shadow: 0 1.5px 0 var(--pencil-light); /* gold hairline under the ink rule */
+  box-shadow: 0 1.5px 0 var(--pencil-light); /* navy hairline under the ink rule */
 }
 
 .modal-title {
@@ -711,8 +710,8 @@ button {
   align-items: center;
   gap: calc(var(--m) * 1.5);
   padding: calc(var(--m) * 2) calc(var(--m) * 2) calc(var(--m) * 1.5);
-  background: var(--graphite);
-  border-top: 1px solid rgba(184, 154, 90, 0.7); /* gold hairline */
+  background: var(--cover);
+  border-top: 1px solid rgba(14, 29, 97, 0.35); /* navy hairline */
   overflow-x: auto;
   white-space: nowrap;
   flex-shrink: 0;
@@ -797,7 +796,7 @@ button {
   align-items: flex-end; /* Align buttons with bottom of expanding textarea */
   gap: calc(var(--m) * 2);
   padding: calc(var(--m) * 1.5) calc(var(--m) * 2) calc(var(--m) * 2);
-  background: var(--graphite);
+  background: var(--cover);
   flex-shrink: 0;
 }
 
@@ -873,7 +872,7 @@ button {
   gap: var(--m);
   padding: 0 calc(var(--m) * 2) calc(var(--m) * 2);
   padding-bottom: max(calc(var(--m) * 2), env(safe-area-inset-bottom));
-  background: var(--graphite);
+  background: var(--cover);
   flex-shrink: 0;
 }
 

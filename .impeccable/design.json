@@ -5,19 +5,19 @@
   "extensions": {
     "colorMeta": {
       "press": {
-        "role": "primary",
-        "displayName": "Gold",
-        "value": "#b89a5a"
+        "role": "accent",
+        "displayName": "Deep Atlas Navy",
+        "value": "#0e1d61"
       },
       "press-deep": {
-        "role": "primary",
-        "displayName": "Pressed Gold",
-        "value": "#a3864a"
+        "role": "accent",
+        "displayName": "Pressed Navy",
+        "value": "#1a2b80"
       },
       "stamp-red": {
         "role": "secondary",
-        "displayName": "Stamp Red, cover ink",
-        "value": "#7f2214"
+        "displayName": "Stamp Red On Gold",
+        "value": "#5c1810"
       },
       "stamp-red-paper": {
         "role": "secondary",
@@ -26,28 +26,28 @@
       },
       "stamp-red-light": {
         "role": "secondary",
-        "displayName": "Stamp Red On Navy",
-        "value": "#ff8a75"
+        "displayName": "Stamp Red On Keys",
+        "value": "#a93624"
       },
       "rule-green": {
         "role": "tertiary",
-        "displayName": "Gold Ruling Ticks",
-        "value": "#b89a5a"
+        "displayName": "Deep Gold Ticks",
+        "value": "#735b2a"
       },
       "stamp-green": {
         "role": "tertiary",
         "displayName": "DONE Green",
-        "value": "#2c4f23"
+        "value": "#1f3a18"
       },
       "cover": {
         "role": "neutral",
-        "displayName": "Ivory",
-        "value": "#e8e0d2"
+        "displayName": "Gold",
+        "value": "#b89a5a"
       },
       "cover-deep": {
         "role": "neutral",
-        "displayName": "Pressed Ivory",
-        "value": "#d9cfbd"
+        "displayName": "Pressed Gold",
+        "value": "#a3864a"
       },
       "cover-ink": {
         "role": "neutral",
@@ -56,28 +56,28 @@
       },
       "cover-ink-soft": {
         "role": "neutral",
-        "displayName": "Navy Soft Ink",
-        "value": "#4a5078"
+        "displayName": "Soft Navy",
+        "value": "#262d5c"
       },
       "graphite": {
         "role": "neutral",
-        "displayName": "Deep Atlas Navy",
-        "value": "#0e1d61"
+        "displayName": "Ivory Page",
+        "value": "#e8e0d2"
       },
       "graphite-2": {
         "role": "neutral",
-        "displayName": "Raised Key",
-        "value": "#1a2b80"
+        "displayName": "Lifted Ivory Key",
+        "value": "#f4efe6"
       },
       "graphite-3": {
         "role": "neutral",
         "displayName": "Pressed Key",
-        "value": "#24379a"
+        "value": "#e3d9c6"
       },
       "graphite-line": {
         "role": "neutral",
-        "displayName": "Key Line",
-        "value": "#33459a"
+        "displayName": "Deep Gold Edge",
+        "value": "#9c8250"
       },
       "paper": {
         "role": "neutral",
@@ -101,13 +101,13 @@
       },
       "text": {
         "role": "neutral",
-        "displayName": "Ivory Text",
-        "value": "#e8e0d2"
+        "displayName": "Navy Text",
+        "value": "#0e1d61"
       },
       "text-soft": {
         "role": "neutral",
-        "displayName": "Navy Soft Text",
-        "value": "#a9adc8"
+        "displayName": "Soft Navy Text",
+        "value": "#262d5c"
       },
       "pencil": {
         "role": "accent",
@@ -117,17 +117,19 @@
       },
       "pencil-light": {
         "role": "accent",
-        "displayName": "Gold Line",
-        "value": "#b89a5a",
+        "displayName": "Navy Line",
+        "value": "#0e1d61",
         "description": "Blue pencil on graphite: snippet row hairline, terminal cursor and selection."
       },
       "press-ink": {
-        "value": "#0e1d61",
-        "displayName": "Navy On Gold"
+        "value": "#f4efe6",
+        "displayName": "Ivory On Navy",
+        "role": "neutral"
       },
       "gold-ink": {
         "value": "#735b2a",
-        "displayName": "Gold Ink"
+        "displayName": "Gold Ink",
+        "role": "neutral"
       }
     },
     "typographyMeta": {
@@ -263,7 +265,7 @@
       "refersTo": "button-press",
       "description": "Full-width yellow primary action in cards and sheets (Unlock, Connect, Got it).",
       "html": "<button class=\"ds-btn-press\">Unlock</button>",
-      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-btn-press{display:block;width:280px;height:48px;background:var(--press);color:var(--press-ink);border:none;border-radius:var(--radius);font-family:var(--font-label);font-size:18px;font-weight:700;letter-spacing:0.04em;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-btn-press:active{background:var(--press-deep);transform:translateY(1px);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-btn-press{display:block;width:280px;height:48px;background:var(--press);color:var(--press-ink);border:none;border-radius:var(--radius);font-family:var(--font-label);font-size:18px;font-weight:700;letter-spacing:0.04em;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-btn-press:active{background:var(--press-deep);transform:translateY(1px);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Prompt Row",
@@ -271,7 +273,7 @@
       "refersTo": "prompt-field",
       "description": "Round yellow mic, paper prompt field with stamp-red caret, yellow Send.",
       "html": "<div class=\"ds-prompt-row\"><button class=\"ds-mic\" aria-label=\"Voice input\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"9\" y=\"3\" width=\"6\" height=\"11\" rx=\"3\"/><path d=\"M5.5 11a6.5 6.5 0 0 0 13 0\"/><path d=\"M12 17.5V21\"/></svg></button><textarea class=\"ds-prompt\" rows=\"1\" placeholder=\"Type / for commands, or speak…\"></textarea><button class=\"ds-send\" aria-label=\"Send\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 19V5\"/><path d=\"M6 11l6-6 6 6\"/></svg></button></div>",
-      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-prompt-row{display:flex;align-items:flex-end;gap:8px;padding:6px 8px 8px;background:var(--graphite);width:360px;} .ds-mic,.ds-send{width:48px;height:48px;flex-shrink:0;display:grid;place-items:center;background:var(--press);color:var(--press-ink);border:none;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-mic{border-radius:24px;} .ds-send{border-radius:10px;} .ds-mic:active,.ds-send:active{background:var(--press-deep);transform:translateY(1px);} .ds-prompt{flex:1;min-width:0;height:48px;background:var(--paper);color:var(--paper-ink);caret-color:var(--stamp-red);border:1.5px solid transparent;border-radius:10px;padding:12px 12px 10px;font-family:var(--font-ui);font-size:16px;line-height:1.4;resize:none;} .ds-prompt:focus{outline:none;border-color:var(--pencil);} .ds-prompt::placeholder{color:var(--paper-ink-soft);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-prompt-row{display:flex;align-items:flex-end;gap:8px;padding:6px 8px 8px;background:var(--cover);width:360px;} .ds-mic,.ds-send{width:48px;height:48px;flex-shrink:0;display:grid;place-items:center;background:var(--press);color:var(--press-ink);border:none;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-mic{border-radius:24px;} .ds-send{border-radius:10px;} .ds-mic:active,.ds-send:active{background:var(--press-deep);transform:translateY(1px);} .ds-prompt{flex:1;min-width:0;height:48px;background:var(--paper);color:var(--paper-ink);caret-color:var(--stamp-red);border:1.5px solid transparent;border-radius:10px;padding:12px 12px 10px;font-family:var(--font-ui);font-size:16px;line-height:1.4;resize:none;} .ds-prompt:focus{outline:none;border-color:var(--pencil);} .ds-prompt::placeholder{color:var(--paper-ink-soft);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Key Row",
@@ -279,7 +281,7 @@
       "refersTo": "key",
       "description": "Graphite touch-bar keys; ESC and ^C in graphite stamp ink.",
       "html": "<div class=\"ds-keys\"><button class=\"ds-key ds-wide\">/ CMD</button><button class=\"ds-key ds-danger\">ESC</button><button class=\"ds-key ds-danger\">^C</button><button class=\"ds-key\">CLR</button><button class=\"ds-key\" aria-label=\"Up\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 15l6-6 6 6\"/></svg></button></div>",
-      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-keys{display:flex;gap:4px;padding:8px;background:var(--graphite);width:360px;} .ds-key{flex:1;min-width:0;height:44px;display:grid;place-items:center;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-label);font-size:15px;font-weight:600;letter-spacing:0.04em;cursor:pointer;transition:background 100ms;} .ds-key:active{background:var(--graphite-3);} .ds-wide{flex:1.7;} .ds-danger{color:var(--stamp-red-light);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-keys{display:flex;gap:4px;padding:8px;background:var(--cover);width:360px;} .ds-key{flex:1;min-width:0;height:44px;display:grid;place-items:center;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-label);font-size:15px;font-weight:600;letter-spacing:0.04em;cursor:pointer;transition:background 100ms;} .ds-key:active{background:var(--graphite-3);} .ds-wide{flex:1.7;} .ds-danger{color:var(--stamp-red-light);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Snippet Keys",
@@ -287,7 +289,7 @@
       "refersTo": "snippet-key",
       "description": "Mono shell snippets, the zoom group with tabular readout, and the dashed Pin key.",
       "html": "<div class=\"ds-snips\"><div class=\"ds-zoom\"><button class=\"ds-snip ds-z\">A−</button><span class=\"ds-readout\">100%</span><button class=\"ds-snip ds-z\">A+</button></div><button class=\"ds-snip\">git status</button><button class=\"ds-snip ds-pin\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>Pin</button></div>",
-      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-snips{display:flex;align-items:center;gap:6px;padding:8px 8px 6px;background:var(--graphite);border-top:1px solid rgba(184,154,90,0.7);} .ds-snip{display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 12px;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-mono);font-size:13px;font-weight:500;cursor:pointer;transition:background 120ms;} .ds-snip:active{background:var(--graphite-3);} .ds-zoom{display:inline-flex;align-items:center;height:36px;border:1px solid var(--graphite-line);border-radius:var(--radius);overflow:hidden;} .ds-z{height:100%;min-width:36px;padding:0 8px;justify-content:center;border:none;border-radius:0;font-family:var(--font-label);font-size:16px;font-weight:600;} .ds-readout{min-width:4.2ch;padding:0 6px;text-align:center;font-family:var(--font-label);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-soft);border-left:1px solid var(--graphite-line);border-right:1px solid var(--graphite-line);line-height:34px;} .ds-pin{background:transparent;border-style:dashed;color:var(--text-soft);font-family:var(--font-label);font-size:15px;font-weight:600;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-snips{display:flex;align-items:center;gap:6px;padding:8px 8px 6px;background:var(--cover);border-top:1px solid rgba(14,29,97,0.35);} .ds-snip{display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 12px;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-mono);font-size:13px;font-weight:500;cursor:pointer;transition:background 120ms;} .ds-snip:active{background:var(--graphite-3);} .ds-zoom{display:inline-flex;align-items:center;height:36px;border:1px solid var(--graphite-line);border-radius:var(--radius);overflow:hidden;} .ds-z{height:100%;min-width:36px;padding:0 8px;justify-content:center;border:none;border-radius:0;font-family:var(--font-label);font-size:16px;font-weight:600;} .ds-readout{min-width:4.2ch;padding:0 6px;text-align:center;font-family:var(--font-label);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-soft);border-left:1px solid var(--graphite-line);border-right:1px solid var(--graphite-line);line-height:34px;} .ds-pin{background:transparent;border-style:dashed;color:var(--text-soft);font-family:var(--font-label);font-size:15px;font-weight:600;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Run Entry",
@@ -295,7 +297,7 @@
       "refersTo": "cover-band",
       "description": "Signature cover band: tilted state stamp, sent prompt, meta, tabular clock, chime toggle, and the 12-cell duration rule.",
       "html": "<header class=\"ds-cover\"><div class=\"ds-entry\"><span class=\"ds-stamp ds-pressed\">RUNNING</span><div class=\"ds-entry-text\"><div class=\"ds-entry-prompt\">agy fix flaky reconnect test</div><div class=\"ds-entry-meta\"><span class=\"ds-wordmark\">TermPilot</span><span>No. 10 · 11:53 PM</span></div></div><span class=\"ds-clock\">25:00</span><button class=\"ds-icon-btn\" aria-label=\"Completion chime\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z\"/><path d=\"M10 20.5a2.2 2.2 0 0 0 4 0\"/></svg></button></div><div class=\"ds-rule\"><i style=\"transform:scaleX(0.42)\"></i></div></header>",
-      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-cover{background:var(--cover);color:var(--cover-ink);width:390px;} .ds-entry{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;min-height:56px;} .ds-entry-text{flex:1;min-width:0;} .ds-entry-prompt{font-family:var(--font-ui);font-size:15px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-entry-meta{display:flex;gap:8px;font-family:var(--font-ui);font-size:12px;line-height:1.3;color:var(--cover-ink-soft);white-space:nowrap;} .ds-wordmark{font-family:var(--font-label);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cover-ink);} .ds-stamp{flex:none;display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(-2deg);color:var(--stamp-red);} .ds-pressed{animation:ds-press 420ms var(--ease-out);} @keyframes ds-press{0%{transform:rotate(-6deg) scale(1.35);opacity:0;}55%{transform:rotate(-1deg) scale(0.96);opacity:1;}100%{transform:rotate(-2deg) scale(1);opacity:1;}} .ds-clock{flex:none;color:var(--pencil);font-family:var(--font-label);font-weight:600;font-size:24px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:0.01em;} .ds-icon-btn{flex:none;width:40px;height:40px;display:grid;place-items:center;background:transparent;border:1.5px solid rgba(35,37,29,0.55);border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-icon-btn:active{background:var(--cover-deep);} .ds-rule{position:relative;height:7px;border-top:1.5px solid var(--cover-ink);border-bottom:1.5px solid var(--pencil);background-image:repeating-linear-gradient(90deg,var(--rule-green) 0 1px,transparent 1px calc(100% / 12));} .ds-rule i{position:absolute;inset:0;background:var(--pencil);transform-origin:left center;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-cover{background:var(--cover);color:var(--cover-ink);width:390px;} .ds-entry{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;min-height:56px;} .ds-entry-text{flex:1;min-width:0;} .ds-entry-prompt{font-family:var(--font-ui);font-size:15px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-entry-meta{display:flex;gap:8px;font-family:var(--font-ui);font-size:12px;line-height:1.3;color:var(--cover-ink-soft);white-space:nowrap;} .ds-wordmark{font-family:var(--font-label);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cover-ink);} .ds-stamp{flex:none;display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(-2deg);color:var(--stamp-red);} .ds-pressed{animation:ds-press 420ms var(--ease-out);} @keyframes ds-press{0%{transform:rotate(-6deg) scale(1.35);opacity:0;}55%{transform:rotate(-1deg) scale(0.96);opacity:1;}100%{transform:rotate(-2deg) scale(1);opacity:1;}} .ds-clock{flex:none;color:var(--pencil);font-family:var(--font-label);font-weight:600;font-size:24px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:0.01em;} .ds-icon-btn{flex:none;width:40px;height:40px;display:grid;place-items:center;background:transparent;border:1.5px solid rgba(35,37,29,0.55);border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-icon-btn:active{background:var(--cover-deep);} .ds-rule{position:relative;height:7px;border-top:1.5px solid var(--cover-ink);border-bottom:1.5px solid var(--pencil);background-image:repeating-linear-gradient(90deg,var(--rule-green) 0 1px,transparent 1px calc(100% / 12));} .ds-rule i{position:absolute;inset:0;background:var(--pencil);transform-origin:left center;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Stamp States",
@@ -303,7 +305,7 @@
       "refersTo": "stamp",
       "description": "Run-state stamps re-inked per state: RUNNING red, DONE green, READY dashed graphite, LOCKED graphite.",
       "html": "<div class=\"ds-stamps\"><span class=\"ds-st\" style=\"--t:-2deg\">RUNNING</span><span class=\"ds-st ds-done\" style=\"--t:-1.4deg\">DONE</span><span class=\"ds-st ds-ready\" style=\"--t:-2.6deg\">READY</span><span class=\"ds-st ds-locked\" style=\"--t:-1.8deg\">LOCKED</span></div>",
-      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-stamps{display:flex;gap:16px;padding:16px;background:var(--cover);} .ds-st{display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(var(--t,-2deg));white-space:nowrap;color:var(--stamp-red);} .ds-done{color:var(--stamp-green);} .ds-ready{color:var(--cover-ink);border-style:dashed;} .ds-locked{color:var(--cover-ink);}"
+      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-stamps{display:flex;gap:16px;padding:16px;background:var(--cover);} .ds-st{display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(var(--t,-2deg));white-space:nowrap;color:var(--stamp-red);} .ds-done{color:var(--stamp-green);} .ds-ready{color:var(--cover-ink);border-style:dashed;} .ds-locked{color:var(--cover-ink);}"
     },
     {
       "name": "Command Sheet",
@@ -311,7 +313,7 @@
       "refersTo": "sheet",
       "description": "Paper sheet under a cover header; red-ink section heading over an ink rule; fixed one-line command rows.",
       "html": "<div class=\"ds-sheet\"><div class=\"ds-sheet-head\"><span class=\"ds-sheet-title\">Antigravity commands</span><button class=\"ds-close\" aria-label=\"Close\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg></button></div><div class=\"ds-sheet-body\"><input class=\"ds-search\" placeholder=\"Search /plan, /add-dir, /mcp…\"><div class=\"ds-sec\">Workspace &amp; context</div><div class=\"ds-row ds-sel\" tabindex=\"0\"><span class=\"ds-tag\">/add-dir</span><span class=\"ds-desc\">Add a directory to the workspace context</span></div><div class=\"ds-row\" tabindex=\"0\"><span class=\"ds-tag\">/worktree</span><span class=\"ds-desc\">Manage git worktrees for isolated parallel branches</span></div></div></div>",
-      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-sheet{width:390px;background:var(--paper);color:var(--paper-ink);border-radius:14px 14px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,0.4);overflow:hidden;} .ds-sheet-head{display:flex;align-items:center;justify-content:space-between;padding:8px 8px 8px 16px;background:var(--cover);color:var(--cover-ink);border-bottom:1.5px solid var(--cover-ink);} .ds-sheet-title{font-family:var(--font-label);font-size:20px;font-weight:700;letter-spacing:0.02em;} .ds-close{width:44px;height:44px;display:grid;place-items:center;background:transparent;border:none;border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-close:active{background:var(--cover-deep);} .ds-sheet-body{padding:12px 16px 24px;} .ds-search{width:100%;box-sizing:border-box;height:44px;background:#fbf8ee;border:1.5px solid var(--paper-ink);border-radius:var(--radius);padding:0 12px;color:var(--paper-ink);caret-color:var(--stamp-red);font-family:var(--font-ui);font-size:16px;} .ds-search::placeholder{color:var(--paper-ink-soft);} .ds-sec{font-family:var(--font-label);font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-ink);padding:20px 0 6px;border-bottom:1.5px solid var(--paper-ink);} .ds-row{display:flex;flex-direction:column;gap:2px;padding:10px 8px;margin:0 -8px;border-bottom:1px solid var(--paper-rule);border-radius:3px;cursor:pointer;transition:background 120ms;} .ds-row:active,.ds-sel{background:rgba(184,154,90,0.3);} .ds-tag{font-family:var(--font-mono);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-desc{font-family:var(--font-ui);font-size:13px;color:var(--paper-ink-soft);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-sheet{width:390px;background:var(--paper);color:var(--paper-ink);border-radius:14px 14px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,0.4);overflow:hidden;} .ds-sheet-head{display:flex;align-items:center;justify-content:space-between;padding:8px 8px 8px 16px;background:var(--cover);color:var(--cover-ink);border-bottom:1.5px solid var(--cover-ink);} .ds-sheet-title{font-family:var(--font-label);font-size:20px;font-weight:700;letter-spacing:0.02em;} .ds-close{width:44px;height:44px;display:grid;place-items:center;background:transparent;border:none;border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-close:active{background:var(--cover-deep);} .ds-sheet-body{padding:12px 16px 24px;} .ds-search{width:100%;box-sizing:border-box;height:44px;background:#fbf8ee;border:1.5px solid var(--paper-ink);border-radius:var(--radius);padding:0 12px;color:var(--paper-ink);caret-color:var(--stamp-red);font-family:var(--font-ui);font-size:16px;} .ds-search::placeholder{color:var(--paper-ink-soft);} .ds-sec{font-family:var(--font-label);font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-ink);padding:20px 0 6px;border-bottom:1.5px solid var(--paper-ink);} .ds-row{display:flex;flex-direction:column;gap:2px;padding:10px 8px;margin:0 -8px;border-bottom:1px solid var(--paper-rule);border-radius:3px;cursor:pointer;transition:background 120ms;} .ds-row:active,.ds-sel{background:rgba(184,154,90,0.3);} .ds-tag{font-family:var(--font-mono);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-desc{font-family:var(--font-ui);font-size:13px;color:var(--paper-ink-soft);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Toast",
@@ -319,7 +321,7 @@
       "refersTo": "toast",
       "description": "Paper slip that drops in below the cover band.",
       "html": "<div class=\"ds-toast\">Copied to clipboard</div>",
-      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-toast{display:inline-block;background:var(--paper);color:var(--paper-ink);padding:8px 16px;border-radius:var(--radius);font-family:var(--font-label);font-size:16px;font-weight:600;letter-spacing:0.02em;box-shadow:0 6px 18px rgba(0,0,0,0.35);animation:ds-toast 240ms var(--ease-out);} @keyframes ds-toast{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}"
+      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-toast{display:inline-block;background:var(--paper);color:var(--paper-ink);padding:8px 16px;border-radius:var(--radius);font-family:var(--font-label);font-size:16px;font-weight:600;letter-spacing:0.02em;box-shadow:0 6px 18px rgba(0,0,0,0.35);animation:ds-toast 240ms var(--ease-out);} @keyframes ds-toast{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}"
     }
   ],
   "narrative": {
@@ -334,18 +336,18 @@
     ],
     "rules": [
       {
-        "name": "The Three Colours Rule",
-        "body": "Every colour on screen is ivory, gold or navy, or a lighter or darker step of one of them. Red and green are status ink only and never decorate.",
-        "section": "colors"
+        "section": "colors",
+        "name": "The Two Main Colours Rule",
+        "body": "Every surface is gold or ivory, or a step of one. A new surface picks one of the two; navy never becomes a surface."
       },
       {
-        "name": "The Gold-Pops-On-Navy Rule",
-        "body": "On navy, pressables are gold. On ivory, gold fades (2:1), so pressables there are solid navy blocks with ivory labels, and gold is used only for lines or as deepened gold ink for text.",
-        "section": "colors"
+        "section": "colors",
+        "name": "The Navy Contrast Rule",
+        "body": "Navy is the contrast colour: ink, the run marks (clock, run fill, stamps), hairlines and every pressable. It stays scarce so it keeps popping. Red and green are status ink only and never decorate."
       },
       {
         "name": "The Re-Inked Stamp Rule",
-        "body": "Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on ivory, stamp-red-paper on paper, stamp-red-light on navy), never the other way round.",
+        "body": "Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on gold, stamp-red-paper on paper, stamp-red-light on keys), never the other way round.",
         "section": "colors"
       },
       {
@@ -365,8 +367,8 @@
       }
     ],
     "dos": [
-      "keep gold (#B89A5A) for pressables on navy and for fine lines; use navy blocks for pressables on ivory.",
-      "pick the stamp-red ink by surface: #7f2214 on ivory, #a93624 on paper, #ff8a75 on navy.",
+      "keep navy (#0E1D61) for ink, run marks and pressables only; surfaces are gold or ivory.",
+      "pick the stamp-red ink by surface: #5c1810 on gold, #a93624 on paper and keys.",
       "build every gap from the 4px module and keep touch targets 44-48px.",
       "set every count, clock and readout in Barlow Condensed with tabular numerals.",
       "use dashed borders to mean \"not yet\" or \"off\" (READY, muted, Pin).",

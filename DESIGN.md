@@ -2,31 +2,31 @@
 name: TermPilot
 description: A surveyor's field book for watching and steering a PC terminal run from the phone.
 colors:
-  cover: "#e8e0d2"
-  cover-deep: "#d9cfbd"
+  cover: "#b89a5a"
+  cover-deep: "#a3864a"
   cover-ink: "#0e1d61"
-  cover-ink-soft: "#4a5078"
-  graphite: "#0e1d61"
-  graphite-2: "#1a2b80"
-  graphite-3: "#24379a"
-  graphite-line: "#33459a"
+  cover-ink-soft: "#262d5c"
+  graphite: "#e8e0d2"
+  graphite-2: "#f4efe6"
+  graphite-3: "#e3d9c6"
+  graphite-line: "#9c8250"
   paper: "#f4efe6"
   paper-ink: "#0e1d61"
   paper-ink-soft: "#4a5078"
   paper-rule: "#ddd2bc"
-  rule-green: "#b89a5a"
-  stamp-red: "#7f2214"
+  rule-green: "#735b2a"
+  stamp-red: "#5c1810"
   stamp-red-paper: "#a93624"
-  stamp-red-light: "#ff8a75"
-  stamp-green: "#2c4f23"
-  press: "#b89a5a"
-  press-deep: "#a3864a"
-  press-ink: "#0e1d61"
+  stamp-red-light: "#a93624"
+  stamp-green: "#1f3a18"
+  press: "#0e1d61"
+  press-deep: "#1a2b80"
+  press-ink: "#f4efe6"
   pencil: "#0e1d61"
-  pencil-light: "#b89a5a"
+  pencil-light: "#0e1d61"
   gold-ink: "#735b2a"
-  text: "#e8e0d2"
-  text-soft: "#a9adc8"
+  text: "#0e1d61"
+  text-soft: "#262d5c"
 typography:
   display:
     fontFamily: "Barlow Condensed, Barlow, system-ui, sans-serif"
@@ -188,7 +188,7 @@ components:
 
 **Creative North Star: "The Field Book"**
 
-The phone is the all-weather surveyor's field book carried away from the desk, and the agent run on the PC is the entry being checked on. Three materials make the whole world: an ivory cover board with navy ink across the top, the deep navy terminal pane filling the middle, and waterproof paper wherever the user writes (the prompt field and every sheet). Rubber-stamp ink states the run, a green level-book ruling measures it, and gold marks everything that can be pressed.
+The phone is the all-weather surveyor's field book carried away from the desk, and the agent run on the PC is the entry being checked on. Three materials make the whole world: a gold cover board with navy ink across the top, the ivory terminal page filling the middle, and waterproof paper wherever the user writes (the prompt field and every sheet). Rubber-stamp ink states the run, a green level-book ruling measures it, and navy marks everything that can be pressed.
 
 Density is that of a working instrument: one cover row carries the stamp, the prompt that was sent, the elapsed clock and the chime toggle; the terminal takes every remaining pixel; the bottom carries three thumb rows (snippet keys, prompt row, key row). Chrome serves the terminal and never crowds it. Type is a condensed grotesk for everything that is a label, stamp or numeral, a plain grotesk for sentences, and system monospace for anything that is or will become terminal text.
 
@@ -198,35 +198,31 @@ The world explicitly rejects the category default of a black SSH screen with one
 - Three materials: cover board (header band, sheet headers, unlock card), graphite (terminal and key rows), paper (prompt field, sheets, toast).
 - Rubber stamps for run state, re-inked per surface for contrast.
 - One 4px spacing module; every gap is a multiple of it.
-- Gold means pressable on navy; solid navy means pressable on ivory.
+- Navy is the contrast colour: it means pressable, and it marks the run.
 - Code-led: inline SVG stroke icons, CSS stamps and ruling, self-hosted webfonts; no rasters.
 
 ## Colors
 
-Three colours taken straight from the "Atlas Field Notes" reference: Ivory #E8E0D2, Gold #B89A5A and Deep Atlas Navy #0E1D61. Gold and navy sit opposite each other on the colour wheel, so gold pops on navy and navy reads bold on ivory. Red and green survive only as status ink.
+Taken straight from the "Atlas Field Notes" reference: Gold #B89A5A and Ivory #E8E0D2 are the two main colours, and Deep Atlas Navy #0E1D61 is the one contrast colour. Navy sits opposite gold on the colour wheel, so it pops wherever it lands; keeping it to ink, marks and pressables keeps it noticed. Red and green survive only as status ink.
 
-### Primary
-- **Deep Atlas Navy** (graphite, cover-ink, paper-ink, pencil): the terminal pane and app ground, all ink on ivory (11.7:1), the elapsed clock and the run fill, and the solid primary buttons that sit on ivory (Unlock, Connect, Copy actions) with ivory labels. **Raised Key** (graphite-2), **Pressed Key** (graphite-3) and **Key Line** (graphite-line) are lighter navies for the key rows.
+### Main colours
+- **Gold** (cover): the field book's covers. The header band, sheet headers, the unlock and reconnect card, and the three key-row bars (snippets, prompt, touch keys) that frame the page. **Pressed Gold** (cover-deep) is the active state of icon buttons on gold. **Deep Gold** (graphite-line, rule-green) draws key edges and the duration rule's ticks.
+- **Ivory** (graphite): the page. The terminal and app ground. **Lifted Ivory** (paper, graphite-2) is the writing surface and the keys: prompt field, sheet bodies, snippet and touch keys. **Pressed Key** (graphite-3) is the key's active state. **Gold Ruling** (paper-rule) divides rows on paper.
 
-### Secondary
-- **Ivory** (cover): the header band, sheet headers, and the unlock and reconnect card. **Pressed Ivory** (cover-deep) is the active state of icon buttons on ivory. **Lifted Ivory** (paper) is the writing surface: prompt field, sheet bodies. **Navy Soft Ink** (cover-ink-soft, paper-ink-soft, 5.9:1 on ivory) carries secondary text. **Gold Ruling** (paper-rule) divides rows on paper.
-- **Ivory Text** (text) and **Navy Soft Text** (text-soft, 7:1) are the text colours on navy.
-
-### Accent
-- **Gold** (press, pencil-light, rule-green): the fill of every pressable on navy (Send, mic) with navy icons at 5.7:1, plus every fine line: the duration rule's ticks and lower edge, the hairline under sheet headers and the unlock card head, the snippet row's top hairline, the focus ring, the terminal cursor and selection, and (at 30% alpha) the selected command row. **Pressed Gold** (press-deep) is its active state.
-- **Gold Ink** (gold-ink, 4.9:1 on ivory, 5.6:1 on paper): gold deepened for text, used for the command sheet's section headings.
+### Contrast colour
+- **Deep Atlas Navy** (press, pencil, pencil-light, cover-ink, paper-ink, text): the fill of every pressable (Send, mic, Unlock, Connect, Copy actions) with ivory icons and labels at 11.7:1; the elapsed clock and the run fill; the RUNNING, READY and LOCKED stamps; all ink on gold (5.7:1) and ivory; the hairlines, focus ring and terminal cursor. **Pressed Navy** (press-deep) is its active state. **Soft Navy** (cover-ink-soft, text-soft, 4.8:1 on gold; paper-ink-soft on paper) carries secondary text.
+- **Gold Ink** (gold-ink, 5.6:1 on paper): gold deepened for text, used for the command sheet's section headings.
 
 ### Status inks
-- **Stamp Red** (stamp-red on ivory, stamp-red-paper on paper, stamp-red-light on navy): problem states only: the OFFLINE and NO PC stamps, the mic while listening, and the ESC and ^C interrupt keys.
-- **DONE Green** (stamp-green): the DONE stamp on ivory.
-- RUNNING, READY and LOCKED stamps are navy ink.
+- **Stamp Red** (stamp-red on gold, stamp-red-paper on paper, stamp-red-light on keys): problem states only: the OFFLINE and NO PC stamps, the mic while listening, and the ESC and ^C interrupt keys.
+- **DONE Green** (stamp-green, 4.7:1 on gold): the DONE stamp.
 
 ### Named Rules
-**The Three Colours Rule.** Every colour on screen is ivory, gold or navy, or a lighter or darker step of one of them. Red and green are status ink only and never decorate.
+**The Two Main Colours Rule.** Every surface is gold or ivory, or a step of one. A new surface picks one of the two; navy never becomes a surface.
 
-**The Gold-Pops-On-Navy Rule.** On navy, pressables are gold. On ivory, gold fades (2:1), so pressables there are solid navy blocks with ivory labels, and gold is used only for lines or as deepened gold ink for text.
+**The Navy Contrast Rule.** Navy is the contrast colour: ink, the run marks (clock, run fill, stamps), hairlines and every pressable. It stays scarce so it keeps popping. Red and green are status ink only and never decorate.
 
-**The Re-Inked Stamp Rule.** Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on ivory, stamp-red-paper on paper, stamp-red-light on navy), never the other way round.
+**The Re-Inked Stamp Rule.** Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on gold, stamp-red-paper on paper, stamp-red-light on keys), never the other way round.
 
 ## Typography
 
@@ -282,7 +278,7 @@ The duration rule is the signature silhouette: a 7px band between a 1.5px cover-
 ### Buttons
 Tactile, few, and unmistakably pressable.
 - **Shape:** 6px keys; Send 10px; mic round.
-- **Primary (press):** gold with navy text on navy, solid navy with ivory text on ivory, Condensed 700 at 16-18px, 48px tall full-width in cards and sheets, 40px inline in the copy sheet. Press shadow.
+- **Primary (press):** navy with ivory text, Condensed 700 at 16-18px, 48px tall full-width in cards and sheets, 40px inline in the copy sheet. Press shadow.
 - **Active / Focus:** active swaps to press-deep and translates 1px down (120ms ease-out). Focus-visible is a 2px pencil-light outline offset 2px everywhere.
 - **Mic listening:** turns stamp-red with paper icon and a red ring pulse (1.4s).
 - **Cover icon button:** 40px, transparent, 1.5px cover-ink border at 55%; active fills cover-deep; muted state goes dashed and soft.
@@ -294,7 +290,7 @@ Tactile, few, and unmistakably pressable.
 - **Zoom group:** A-, a tabular % readout between hairlines, A+, sharing one bordered 36px housing.
 
 ### Inputs / Fields
-- **Prompt field:** paper, 10px radius, transparent 1.5px border, Barlow 16px, stamp-red caret; focus turns the border gold. Auto-grows from 48px to 110px.
+- **Prompt field:** paper, 10px radius, transparent 1.5px border, Barlow 16px, stamp-red caret; focus turns the border navy. Auto-grows from 48px to 110px.
 - **Paper input / search:** 1.5px ink border, 6px radius, 44-48px; the unlock input sets typed text in mono with a Barlow placeholder.
 
 ### Sheets
@@ -309,13 +305,13 @@ The cover band reads the run at a glance: a rotated stamp (RUNNING, DONE, READY,
 Condensed 700 uppercase in a 2px currentColor border, 4px radius, tilted (default -2deg). Mini stamp (12px, stamp-red-paper) is the same object on paper.
 
 ### Terminal
-xterm on deep atlas navy #0e1d61: foreground ivory #e8e0d2, cursor gold #b89a5a, selection gold at 40%, red #ff8a75, green #9fd68a, yellow #e6c77f, blue #9fb3ff, dim text #9aa1cc (6:1); 4px thin graphite-line scrollbar.
+xterm as an ivory page #e8e0d2 with navy ink #0e1d61: navy cursor, gold selection at 45%, ANSI hues deepened for a light ground (red #a3261a, green #2f6a2a, yellow #7a5a12, blue #1a3fa8, dim text #5c6286), each at 4.5:1 or better.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep gold (#B89A5A) for pressables on navy and for fine lines; use navy blocks for pressables on ivory.
-- **Do** pick the stamp-red ink by surface: #7f2214 on ivory, #a93624 on paper, #ff8a75 on navy.
+- **Do** keep navy (#0E1D61) for ink, run marks and pressables only; surfaces are gold or ivory.
+- **Do** pick the stamp-red ink by surface: #5c1810 on gold, #a93624 on paper and keys.
 - **Do** build every gap from the 4px module and keep touch targets 44-48px.
 - **Do** set every count, clock and readout in Barlow Condensed with tabular numerals.
 - **Do** use dashed borders to mean "not yet" or "off" (READY, muted, Pin).
