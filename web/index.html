@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#b89a5a">
+  <meta name="theme-color" content="#ecebe7">
   <title>TermPilot</title>
 
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=24">
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
-  <link rel="preload" href="/fonts/barlow-condensed-700.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=45">
+  <link rel="preload" href="/fonts/plex-sans.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=46">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -24,6 +24,7 @@
   <!-- One icon set, drawn once: 24px grid, 1.75 stroke, round caps -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
       <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8"/><path d="M12 17.2v.1"/></symbol>
       <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></symbol>
       <symbol id="i-bell-off" viewBox="0 0 24 24"><path d="M8.3 6.3A6 6 0 0 1 18 11v5"/><path d="M6 11v5.5L4.5 18H16"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/><path d="M3.5 3.5l17 17"/></symbol>
@@ -313,8 +314,8 @@
         <div class="feature-card">
           <div class="feature-icon-box"><span class="stamp mini" data-state="running">RUN</span></div>
           <div class="feature-info">
-            <div class="feature-title">The run entry</div>
-            <div class="feature-desc">The band at the top shows what you last sent, how long it has been running, and a stamp: <span class="feature-badge">RUNNING</span>, then <span class="feature-badge">DONE</span> with a chime once the shell is back at its prompt. The rule under it fills over one hour.</div>
+            <div class="feature-title">The status capsule</div>
+            <div class="feature-desc">The black capsule at the top shows the state: <span class="feature-badge">Running</span> with a live timer and a wave that moves with the output, then <span class="feature-badge">Done</span> with a chime once the shell is back at its prompt. Below it is what you last sent. If your phone is locked when a run ends, you get a notification.</div>
           </div>
         </div>
 
@@ -386,22 +387,35 @@
   <!-- Main App -->
   <div class="app-layout">
 
-    <!-- Cover band: the current run entry, readable at a glance -->
+    <!-- Readout: the status capsule, then what was asked and the chime dial -->
     <header class="app-header">
-      <div class="entry">
-        <span id="run-stamp" class="stamp" data-state="offline">OFFLINE</span>
-        <div class="entry-text">
-          <div id="run-prompt" class="entry-prompt">No run yet</div>
-          <div class="entry-meta"><span class="wordmark">TermPilot</span><span id="run-meta">connecting…</span></div>
-        </div>
-        <span id="run-clock" class="clock">--:--</span>
-        <button id="btn-sound-toggle" class="icon-btn" title="Completion chime" aria-label="Completion chime" aria-pressed="true"><svg class="i on"><use href="#i-bell"/></svg><svg class="i off"><use href="#i-bell-off"/></svg></button>
+      <div id="run-stamp" class="capsule" data-state="offline" role="status" aria-live="polite">
+        <span class="cap-dot"></span>
+        <svg class="cap-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9.5l4 4 8-9"/></svg>
+        <span id="cap-label" class="cap-label">Offline</span>
+        <span id="run-clock" class="cap-time"></span>
+        <span id="cap-wave" class="cap-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
       </div>
-      <div class="rule" aria-hidden="true"><i id="run-rule"></i></div>
+      <div class="entry">
+        <div class="entry-text">
+          <div class="entry-meta"><span class="wordmark">TermPilot</span><span id="run-meta">connecting…</span></div>
+          <div id="run-prompt" class="entry-prompt">No run yet</div>
+        </div>
+        <button id="btn-sound-toggle" class="knob" title="Completion chime" aria-label="Completion chime" aria-pressed="true"></button>
+      </div>
     </header>
 
-    <!-- Terminal Display (read-only) -->
-    <div id="xterm-container" class="xterm-wrapper"></div>
+    <!-- Finished banner: shown when a run ends while the app is open -->
+    <button id="run-banner" class="run-banner" type="button" aria-live="polite">
+      <span class="run-banner-icon"><svg class="i"><use href="#i-check"/></svg></span>
+      <span class="run-banner-text"><span id="run-banner-title" class="run-banner-title">Run finished</span><span id="run-banner-sub" class="run-banner-sub"></span></span>
+    </button>
+
+    <!-- Terminal Display (read-only), set into a dark glass screen -->
+    <div class="bezel">
+      <div class="grille" aria-hidden="true"></div>
+      <div id="xterm-container" class="xterm-wrapper"></div>
+    </div>
 
     <!-- Quick Action Snippets Pills Bar -->
     <div class="snippets-bar" id="snippets-bar">
@@ -426,7 +440,7 @@
         id="mobile-input"
         class="cmd-input"
         rows="2"
-        placeholder="Type / for commands, or speak…"
+        placeholder="Ask, or / for commands"
         aria-label="Prompt or command"
         autocomplete="off"
         spellcheck="false"
@@ -451,6 +465,6 @@
 
   </div>
 
-  <script src="app.js?v=45"></script>
+  <script src="app.js?v=46"></script>
 </body>
 </html>

@@ -24,30 +24,30 @@ const term = new Terminal({
   cursorStyle: 'block',
   fontSize: currentFontSize,
   fontFamily: 'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Roboto Mono", monospace',
-  // Atlas ivory page with navy ink. ANSI hues are deepened for a light ground; every
-  // one holds 4.5:1 or better on ivory, dim text (brightBlack) included.
+  // Porcelain's dark glass screen. ANSI hues are tuned for #121212; dim text
+  // (brightBlack) holds ~5.6:1, because agents print a lot of it.
   theme: {
-    background: '#e8e0d2',
-    foreground: '#0e1d61',
-    cursor: '#0e1d61',
-    cursorAccent: '#e8e0d2',
-    selectionBackground: 'rgba(184, 154, 90, 0.45)',
-    black: '#2b2f45',
-    red: '#a3261a',
-    green: '#2f6a2a',
-    yellow: '#7a5a12',
-    blue: '#1a3fa8',
-    magenta: '#7a2f80',
-    cyan: '#1d6b6b',
-    white: '#5c6286',
-    brightBlack: '#5c6286',
-    brightRed: '#8a1f14',
-    brightGreen: '#245521',
-    brightYellow: '#634810',
-    brightBlue: '#12308a',
-    brightMagenta: '#62246a',
-    brightCyan: '#145656',
-    brightWhite: '#2b2f45',
+    background: '#121212',
+    foreground: '#e8e6e1',
+    cursor: '#ff4f00', // signal orange marks where the agent is writing
+    cursorAccent: '#121212',
+    selectionBackground: 'rgba(255, 79, 0, 0.32)',
+    black: '#2a2a2a',
+    red: '#ff6b5a',
+    green: '#6fd08c',
+    yellow: '#f2c46d',
+    blue: '#7aa7ff',
+    magenta: '#d39bf0',
+    cyan: '#5fd0dc',
+    white: '#d9d7d2',
+    brightBlack: '#8b8984',
+    brightRed: '#ff8f80',
+    brightGreen: '#93e0aa',
+    brightYellow: '#f7d897',
+    brightBlue: '#a3c2ff',
+    brightMagenta: '#e4bdf6',
+    brightCyan: '#8fe0ea',
+    brightWhite: '#ffffff',
   },
   scrollback: 10000,
   allowProposedApi: true,
@@ -226,22 +226,26 @@ function adaptFontSizeToPty() {
   } catch (e) {}
 }
 
-// ── Run Entry (the cover band) ──────────────────────────────────────────
-// Answers "is it working, done, or stuck?" in one glance: a stamp, what was sent,
-// the elapsed time, and a ruled line that fills over an hour.
+// ── Run Entry (status capsule) ──────────────────────────────────────────
+// Answers "is it working, done, or stuck?" in one glance: a black capsule with the state,
+// a live timer, and a wave that moves with the agent's output; below it, what was sent.
 
 const runStamp = document.getElementById("run-stamp");
+const capLabel = document.getElementById("cap-label");
+const capWaveBars = Array.from(document.querySelectorAll("#cap-wave i"));
 const runPrompt = document.getElementById("run-prompt");
 const runMeta = document.getElementById("run-meta");
 const runClock = document.getElementById("run-clock");
-const runRule = document.getElementById("run-rule");
-const RUN_RULE_FULL_MS = 60 * 60 * 1000;
 
 let runStartedAt = 0;
 let runEndedAt = 0;
 let runTimer = null;
 let runChimes = true;
-let runCount = 0; // entries are numbered for the session, like a field book
+let runCount = 0; // runs are numbered for the session
+let outputBytes = 0; // output since the last wave frame, fed by the RAW handler
+let waveTimer = null;
+
+const CAPSULE_LABELS = { READY: "Ready", RUNNING: "Running", DONE: "Done", OFFLINE: "Offline", "NO PC": "PC offline", LOCKED: "Locked" };
 
 function formatElapsed(ms) {
   const s = Math.max(0, Math.floor(ms / 1000));
@@ -255,27 +259,52 @@ function clockTime(ts) {
   return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+// The capsule animates its width, which CSS can't do to "auto": measure the new content
+// on a hidden clone, pin the old width, then let the transition run to the new one.
+function sizeCapsule() {
+  const probe = runStamp.cloneNode(true);
+  probe.removeAttribute("id");
+  probe.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
+  probe.style.cssText = "position:absolute;visibility:hidden;width:auto;transition:none";
+  runStamp.parentNode.appendChild(probe);
+  const target = probe.offsetWidth;
+  probe.remove();
+  runStamp.style.width = runStamp.offsetWidth + "px";
+  requestAnimationFrame(() => { runStamp.style.width = target + "px"; });
+}
+
 function setStamp(state, label) {
-  if (runStamp.dataset.state === state && runStamp.textContent === label) return;
+  const text = CAPSULE_LABELS[label] || label;
+  if (runStamp.dataset.state === state && capLabel.textContent === text) return;
   runStamp.dataset.state = state;
-  runStamp.textContent = label;
-  // A rubber stamp never lands at quite the same angle twice
-  runStamp.style.setProperty("--tilt", (-3 + Math.random() * 2).toFixed(2) + "deg");
-  // Restart the press-in animation for every new state
-  runStamp.classList.remove("pressed");
+  capLabel.textContent = text;
+  sizeCapsule();
+  runStamp.classList.remove("pop");
   void runStamp.offsetWidth;
-  runStamp.classList.add("pressed");
+  runStamp.classList.add("pop");
+  clearInterval(waveTimer);
+  if (state === "running") waveTimer = setInterval(paintWave, 140);
+}
+
+// Bar heights follow output volume, so a busy agent visibly churns and a stuck one goes flat
+function paintWave() {
+  const level = Math.min(1, outputBytes / 600);
+  outputBytes = 0;
+  capWaveBars.forEach((bar) => {
+    const h = 3 + (level * 11 + 2) * Math.random();
+    bar.style.height = h.toFixed(1) + "px";
+  });
 }
 
 function paintRunClock() {
   if (!runStartedAt) {
-    runClock.textContent = "--:--";
-    runRule.style.transform = "scaleX(0)";
+    runClock.textContent = "";
     return;
   }
-  const elapsed = (runEndedAt || Date.now()) - runStartedAt;
-  runClock.textContent = formatElapsed(elapsed);
-  runRule.style.transform = `scaleX(${Math.min(elapsed / RUN_RULE_FULL_MS, 1)})`;
+  const before = runClock.textContent.length;
+  runClock.textContent = formatElapsed((runEndedAt || Date.now()) - runStartedAt);
+  // 59:59 to 1:00:00 adds characters; resize so the capsule never clips them
+  if (runClock.textContent.length !== before) sizeCapsule();
 }
 
 function startRun(label, { chime = true } = {}) {
@@ -284,11 +313,12 @@ function startRun(label, { chime = true } = {}) {
   runEndedAt = 0;
   runChimes = chime;
   runPrompt.textContent = label;
-  runMeta.textContent = `No. ${runCount} · ${clockTime(runStartedAt)}`;
-  setStamp("running", "RUNNING");
+  runMeta.textContent = `Run ${runCount} · ${clockTime(runStartedAt)}`;
+  hideRunBanner();
   clearInterval(runTimer);
   runTimer = setInterval(paintRunClock, 1000);
   paintRunClock();
+  setStamp("running", "RUNNING");
 }
 
 function finishRun() {
@@ -330,6 +360,57 @@ function checkRunComplete(chunk = "") {
   if (runChimes) {
     playCompletionChime();
     triggerHaptic([25, 40, 25]);
+    notifyRunFinished();
+  }
+}
+
+// ── Finished notification ───────────────────────────────────────────────
+// In the app: a banner drops in under the capsule. Phone locked or app in the background:
+// a system notification, which needs a secure page (ngrok's https) and the user's permission.
+
+const runBanner = document.getElementById("run-banner");
+const runBannerTitle = document.getElementById("run-banner-title");
+const runBannerSub = document.getElementById("run-banner-sub");
+let bannerTimer = null;
+let swRegistration = null;
+
+if ("serviceWorker" in navigator && window.isSecureContext) {
+  // Android Chrome only shows notifications through a service worker registration
+  navigator.serviceWorker.register("/sw.js").then((reg) => { swRegistration = reg; }).catch(() => {});
+}
+
+// Ask once, from a tap (browsers ignore permission prompts that aren't user-initiated)
+function askNotificationPermission() {
+  if (!("Notification" in window) || !window.isSecureContext) return;
+  if (Notification.permission === "default") {
+    try { Notification.requestPermission(); } catch (e) {}
+  }
+}
+
+function hideRunBanner() {
+  clearTimeout(bannerTimer);
+  runBanner.classList.remove("show");
+}
+runBanner.addEventListener("click", hideRunBanner);
+
+function notifyRunFinished() {
+  const title = `Run ${runCount} finished in ${formatElapsed(runEndedAt - runStartedAt)}`;
+  const body = runPrompt.textContent;
+
+  if (document.visibilityState === "visible") {
+    runBannerTitle.textContent = title;
+    runBannerSub.textContent = body;
+    runBanner.classList.add("show");
+    clearTimeout(bannerTimer);
+    bannerTimer = setTimeout(hideRunBanner, 6000);
+    return;
+  }
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+  const options = { body, tag: "termpilot-run", renotify: true, icon: "/favicon.svg" };
+  if (swRegistration) {
+    swRegistration.showNotification(title, options).catch(() => {});
+  } else {
+    try { new Notification(title, options); } catch (e) {}
   }
 }
 
@@ -374,6 +455,7 @@ function connect() {
       // Native xterm.js ANSI rendering without forced scrolling interference.
       // Completion is checked once the chunk is parsed, so the cursor line is current.
       const chunk = payload.data;
+      outputBytes += chunk.length;
       term.write(chunk, () => checkRunComplete(chunk));
     } else if (payload.type === "PTY_SIZE") {
       ptyCols = payload.cols;
@@ -600,6 +682,7 @@ function sendCommand() {
   }
   
   triggerHaptic(20);
+  askNotificationPermission();
   saveToHistory(text);
   lastCommandTime = performance.now();
   isCommandRunning = true;

@@ -263,6 +263,14 @@ def serve_js():
         content = f.read()
     return Response(content=content, media_type="application/javascript", headers=NO_CACHE_HEADERS)
 
+@app.get("/sw.js")
+def serve_service_worker():
+    # Served from the root so its scope covers the whole app (needed for notifications)
+    path = os.path.join(WEB_DIR, "sw.js")
+    with open(path, "r", encoding="utf-8") as f:
+        content = f.read()
+    return Response(content=content, media_type="application/javascript", headers=NO_CACHE_HEADERS)
+
 FONTS_DIR = os.path.join(WEB_DIR, "fonts")
 
 @app.get("/fonts/{name}")
