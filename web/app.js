@@ -29,9 +29,9 @@ const term = new Terminal({
   theme: {
     background: '#1c1e19',
     foreground: '#e4e0d2',
-    cursor: '#7aa2ff', // blue pencil: the cursor is not a pressable
+    cursor: '#5b8cff', // blue pencil: the cursor is not a pressable
     cursorAccent: '#1c1e19',
-    selectionBackground: 'rgba(122, 162, 255, 0.35)',
+    selectionBackground: 'rgba(91, 140, 255, 0.35)',
     black: '#24271f',
     red: '#e8735f',
     green: '#9cc27f',

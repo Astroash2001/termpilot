@@ -4,8 +4,8 @@ description: A surveyor's field book for watching and steering a PC terminal run
 colors:
   press: "#f2c230"
   press-deep: "#d9a915"
-  pencil: "#1a3fa8"
-  pencil-light: "#7aa2ff"
+  pencil: "#1846e8"
+  pencil-light: "#5b8cff"
   stamp-red: "#7f2214"
   stamp-red-paper: "#a93624"
   stamp-red-light: "#e8735f"
@@ -216,7 +216,7 @@ An olive-warm palette of khaki, graphite and paper, with two inks (stamp red, ru
 - **DONE Green** (stamp-green): the DONE stamp on the cover.
 
 ### Accent
-- **Blue Pencil** (pencil, 4.7:1 on cover): the 10% contrast colour that marks the run. The elapsed clock, the duration rule's run fill and its lower edge, the hairline under sheet headers and the unlock card head. **Blue Pencil Light** (pencil-light, 6.8:1 on graphite): the snippet row's top hairline (40% alpha), the terminal cursor and selection (35% alpha).
+- **Blue Pencil** (pencil, vivid cobalt, 3.5:1 on cover: large text and lines only): the 10% contrast colour that marks the run. The elapsed clock, the duration rule's run fill and its lower edge, the hairline under sheet headers and the unlock card head. **Blue Pencil Light** (pencil-light, 5.3:1 on graphite): the snippet row's top hairline (75% alpha), the terminal cursor and selection (35% alpha).
 
 ### Neutral
 - **Khaki Cover Board** (cover): the header band, sheet headers, the unlock/reconnect card, text selection. **Pressed Cover** (cover-deep) is the active state of icon buttons on cover.
@@ -315,7 +315,7 @@ The cover band reads the run at a glance: a rotated stamp (RUNNING, DONE, READY,
 Condensed 700 uppercase in a 2px currentColor border, 4px radius, tilted (default -2deg). Mini stamp (12px, stamp-red-paper) is the same object on paper.
 
 ### Terminal
-xterm on graphite with an olive-warm theme: foreground #e4e0d2, cursor blue pencil #7aa2ff, selection blue at 35%, red #e8735f, green #9cc27f, yellow #f2c230; 4px thin graphite-line scrollbar.
+xterm on graphite with an olive-warm theme: foreground #e4e0d2, cursor blue pencil #5b8cff, selection blue at 35%, red #e8735f, green #9cc27f, yellow #f2c230; 4px thin graphite-line scrollbar.
 
 ## Do's and Don'ts
 
