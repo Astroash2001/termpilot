@@ -1,7 +1,8 @@
 /* TermPilot · Field Book
    Khaki cover band, graphite terminal, green level-book ruling, red stamp ink.
    Field-book yellow appears only on things that can be pressed.
-   Brass is the third colour: thin foil details only (run fill, hairlines, cursor), never text or buttons. */
+   Surveyor's blue pencil is the contrast colour: the opposite of khaki on the wheel. It marks the run
+   (clock, duration fill, hairlines, cursor) and never fills a button. */
 
 @font-face { font-family: "Barlow"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/barlow-400.woff2") format("woff2"); }
 @font-face { font-family: "Barlow"; font-weight: 500; font-style: normal; font-display: swap; src: url("/fonts/barlow-500.woff2") format("woff2"); }
@@ -31,8 +32,8 @@
   --stamp-green: #2c4f23;    /* DONE ink on the cover (4.7:1) */
   --press: #f2c230;          /* field-book yellow: pressables only */
   --press-deep: #d9a915;
-  --brass: #b08a3a;          /* brass foil: hairlines on graphite */
-  --brass-foil: linear-gradient(180deg, #d1ac5c 0%, #a07a2c 55%, #7a5c22 100%); /* run fill on the cover */
+  --pencil: #1a3fa8;         /* blue pencil on cover and paper (4.7:1 on --cover) */
+  --pencil-light: #7aa2ff;   /* blue pencil on graphite (6.8:1) */
   --text: #ece6d3;
   --text-soft: #a9a593;
 
@@ -158,7 +159,7 @@ button {
   justify-content: space-between;
   padding-bottom: calc(var(--m) * 3);
   margin-bottom: calc(var(--m) * 5);
-  border-bottom: 1.5px solid var(--brass);
+  border-bottom: 1.5px solid var(--pencil);
 }
 .overlay-head .wordmark { font-size: 16px; }
 
@@ -307,6 +308,7 @@ button {
 
 .clock {
   flex: none;
+  color: var(--pencil);
   font-family: var(--font-label);
   font-weight: 600;
   font-size: 24px;
@@ -339,13 +341,13 @@ button {
   position: relative;
   height: 7px;
   border-top: 1.5px solid var(--cover-ink);
-  border-bottom: 1.5px solid var(--brass); /* brass edge keeps the fill from fusing into the terminal */
+  border-bottom: 1.5px solid var(--pencil); /* blue edge keeps the fill from fusing into the terminal */
   background-image: repeating-linear-gradient(90deg, var(--rule-green) 0 1px, transparent 1px calc(100% / 12));
 }
 .rule i {
   position: absolute;
   inset: 0;
-  background: var(--brass-foil);
+  background: var(--pencil);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 900ms linear;
@@ -454,7 +456,7 @@ button {
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
   border-bottom: 1.5px solid var(--cover-ink);
-  box-shadow: 0 1.5px 0 var(--brass); /* brass hairline under the ink rule */
+  box-shadow: 0 1.5px 0 var(--pencil); /* blue hairline under the ink rule */
 }
 
 .modal-title {
@@ -706,7 +708,7 @@ button {
   gap: calc(var(--m) * 1.5);
   padding: calc(var(--m) * 2) calc(var(--m) * 2) calc(var(--m) * 1.5);
   background: var(--graphite);
-  border-top: 1px solid rgba(176, 138, 58, 0.45); /* brass hairline */
+  border-top: 1px solid rgba(122, 162, 255, 0.4); /* blue pencil hairline */
   overflow-x: auto;
   white-space: nowrap;
   flex-shrink: 0;

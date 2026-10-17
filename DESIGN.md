@@ -4,7 +4,8 @@ description: A surveyor's field book for watching and steering a PC terminal run
 colors:
   press: "#f2c230"
   press-deep: "#d9a915"
-  brass: "#b08a3a"
+  pencil: "#1a3fa8"
+  pencil-light: "#7aa2ff"
   stamp-red: "#7f2214"
   stamp-red-paper: "#a93624"
   stamp-red-light: "#e8735f"
@@ -200,7 +201,7 @@ The world explicitly rejects the category default of a black SSH screen with one
 
 ## Colors
 
-An olive-warm palette of khaki, graphite and paper, with two inks (stamp red, ruling green), one signal yellow, and brass foil as the premium third colour.
+An olive-warm palette of khaki, graphite and paper, with two inks (stamp red, ruling green), one signal yellow, and surveyor's blue pencil as the contrast colour, the opposite of khaki on the colour wheel.
 
 ### Primary
 - **Field-Book Yellow** (press): the fill of every pressable primary action: Send, mic, Unlock/Connect, Copy actions; also the focus ring and (at 42% alpha) the selected command row. **Pressed Yellow** (press-deep) is its active state.
@@ -215,7 +216,7 @@ An olive-warm palette of khaki, graphite and paper, with two inks (stamp red, ru
 - **DONE Green** (stamp-green): the DONE stamp on the cover.
 
 ### Accent
-- **Brass Foil** (brass): the 10% detail colour. The duration rule's run fill (a #d1ac5c to #7a5c22 foil gradient on khaki), the rule's lower edge, the snippet row's top hairline (45% alpha), the hairline under sheet headers and the unlock card head, and the terminal cursor (#c9a24f) and selection (40% alpha).
+- **Blue Pencil** (pencil, 4.7:1 on cover): the 10% contrast colour that marks the run. The elapsed clock, the duration rule's run fill and its lower edge, the hairline under sheet headers and the unlock card head. **Blue Pencil Light** (pencil-light, 6.8:1 on graphite): the snippet row's top hairline (40% alpha), the terminal cursor and selection (35% alpha).
 
 ### Neutral
 - **Khaki Cover Board** (cover): the header band, sheet headers, the unlock/reconnect card, text selection. **Pressed Cover** (cover-deep) is the active state of icon buttons on cover.
@@ -229,7 +230,7 @@ An olive-warm palette of khaki, graphite and paper, with two inks (stamp red, ru
 
 **The Re-Inked Stamp Rule.** Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on cover, stamp-red-paper on paper, stamp-red-light on graphite), never the other way round.
 
-**The Brass Foil Rule.** Brass is foil, not paint: hairlines, the run fill and the cursor only. Never brass text, never a brass button, never a brass fill larger than the duration rule.
+**The Blue Pencil Rule.** Blue contrasts with the khaki and graphite pair instead of matching it, so it stays scarce: the clock, the run fill, hairlines and the cursor only. Never a blue button, never a blue surface, never blue body text.
 
 **The Three Materials Rule.** Every surface is cover, graphite or paper. A new surface picks one of the three; it does not invent a fourth tint.
 
@@ -314,7 +315,7 @@ The cover band reads the run at a glance: a rotated stamp (RUNNING, DONE, READY,
 Condensed 700 uppercase in a 2px currentColor border, 4px radius, tilted (default -2deg). Mini stamp (12px, stamp-red-paper) is the same object on paper.
 
 ### Terminal
-xterm on graphite with an olive-warm theme: foreground #e4e0d2, cursor brass #c9a24f, selection brass at 40%, red #e8735f, green #9cc27f, yellow #f2c230; 4px thin graphite-line scrollbar.
+xterm on graphite with an olive-warm theme: foreground #e4e0d2, cursor blue pencil #7aa2ff, selection blue at 35%, red #e8735f, green #9cc27f, yellow #f2c230; 4px thin graphite-line scrollbar.
 
 ## Do's and Don'ts
 
