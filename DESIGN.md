@@ -2,30 +2,31 @@
 name: TermPilot
 description: A surveyor's field book for watching and steering a PC terminal run from the phone.
 colors:
-  press: "#2456ff"
-  press-deep: "#1846e8"
-  press-ink: "#ffffff"
-  pencil: "#1846e8"
-  pencil-light: "#5b8cff"
+  cover: "#e8e0d2"
+  cover-deep: "#d9cfbd"
+  cover-ink: "#0e1d61"
+  cover-ink-soft: "#4a5078"
+  graphite: "#0e1d61"
+  graphite-2: "#1a2b80"
+  graphite-3: "#24379a"
+  graphite-line: "#33459a"
+  paper: "#f4efe6"
+  paper-ink: "#0e1d61"
+  paper-ink-soft: "#4a5078"
+  paper-rule: "#ddd2bc"
+  rule-green: "#b89a5a"
   stamp-red: "#7f2214"
   stamp-red-paper: "#a93624"
-  stamp-red-light: "#e8735f"
-  rule-green: "#6f8f5a"
+  stamp-red-light: "#ff8a75"
   stamp-green: "#2c4f23"
-  cover: "#c9b98f"
-  cover-deep: "#b7a676"
-  cover-ink: "#23251d"
-  cover-ink-soft: "#4b4a3a"
-  graphite: "#1c1e19"
-  graphite-2: "#24271f"
-  graphite-3: "#30342a"
-  graphite-line: "#3a3e32"
-  paper: "#efe9d6"
-  paper-ink: "#2a2b22"
-  paper-ink-soft: "#5a5946"
-  paper-rule: "#c9cfb4"
-  text: "#ece6d3"
-  text-soft: "#a9a593"
+  press: "#b89a5a"
+  press-deep: "#a3864a"
+  press-ink: "#0e1d61"
+  pencil: "#0e1d61"
+  pencil-light: "#b89a5a"
+  gold-ink: "#735b2a"
+  text: "#e8e0d2"
+  text-soft: "#a9adc8"
 typography:
   display:
     fontFamily: "Barlow Condensed, Barlow, system-ui, sans-serif"
@@ -187,7 +188,7 @@ components:
 
 **Creative North Star: "The Field Book"**
 
-The phone is the all-weather surveyor's field book carried away from the desk, and the agent run on the PC is the entry being checked on. Three materials make the whole world: a khaki cover board with graphite ink across the top, the graphite terminal pane filling the middle, and waterproof paper wherever the user writes (the prompt field and every sheet). Rubber-stamp ink states the run, a green level-book ruling measures it, and loud cobalt marks everything that can be pressed.
+The phone is the all-weather surveyor's field book carried away from the desk, and the agent run on the PC is the entry being checked on. Three materials make the whole world: an ivory cover board with navy ink across the top, the deep navy terminal pane filling the middle, and waterproof paper wherever the user writes (the prompt field and every sheet). Rubber-stamp ink states the run, a green level-book ruling measures it, and gold marks everything that can be pressed.
 
 Density is that of a working instrument: one cover row carries the stamp, the prompt that was sent, the elapsed clock and the chime toggle; the terminal takes every remaining pixel; the bottom carries three thumb rows (snippet keys, prompt row, key row). Chrome serves the terminal and never crowds it. Type is a condensed grotesk for everything that is a label, stamp or numeral, a plain grotesk for sentences, and system monospace for anything that is or will become terminal text.
 
@@ -197,43 +198,35 @@ The world explicitly rejects the category default of a black SSH screen with one
 - Three materials: cover board (header band, sheet headers, unlock card), graphite (terminal and key rows), paper (prompt field, sheets, toast).
 - Rubber stamps for run state, re-inked per surface for contrast.
 - One 4px spacing module; every gap is a multiple of it.
-- Cobalt is the loud third colour: it means pressable, and it marks the run.
+- Gold means pressable on navy; solid navy means pressable on ivory.
 - Code-led: inline SVG stroke icons, CSS stamps and ruling, self-hosted webfonts; no rasters.
 
 ## Colors
 
-An olive-warm palette of khaki, graphite and paper, with two inks (stamp red, ruling green) and one loud cobalt, the opposite of khaki on the colour wheel, so it reads apart from the khaki and graphite pair instead of blending in.
+Three colours taken straight from the "Atlas Field Notes" reference: Ivory #E8E0D2, Gold #B89A5A and Deep Atlas Navy #0E1D61. Gold and navy sit opposite each other on the colour wheel, so gold pops on navy and navy reads bold on ivory. Red and green survive only as status ink.
 
 ### Primary
-- **Cobalt** (press, 3.1:1 against graphite, white ink at 5.9:1): the fill of every pressable primary action: Send, mic, Unlock/Connect, Copy actions; at 16% alpha the selected command row. **Pressed Cobalt** (press-deep) is its active state.
+- **Deep Atlas Navy** (graphite, cover-ink, paper-ink, pencil): the terminal pane and app ground, all ink on ivory (11.7:1), the elapsed clock and the run fill, and the solid primary buttons that sit on ivory (Unlock, Connect, Copy actions) with ivory labels. **Raised Key** (graphite-2), **Pressed Key** (graphite-3) and **Key Line** (graphite-line) are lighter navies for the key rows.
 
 ### Secondary
-- **Stamp Red, cover ink** (stamp-red): stamp ink on the khaki band (RUNNING, OFFLINE, NO PC) and the mic while listening. Darkened from the brief's #c4412f to clear 4.6:1 on khaki.
-- **Stamp Red, paper ink** (stamp-red-paper): the same ink on paper: command-sheet section headings and mini stamps in the guide.
-- **Stamp Red, graphite ink** (stamp-red-light): the same ink on graphite: the ESC and ^C interrupt keys and terminal red.
-
-### Tertiary
-- **Level-Book Green** (rule-green): the twelve five-minute tick lines of the duration rule. It appears only where it divides measured data.
-- **DONE Green** (stamp-green): the DONE stamp on the cover.
+- **Ivory** (cover): the header band, sheet headers, and the unlock and reconnect card. **Pressed Ivory** (cover-deep) is the active state of icon buttons on ivory. **Lifted Ivory** (paper) is the writing surface: prompt field, sheet bodies. **Navy Soft Ink** (cover-ink-soft, paper-ink-soft, 5.9:1 on ivory) carries secondary text. **Gold Ruling** (paper-rule) divides rows on paper.
+- **Ivory Text** (text) and **Navy Soft Text** (text-soft, 7:1) are the text colours on navy.
 
 ### Accent
-- **Blue Pencil** (pencil, vivid cobalt, 3.5:1 on cover: large text and lines only): the 10% contrast colour that marks the run. The elapsed clock, the duration rule's run fill and its lower edge, the hairline under sheet headers and the unlock card head. **Blue Pencil Light** (pencil-light, 5.3:1 on graphite): the snippet row's top hairline (75% alpha), the terminal cursor and selection (35% alpha).
+- **Gold** (press, pencil-light, rule-green): the fill of every pressable on navy (Send, mic) with navy icons at 5.7:1, plus every fine line: the duration rule's ticks and lower edge, the hairline under sheet headers and the unlock card head, the snippet row's top hairline, the focus ring, the terminal cursor and selection, and (at 30% alpha) the selected command row. **Pressed Gold** (press-deep) is its active state.
+- **Gold Ink** (gold-ink, 4.9:1 on ivory, 5.6:1 on paper): gold deepened for text, used for the command sheet's section headings.
 
-### Neutral
-- **Khaki Cover Board** (cover): the header band, sheet headers, the unlock/reconnect card, text selection. **Pressed Cover** (cover-deep) is the active state of icon buttons on cover.
-- **Cover Graphite Ink** (cover-ink) and **Cover Soft Ink** (cover-ink-soft, 7:1 on cover): primary and secondary text, borders and dividers on khaki.
-- **Graphite** (graphite): app ground and terminal pane. **Raised Key** (graphite-2) and **Pressed Key** (graphite-3): key and snippet surfaces at rest and pressed. **Graphite Line** (graphite-line): key borders, scrollbars.
-- **Waterproof Paper** (paper), **Paper Ink** (paper-ink), **Paper Soft Ink** (paper-ink-soft): writing surfaces and their text. **Paper Ruling** (paper-rule): hairline row dividers on paper.
-- **Graphite Text** (text) and **Graphite Soft Text** (text-soft): text on graphite; soft for readouts and secondary keys (Pin, Guide, zoom %).
+### Status inks
+- **Stamp Red** (stamp-red on ivory, stamp-red-paper on paper, stamp-red-light on navy): problem states only: the OFFLINE and NO PC stamps, the mic while listening, and the ESC and ^C interrupt keys.
+- **DONE Green** (stamp-green): the DONE stamp on ivory.
+- RUNNING, READY and LOCKED stamps are navy ink.
 
 ### Named Rules
-**The Pressables-Only Rule.** Cobalt fills only things that can be pressed. Beyond fills, cobalt appears only as the run marks below. Never cobalt for decoration, surfaces or body text.
+**The Three Colours Rule.** Every colour on screen is ivory, gold or navy, or a lighter or darker step of one of them. Red and green are status ink only and never decorate.
 
-**The Re-Inked Stamp Rule.** Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on cover, stamp-red-paper on paper, stamp-red-light on graphite), never the other way round.
+**The Gold-Pops-On-Navy Rule.** On navy, pressables are gold. On ivory, gold fades (2:1), so pressables there are solid navy blocks with ivory labels, and gold is used only for lines or as deepened gold ink for text.
 
-**The Blue Pencil Rule.** Beyond pressables, cobalt marks the run: the clock, the run fill, hairlines, the focus ring and the cursor. Never a cobalt surface, never blue body text.
-
-**The Three Materials Rule.** Every surface is cover, graphite or paper. A new surface picks one of the three; it does not invent a fourth tint.
+**The Re-Inked Stamp Rule.** Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on ivory, stamp-red-paper on paper, stamp-red-light on navy), never the other way round.
 
 ## Typography
 
@@ -270,13 +263,13 @@ Sheets are bottom sheets (max 500px wide, 78-86vh) on phones and become centered
 Mostly flat material with soft, ambient shadows on things that lift off the page. Depth inside the world is tonal (raised key graphite-2, pressed key graphite-3) and ruled (1-1.5px ink borders), not shadowed.
 
 ### Shadow Vocabulary
-- **Press** (`box-shadow: 0 2px 4px rgba(0,0,0,0.35)`): the one soft depth under every cobalt pressable.
+- **Press** (`box-shadow: 0 2px 4px rgba(0,0,0,0.35)`): the one soft depth under every pressable.
 - **Toast** (`box-shadow: 0 6px 18px rgba(0,0,0,0.35)`): the floating paper slip.
 - **Sheet** (`box-shadow: 0 -8px 28px rgba(0,0,0,0.4)`; centered dialog `0 20px 60px rgba(0,0,0,0.55)`): sheets over a graphite scrim (rgba(20,21,17,0.72)).
 - **Card** (`box-shadow: 0 18px 40px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)`): the unlock/reconnect cover card over a denser scrim (0.88).
 
 ### Named Rules
-**The One Press Shadow Rule.** Every cobalt pressable carries the same soft press shadow and drops 1px on press; nothing else on the key rows has a shadow.
+**The One Press Shadow Rule.** Every pressable carries the same soft press shadow and drops 1px on press; nothing else on the key rows has a shadow.
 
 ## Shapes
 
@@ -289,7 +282,7 @@ The duration rule is the signature silhouette: a 7px band between a 1.5px cover-
 ### Buttons
 Tactile, few, and unmistakably pressable.
 - **Shape:** 6px keys; Send 10px; mic round.
-- **Primary (press):** cobalt with white text, Condensed 700 at 16-18px, 48px tall full-width in cards and sheets, 40px inline in the copy sheet. Press shadow.
+- **Primary (press):** gold with navy text on navy, solid navy with ivory text on ivory, Condensed 700 at 16-18px, 48px tall full-width in cards and sheets, 40px inline in the copy sheet. Press shadow.
 - **Active / Focus:** active swaps to press-deep and translates 1px down (120ms ease-out). Focus-visible is a 2px pencil-light outline offset 2px everywhere.
 - **Mic listening:** turns stamp-red with paper icon and a red ring pulse (1.4s).
 - **Cover icon button:** 40px, transparent, 1.5px cover-ink border at 55%; active fills cover-deep; muted state goes dashed and soft.
@@ -301,13 +294,13 @@ Tactile, few, and unmistakably pressable.
 - **Zoom group:** A-, a tabular % readout between hairlines, A+, sharing one bordered 36px housing.
 
 ### Inputs / Fields
-- **Prompt field:** paper, 10px radius, transparent 1.5px border, Barlow 16px, stamp-red caret; focus turns the border cobalt. Auto-grows from 48px to 110px.
+- **Prompt field:** paper, 10px radius, transparent 1.5px border, Barlow 16px, stamp-red caret; focus turns the border gold. Auto-grows from 48px to 110px.
 - **Paper input / search:** 1.5px ink border, 6px radius, 44-48px; the unlock input sets typed text in mono with a Barlow placeholder.
 
 ### Sheets
 - **Corner Style:** 14px.
 - **Background:** paper body under a cover-colored header (Condensed 700 20px title, 44px close button) separated by a 1.5px cover-ink rule.
-- **Rows:** command rows are fixed furniture: mono command name, then a one-line paper-ink-soft note that ellipsizes and never wraps; 1px paper-rule dividers; selected or pressed fills cobalt at 16%.
+- **Rows:** command rows are fixed furniture: mono command name, then a one-line paper-ink-soft note that ellipsizes and never wraps; 1px paper-rule dividers; selected or pressed fills gold at 30%.
 
 ### Run Entry (signature)
 The cover band reads the run at a glance: a rotated stamp (RUNNING, DONE, READY, OFFLINE, NO PC, LOCKED), the sent prompt with "TERMPILOT No. n · time" beneath, the big tabular clock, and the chime toggle; the duration rule fills under it. Each new state re-stamps at a fresh tilt between -3deg and -1deg and plays the one authored motion: a 420ms press-in (rotate -6deg, scale 1.35, fade in, settle). READY is dashed graphite ink; DONE is green; LOCKED is graphite.
@@ -316,13 +309,13 @@ The cover band reads the run at a glance: a rotated stamp (RUNNING, DONE, READY,
 Condensed 700 uppercase in a 2px currentColor border, 4px radius, tilted (default -2deg). Mini stamp (12px, stamp-red-paper) is the same object on paper.
 
 ### Terminal
-xterm on graphite with an olive-warm theme: foreground #e4e0d2, cursor blue pencil #5b8cff, selection blue at 35%, red #e8735f, green #9cc27f, yellow #f2c230; 4px thin graphite-line scrollbar.
+xterm on deep atlas navy #0e1d61: foreground ivory #e8e0d2, cursor gold #b89a5a, selection gold at 40%, red #ff8a75, green #9fd68a, yellow #e6c77f, blue #9fb3ff, dim text #9aa1cc (6:1); 4px thin graphite-line scrollbar.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep cobalt (#2456ff) on pressables and the run marks only.
-- **Do** pick the stamp-red ink by surface: #7f2214 on cover, #a93624 on paper, #e8735f on graphite.
+- **Do** keep gold (#B89A5A) for pressables on navy and for fine lines; use navy blocks for pressables on ivory.
+- **Do** pick the stamp-red ink by surface: #7f2214 on ivory, #a93624 on paper, #ff8a75 on navy.
 - **Do** build every gap from the 4px module and keep touch targets 44-48px.
 - **Do** set every count, clock and readout in Barlow Condensed with tabular numerals.
 - **Do** use dashed borders to mean "not yet" or "off" (READY, muted, Pin).

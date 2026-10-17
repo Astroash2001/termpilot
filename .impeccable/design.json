@@ -6,310 +6,128 @@
     "colorMeta": {
       "press": {
         "role": "primary",
-        "displayName": "Cobalt",
-        "value": "#2456ff"
+        "displayName": "Gold",
+        "value": "#b89a5a"
       },
       "press-deep": {
         "role": "primary",
-        "displayName": "Pressed Cobalt",
-        "value": "#1846e8"
+        "displayName": "Pressed Gold",
+        "value": "#a3864a"
       },
       "stamp-red": {
         "role": "secondary",
         "displayName": "Stamp Red, cover ink",
-        "canonical": "oklch(40.0% 0.130 31.5)",
-        "tonalRamp": [
-          "#2d0000",
-          "#520000",
-          "#75180a",
-          "#993b2b",
-          "#c15f4e",
-          "#ea8471",
-          "#ffaa95",
-          "#ffd0bd"
-        ]
+        "value": "#7f2214"
       },
       "stamp-red-paper": {
         "role": "secondary",
         "displayName": "Stamp Red, paper ink",
-        "canonical": "oklch(50.0% 0.154 31.6)",
-        "tonalRamp": [
-          "#2d0000",
-          "#590000",
-          "#7d0000",
-          "#a22f1e",
-          "#cb5642",
-          "#f57c66",
-          "#ffa28a",
-          "#ffd0bc"
-        ]
+        "value": "#a93624"
       },
       "stamp-red-light": {
         "role": "secondary",
-        "displayName": "Stamp Red, graphite ink",
-        "canonical": "oklch(68.8% 0.149 31.2)",
-        "tonalRamp": [
-          "#2d0000",
-          "#580000",
-          "#7c0500",
-          "#a13222",
-          "#c95845",
-          "#f37d69",
-          "#ffa38d",
-          "#ffd0bd"
-        ]
+        "displayName": "Stamp Red On Navy",
+        "value": "#ff8a75"
       },
       "rule-green": {
         "role": "tertiary",
-        "displayName": "Level-Book Green",
-        "canonical": "oklch(61.2% 0.085 133.7)",
-        "tonalRamp": [
-          "#001100",
-          "#112c00",
-          "#2c4916",
-          "#4a6835",
-          "#6c8b57",
-          "#8fb17a",
-          "#b4d79f",
-          "#d8fcc2"
-        ]
+        "displayName": "Gold Ruling Ticks",
+        "value": "#b89a5a"
       },
       "stamp-green": {
         "role": "tertiary",
         "displayName": "DONE Green",
-        "canonical": "oklch(38.9% 0.081 139.5)",
-        "tonalRamp": [
-          "#001200",
-          "#0a2d01",
-          "#274a1e",
-          "#45693c",
-          "#678c5d",
-          "#8ab181",
-          "#afd8a5",
-          "#d3fdc9"
-        ]
+        "value": "#2c4f23"
       },
       "cover": {
         "role": "neutral",
-        "displayName": "Khaki Cover Board",
-        "canonical": "oklch(78.9% 0.059 89.6)",
-        "tonalRamp": [
-          "#150800",
-          "#2f2200",
-          "#4c3e17",
-          "#6b5c35",
-          "#8e7f57",
-          "#b3a37a",
-          "#dac99f",
-          "#feedc2"
-        ]
+        "displayName": "Ivory",
+        "value": "#e8e0d2"
       },
       "cover-deep": {
         "role": "neutral",
-        "displayName": "Pressed Cover",
-        "canonical": "oklch(72.8% 0.068 90.8)",
-        "tonalRamp": [
-          "#160800",
-          "#302200",
-          "#4d3e0d",
-          "#6c5c2e",
-          "#8f7f50",
-          "#b4a374",
-          "#dbca98",
-          "#ffeebb"
-        ]
+        "displayName": "Pressed Ivory",
+        "value": "#d9cfbd"
       },
       "cover-ink": {
         "role": "neutral",
-        "displayName": "Cover Graphite Ink",
-        "canonical": "oklch(26.0% 0.015 118.8)",
-        "tonalRamp": [
-          "#0a0c06",
-          "#23251d",
-          "#3f4138",
-          "#5c5f56",
-          "#7f8278",
-          "#a3a69c",
-          "#c9ccc1",
-          "#edf0e5"
-        ]
+        "displayName": "Navy Ink",
+        "value": "#0e1d61"
       },
       "cover-ink-soft": {
         "role": "neutral",
-        "displayName": "Cover Soft Ink",
-        "canonical": "oklch(40.5% 0.026 104.5)",
-        "tonalRamp": [
-          "#0d0c02",
-          "#262516",
-          "#424131",
-          "#605f4e",
-          "#828170",
-          "#a7a694",
-          "#cdccb9",
-          "#f1f0dc"
-        ]
+        "displayName": "Navy Soft Ink",
+        "value": "#4a5078"
       },
       "graphite": {
         "role": "neutral",
-        "displayName": "Graphite",
-        "canonical": "oklch(23.1% 0.010 125.0)",
-        "tonalRamp": [
-          "#0a0c08",
-          "#232520",
-          "#3e413b",
-          "#5c5f59",
-          "#7f817b",
-          "#a3a69f",
-          "#c9ccc5",
-          "#edf0e9"
-        ]
+        "displayName": "Deep Atlas Navy",
+        "value": "#0e1d61"
       },
       "graphite-2": {
         "role": "neutral",
         "displayName": "Raised Key",
-        "canonical": "oklch(26.7% 0.015 124.2)",
-        "tonalRamp": [
-          "#0a0c06",
-          "#22251d",
-          "#3e4139",
-          "#5c5f56",
-          "#7e8278",
-          "#a2a69c",
-          "#c8ccc2",
-          "#ecf0e5"
-        ]
+        "value": "#1a2b80"
       },
       "graphite-3": {
         "role": "neutral",
         "displayName": "Pressed Key",
-        "canonical": "oklch(31.8% 0.018 125.2)",
-        "tonalRamp": [
-          "#090d05",
-          "#22261c",
-          "#3d4237",
-          "#5b6055",
-          "#7e8277",
-          "#a2a79b",
-          "#c8cdc0",
-          "#ebf1e4"
-        ]
+        "value": "#24379a"
       },
       "graphite-line": {
         "role": "neutral",
-        "displayName": "Graphite Line",
-        "canonical": "oklch(35.6% 0.021 122.4)",
-        "tonalRamp": [
-          "#0a0d04",
-          "#22261b",
-          "#3e4236",
-          "#5b6053",
-          "#7e8275",
-          "#a2a799",
-          "#c8cdbe",
-          "#ecf1e2"
-        ]
+        "displayName": "Key Line",
+        "value": "#33459a"
       },
       "paper": {
         "role": "neutral",
-        "displayName": "Waterproof Paper",
-        "canonical": "oklch(93.4% 0.026 92.4)",
-        "tonalRamp": [
-          "#0f0b01",
-          "#282415",
-          "#444030",
-          "#635d4d",
-          "#86806f",
-          "#aaa493",
-          "#d0cab8",
-          "#f4eedb"
-        ]
+        "displayName": "Lifted Ivory",
+        "value": "#f4efe6"
       },
       "paper-ink": {
         "role": "neutral",
-        "displayName": "Paper Ink",
-        "canonical": "oklch(28.5% 0.016 112.6)",
-        "tonalRamp": [
-          "#0b0c05",
-          "#24251c",
-          "#404137",
-          "#5d5f55",
-          "#808177",
-          "#a4a69b",
-          "#caccc0",
-          "#eef0e4"
-        ]
+        "displayName": "Paper Navy Ink",
+        "value": "#0e1d61"
       },
       "paper-ink-soft": {
         "role": "neutral",
         "displayName": "Paper Soft Ink",
-        "canonical": "oklch(45.9% 0.030 105.0)",
-        "tonalRamp": [
-          "#0d0c01",
-          "#262514",
-          "#42412f",
-          "#605f4c",
-          "#82826d",
-          "#a7a691",
-          "#cdccb6",
-          "#f1f0da"
-        ]
+        "value": "#4a5078"
       },
       "paper-rule": {
         "role": "neutral",
-        "displayName": "Paper Ruling",
-        "canonical": "oklch(84.3% 0.037 117.4)",
-        "tonalRamp": [
-          "#0a0d00",
-          "#232611",
-          "#3e422c",
-          "#5c6149",
-          "#7e836a",
-          "#a2a88e",
-          "#c8ceb3",
-          "#ecf2d7"
-        ]
+        "displayName": "Gold Ruling",
+        "value": "#ddd2bc"
       },
       "text": {
         "role": "neutral",
-        "displayName": "Graphite Text",
-        "canonical": "oklch(92.5% 0.026 92.4)",
-        "tonalRamp": [
-          "#0f0b01",
-          "#282415",
-          "#444030",
-          "#635d4d",
-          "#86806f",
-          "#aaa493",
-          "#d0cab8",
-          "#f4eedb"
-        ]
+        "displayName": "Ivory Text",
+        "value": "#e8e0d2"
       },
       "text-soft": {
         "role": "neutral",
-        "displayName": "Graphite Soft Text",
-        "canonical": "oklch(72.0% 0.026 96.7)",
-        "tonalRamp": [
-          "#0e0b01",
-          "#272416",
-          "#434030",
-          "#625e4d",
-          "#84816f",
-          "#a9a593",
-          "#cfcbb8",
-          "#f3efdc"
-        ]
+        "displayName": "Navy Soft Text",
+        "value": "#a9adc8"
       },
       "pencil": {
         "role": "accent",
-        "displayName": "Blue Pencil",
-        "value": "#1846e8",
+        "displayName": "Navy Mark",
+        "value": "#0e1d61",
         "description": "Contrast colour on cover and paper: elapsed clock, run fill, rule edge, sheet header hairline."
       },
       "pencil-light": {
         "role": "accent",
-        "displayName": "Blue Pencil Light",
-        "value": "#5b8cff",
+        "displayName": "Gold Line",
+        "value": "#b89a5a",
         "description": "Blue pencil on graphite: snippet row hairline, terminal cursor and selection."
+      },
+      "press-ink": {
+        "value": "#0e1d61",
+        "displayName": "Navy On Gold"
+      },
+      "gold-ink": {
+        "value": "#735b2a",
+        "displayName": "Gold Ink"
       }
     },
     "typographyMeta": {
@@ -445,7 +263,7 @@
       "refersTo": "button-press",
       "description": "Full-width yellow primary action in cards and sheets (Unlock, Connect, Got it).",
       "html": "<button class=\"ds-btn-press\">Unlock</button>",
-      "css": ":host{--press:#2456ff;--press-deep:#1846e8;--press-ink:#ffffff;--pencil:#1846e8;--pencil-light:#5b8cff;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#e8735f;--stamp-green:#2c4f23;--rule-green:#6f8f5a;--cover:#c9b98f;--cover-deep:#b7a676;--cover-ink:#23251d;--cover-ink-soft:#4b4a3a;--graphite:#1c1e19;--graphite-2:#24271f;--graphite-3:#30342a;--graphite-line:#3a3e32;--paper:#efe9d6;--paper-ink:#2a2b22;--paper-ink-soft:#5a5946;--paper-rule:#c9cfb4;--text:#ece6d3;--text-soft:#a9a593;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-btn-press{display:block;width:280px;height:48px;background:var(--press);color:var(--press-ink);border:none;border-radius:var(--radius);font-family:var(--font-label);font-size:18px;font-weight:700;letter-spacing:0.04em;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-btn-press:active{background:var(--press-deep);transform:translateY(1px);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-btn-press{display:block;width:280px;height:48px;background:var(--press);color:var(--press-ink);border:none;border-radius:var(--radius);font-family:var(--font-label);font-size:18px;font-weight:700;letter-spacing:0.04em;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-btn-press:active{background:var(--press-deep);transform:translateY(1px);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Prompt Row",
@@ -453,7 +271,7 @@
       "refersTo": "prompt-field",
       "description": "Round yellow mic, paper prompt field with stamp-red caret, yellow Send.",
       "html": "<div class=\"ds-prompt-row\"><button class=\"ds-mic\" aria-label=\"Voice input\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"9\" y=\"3\" width=\"6\" height=\"11\" rx=\"3\"/><path d=\"M5.5 11a6.5 6.5 0 0 0 13 0\"/><path d=\"M12 17.5V21\"/></svg></button><textarea class=\"ds-prompt\" rows=\"1\" placeholder=\"Type / for commands, or speak…\"></textarea><button class=\"ds-send\" aria-label=\"Send\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 19V5\"/><path d=\"M6 11l6-6 6 6\"/></svg></button></div>",
-      "css": ":host{--press:#2456ff;--press-deep:#1846e8;--press-ink:#ffffff;--pencil:#1846e8;--pencil-light:#5b8cff;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#e8735f;--stamp-green:#2c4f23;--rule-green:#6f8f5a;--cover:#c9b98f;--cover-deep:#b7a676;--cover-ink:#23251d;--cover-ink-soft:#4b4a3a;--graphite:#1c1e19;--graphite-2:#24271f;--graphite-3:#30342a;--graphite-line:#3a3e32;--paper:#efe9d6;--paper-ink:#2a2b22;--paper-ink-soft:#5a5946;--paper-rule:#c9cfb4;--text:#ece6d3;--text-soft:#a9a593;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-prompt-row{display:flex;align-items:flex-end;gap:8px;padding:6px 8px 8px;background:var(--graphite);width:360px;} .ds-mic,.ds-send{width:48px;height:48px;flex-shrink:0;display:grid;place-items:center;background:var(--press);color:var(--press-ink);border:none;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-mic{border-radius:24px;} .ds-send{border-radius:10px;} .ds-mic:active,.ds-send:active{background:var(--press-deep);transform:translateY(1px);} .ds-prompt{flex:1;min-width:0;height:48px;background:var(--paper);color:var(--paper-ink);caret-color:var(--stamp-red);border:1.5px solid transparent;border-radius:10px;padding:12px 12px 10px;font-family:var(--font-ui);font-size:16px;line-height:1.4;resize:none;} .ds-prompt:focus{outline:none;border-color:var(--pencil);} .ds-prompt::placeholder{color:var(--paper-ink-soft);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-prompt-row{display:flex;align-items:flex-end;gap:8px;padding:6px 8px 8px;background:var(--graphite);width:360px;} .ds-mic,.ds-send{width:48px;height:48px;flex-shrink:0;display:grid;place-items:center;background:var(--press);color:var(--press-ink);border:none;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-mic{border-radius:24px;} .ds-send{border-radius:10px;} .ds-mic:active,.ds-send:active{background:var(--press-deep);transform:translateY(1px);} .ds-prompt{flex:1;min-width:0;height:48px;background:var(--paper);color:var(--paper-ink);caret-color:var(--stamp-red);border:1.5px solid transparent;border-radius:10px;padding:12px 12px 10px;font-family:var(--font-ui);font-size:16px;line-height:1.4;resize:none;} .ds-prompt:focus{outline:none;border-color:var(--pencil);} .ds-prompt::placeholder{color:var(--paper-ink-soft);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Key Row",
@@ -461,7 +279,7 @@
       "refersTo": "key",
       "description": "Graphite touch-bar keys; ESC and ^C in graphite stamp ink.",
       "html": "<div class=\"ds-keys\"><button class=\"ds-key ds-wide\">/ CMD</button><button class=\"ds-key ds-danger\">ESC</button><button class=\"ds-key ds-danger\">^C</button><button class=\"ds-key\">CLR</button><button class=\"ds-key\" aria-label=\"Up\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 15l6-6 6 6\"/></svg></button></div>",
-      "css": ":host{--press:#2456ff;--press-deep:#1846e8;--press-ink:#ffffff;--pencil:#1846e8;--pencil-light:#5b8cff;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#e8735f;--stamp-green:#2c4f23;--rule-green:#6f8f5a;--cover:#c9b98f;--cover-deep:#b7a676;--cover-ink:#23251d;--cover-ink-soft:#4b4a3a;--graphite:#1c1e19;--graphite-2:#24271f;--graphite-3:#30342a;--graphite-line:#3a3e32;--paper:#efe9d6;--paper-ink:#2a2b22;--paper-ink-soft:#5a5946;--paper-rule:#c9cfb4;--text:#ece6d3;--text-soft:#a9a593;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-keys{display:flex;gap:4px;padding:8px;background:var(--graphite);width:360px;} .ds-key{flex:1;min-width:0;height:44px;display:grid;place-items:center;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-label);font-size:15px;font-weight:600;letter-spacing:0.04em;cursor:pointer;transition:background 100ms;} .ds-key:active{background:var(--graphite-3);} .ds-wide{flex:1.7;} .ds-danger{color:var(--stamp-red-light);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-keys{display:flex;gap:4px;padding:8px;background:var(--graphite);width:360px;} .ds-key{flex:1;min-width:0;height:44px;display:grid;place-items:center;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-label);font-size:15px;font-weight:600;letter-spacing:0.04em;cursor:pointer;transition:background 100ms;} .ds-key:active{background:var(--graphite-3);} .ds-wide{flex:1.7;} .ds-danger{color:var(--stamp-red-light);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Snippet Keys",
@@ -469,7 +287,7 @@
       "refersTo": "snippet-key",
       "description": "Mono shell snippets, the zoom group with tabular readout, and the dashed Pin key.",
       "html": "<div class=\"ds-snips\"><div class=\"ds-zoom\"><button class=\"ds-snip ds-z\">A−</button><span class=\"ds-readout\">100%</span><button class=\"ds-snip ds-z\">A+</button></div><button class=\"ds-snip\">git status</button><button class=\"ds-snip ds-pin\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>Pin</button></div>",
-      "css": ":host{--press:#2456ff;--press-deep:#1846e8;--press-ink:#ffffff;--pencil:#1846e8;--pencil-light:#5b8cff;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#e8735f;--stamp-green:#2c4f23;--rule-green:#6f8f5a;--cover:#c9b98f;--cover-deep:#b7a676;--cover-ink:#23251d;--cover-ink-soft:#4b4a3a;--graphite:#1c1e19;--graphite-2:#24271f;--graphite-3:#30342a;--graphite-line:#3a3e32;--paper:#efe9d6;--paper-ink:#2a2b22;--paper-ink-soft:#5a5946;--paper-rule:#c9cfb4;--text:#ece6d3;--text-soft:#a9a593;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-snips{display:flex;align-items:center;gap:6px;padding:8px 8px 6px;background:var(--graphite);border-top:1px solid rgba(91,140,255,0.75);} .ds-snip{display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 12px;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-mono);font-size:13px;font-weight:500;cursor:pointer;transition:background 120ms;} .ds-snip:active{background:var(--graphite-3);} .ds-zoom{display:inline-flex;align-items:center;height:36px;border:1px solid var(--graphite-line);border-radius:var(--radius);overflow:hidden;} .ds-z{height:100%;min-width:36px;padding:0 8px;justify-content:center;border:none;border-radius:0;font-family:var(--font-label);font-size:16px;font-weight:600;} .ds-readout{min-width:4.2ch;padding:0 6px;text-align:center;font-family:var(--font-label);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-soft);border-left:1px solid var(--graphite-line);border-right:1px solid var(--graphite-line);line-height:34px;} .ds-pin{background:transparent;border-style:dashed;color:var(--text-soft);font-family:var(--font-label);font-size:15px;font-weight:600;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-snips{display:flex;align-items:center;gap:6px;padding:8px 8px 6px;background:var(--graphite);border-top:1px solid rgba(184,154,90,0.7);} .ds-snip{display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 12px;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-mono);font-size:13px;font-weight:500;cursor:pointer;transition:background 120ms;} .ds-snip:active{background:var(--graphite-3);} .ds-zoom{display:inline-flex;align-items:center;height:36px;border:1px solid var(--graphite-line);border-radius:var(--radius);overflow:hidden;} .ds-z{height:100%;min-width:36px;padding:0 8px;justify-content:center;border:none;border-radius:0;font-family:var(--font-label);font-size:16px;font-weight:600;} .ds-readout{min-width:4.2ch;padding:0 6px;text-align:center;font-family:var(--font-label);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-soft);border-left:1px solid var(--graphite-line);border-right:1px solid var(--graphite-line);line-height:34px;} .ds-pin{background:transparent;border-style:dashed;color:var(--text-soft);font-family:var(--font-label);font-size:15px;font-weight:600;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Run Entry",
@@ -477,7 +295,7 @@
       "refersTo": "cover-band",
       "description": "Signature cover band: tilted state stamp, sent prompt, meta, tabular clock, chime toggle, and the 12-cell duration rule.",
       "html": "<header class=\"ds-cover\"><div class=\"ds-entry\"><span class=\"ds-stamp ds-pressed\">RUNNING</span><div class=\"ds-entry-text\"><div class=\"ds-entry-prompt\">agy fix flaky reconnect test</div><div class=\"ds-entry-meta\"><span class=\"ds-wordmark\">TermPilot</span><span>No. 10 · 11:53 PM</span></div></div><span class=\"ds-clock\">25:00</span><button class=\"ds-icon-btn\" aria-label=\"Completion chime\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z\"/><path d=\"M10 20.5a2.2 2.2 0 0 0 4 0\"/></svg></button></div><div class=\"ds-rule\"><i style=\"transform:scaleX(0.42)\"></i></div></header>",
-      "css": ":host{--press:#2456ff;--press-deep:#1846e8;--press-ink:#ffffff;--pencil:#1846e8;--pencil-light:#5b8cff;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#e8735f;--stamp-green:#2c4f23;--rule-green:#6f8f5a;--cover:#c9b98f;--cover-deep:#b7a676;--cover-ink:#23251d;--cover-ink-soft:#4b4a3a;--graphite:#1c1e19;--graphite-2:#24271f;--graphite-3:#30342a;--graphite-line:#3a3e32;--paper:#efe9d6;--paper-ink:#2a2b22;--paper-ink-soft:#5a5946;--paper-rule:#c9cfb4;--text:#ece6d3;--text-soft:#a9a593;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-cover{background:var(--cover);color:var(--cover-ink);width:390px;} .ds-entry{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;min-height:56px;} .ds-entry-text{flex:1;min-width:0;} .ds-entry-prompt{font-family:var(--font-ui);font-size:15px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-entry-meta{display:flex;gap:8px;font-family:var(--font-ui);font-size:12px;line-height:1.3;color:var(--cover-ink-soft);white-space:nowrap;} .ds-wordmark{font-family:var(--font-label);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cover-ink);} .ds-stamp{flex:none;display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(-2deg);color:var(--stamp-red);} .ds-pressed{animation:ds-press 420ms var(--ease-out);} @keyframes ds-press{0%{transform:rotate(-6deg) scale(1.35);opacity:0;}55%{transform:rotate(-1deg) scale(0.96);opacity:1;}100%{transform:rotate(-2deg) scale(1);opacity:1;}} .ds-clock{flex:none;color:var(--pencil);font-family:var(--font-label);font-weight:600;font-size:24px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:0.01em;} .ds-icon-btn{flex:none;width:40px;height:40px;display:grid;place-items:center;background:transparent;border:1.5px solid rgba(35,37,29,0.55);border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-icon-btn:active{background:var(--cover-deep);} .ds-rule{position:relative;height:7px;border-top:1.5px solid var(--cover-ink);border-bottom:1.5px solid var(--pencil);background-image:repeating-linear-gradient(90deg,var(--rule-green) 0 1px,transparent 1px calc(100% / 12));} .ds-rule i{position:absolute;inset:0;background:var(--pencil);transform-origin:left center;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-cover{background:var(--cover);color:var(--cover-ink);width:390px;} .ds-entry{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;min-height:56px;} .ds-entry-text{flex:1;min-width:0;} .ds-entry-prompt{font-family:var(--font-ui);font-size:15px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-entry-meta{display:flex;gap:8px;font-family:var(--font-ui);font-size:12px;line-height:1.3;color:var(--cover-ink-soft);white-space:nowrap;} .ds-wordmark{font-family:var(--font-label);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cover-ink);} .ds-stamp{flex:none;display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(-2deg);color:var(--stamp-red);} .ds-pressed{animation:ds-press 420ms var(--ease-out);} @keyframes ds-press{0%{transform:rotate(-6deg) scale(1.35);opacity:0;}55%{transform:rotate(-1deg) scale(0.96);opacity:1;}100%{transform:rotate(-2deg) scale(1);opacity:1;}} .ds-clock{flex:none;color:var(--pencil);font-family:var(--font-label);font-weight:600;font-size:24px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:0.01em;} .ds-icon-btn{flex:none;width:40px;height:40px;display:grid;place-items:center;background:transparent;border:1.5px solid rgba(35,37,29,0.55);border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-icon-btn:active{background:var(--cover-deep);} .ds-rule{position:relative;height:7px;border-top:1.5px solid var(--cover-ink);border-bottom:1.5px solid var(--pencil);background-image:repeating-linear-gradient(90deg,var(--rule-green) 0 1px,transparent 1px calc(100% / 12));} .ds-rule i{position:absolute;inset:0;background:var(--pencil);transform-origin:left center;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Stamp States",
@@ -485,7 +303,7 @@
       "refersTo": "stamp",
       "description": "Run-state stamps re-inked per state: RUNNING red, DONE green, READY dashed graphite, LOCKED graphite.",
       "html": "<div class=\"ds-stamps\"><span class=\"ds-st\" style=\"--t:-2deg\">RUNNING</span><span class=\"ds-st ds-done\" style=\"--t:-1.4deg\">DONE</span><span class=\"ds-st ds-ready\" style=\"--t:-2.6deg\">READY</span><span class=\"ds-st ds-locked\" style=\"--t:-1.8deg\">LOCKED</span></div>",
-      "css": ":host{--press:#2456ff;--press-deep:#1846e8;--press-ink:#ffffff;--pencil:#1846e8;--pencil-light:#5b8cff;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#e8735f;--stamp-green:#2c4f23;--rule-green:#6f8f5a;--cover:#c9b98f;--cover-deep:#b7a676;--cover-ink:#23251d;--cover-ink-soft:#4b4a3a;--graphite:#1c1e19;--graphite-2:#24271f;--graphite-3:#30342a;--graphite-line:#3a3e32;--paper:#efe9d6;--paper-ink:#2a2b22;--paper-ink-soft:#5a5946;--paper-rule:#c9cfb4;--text:#ece6d3;--text-soft:#a9a593;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-stamps{display:flex;gap:16px;padding:16px;background:var(--cover);} .ds-st{display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(var(--t,-2deg));white-space:nowrap;color:var(--stamp-red);} .ds-done{color:var(--stamp-green);} .ds-ready{color:var(--cover-ink);border-style:dashed;} .ds-locked{color:var(--cover-ink);}"
+      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-stamps{display:flex;gap:16px;padding:16px;background:var(--cover);} .ds-st{display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(var(--t,-2deg));white-space:nowrap;color:var(--stamp-red);} .ds-done{color:var(--stamp-green);} .ds-ready{color:var(--cover-ink);border-style:dashed;} .ds-locked{color:var(--cover-ink);}"
     },
     {
       "name": "Command Sheet",
@@ -493,7 +311,7 @@
       "refersTo": "sheet",
       "description": "Paper sheet under a cover header; red-ink section heading over an ink rule; fixed one-line command rows.",
       "html": "<div class=\"ds-sheet\"><div class=\"ds-sheet-head\"><span class=\"ds-sheet-title\">Antigravity commands</span><button class=\"ds-close\" aria-label=\"Close\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg></button></div><div class=\"ds-sheet-body\"><input class=\"ds-search\" placeholder=\"Search /plan, /add-dir, /mcp…\"><div class=\"ds-sec\">Workspace &amp; context</div><div class=\"ds-row ds-sel\" tabindex=\"0\"><span class=\"ds-tag\">/add-dir</span><span class=\"ds-desc\">Add a directory to the workspace context</span></div><div class=\"ds-row\" tabindex=\"0\"><span class=\"ds-tag\">/worktree</span><span class=\"ds-desc\">Manage git worktrees for isolated parallel branches</span></div></div></div>",
-      "css": ":host{--press:#2456ff;--press-deep:#1846e8;--press-ink:#ffffff;--pencil:#1846e8;--pencil-light:#5b8cff;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#e8735f;--stamp-green:#2c4f23;--rule-green:#6f8f5a;--cover:#c9b98f;--cover-deep:#b7a676;--cover-ink:#23251d;--cover-ink-soft:#4b4a3a;--graphite:#1c1e19;--graphite-2:#24271f;--graphite-3:#30342a;--graphite-line:#3a3e32;--paper:#efe9d6;--paper-ink:#2a2b22;--paper-ink-soft:#5a5946;--paper-rule:#c9cfb4;--text:#ece6d3;--text-soft:#a9a593;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-sheet{width:390px;background:var(--paper);color:var(--paper-ink);border-radius:14px 14px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,0.4);overflow:hidden;} .ds-sheet-head{display:flex;align-items:center;justify-content:space-between;padding:8px 8px 8px 16px;background:var(--cover);color:var(--cover-ink);border-bottom:1.5px solid var(--cover-ink);} .ds-sheet-title{font-family:var(--font-label);font-size:20px;font-weight:700;letter-spacing:0.02em;} .ds-close{width:44px;height:44px;display:grid;place-items:center;background:transparent;border:none;border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-close:active{background:var(--cover-deep);} .ds-sheet-body{padding:12px 16px 24px;} .ds-search{width:100%;box-sizing:border-box;height:44px;background:#fbf8ee;border:1.5px solid var(--paper-ink);border-radius:var(--radius);padding:0 12px;color:var(--paper-ink);caret-color:var(--stamp-red);font-family:var(--font-ui);font-size:16px;} .ds-search::placeholder{color:var(--paper-ink-soft);} .ds-sec{font-family:var(--font-label);font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--stamp-red-paper);padding:20px 0 6px;border-bottom:1.5px solid var(--paper-ink);} .ds-row{display:flex;flex-direction:column;gap:2px;padding:10px 8px;margin:0 -8px;border-bottom:1px solid var(--paper-rule);border-radius:3px;cursor:pointer;transition:background 120ms;} .ds-row:active,.ds-sel{background:rgba(36,86,255,0.16);} .ds-tag{font-family:var(--font-mono);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-desc{font-family:var(--font-ui);font-size:13px;color:var(--paper-ink-soft);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-sheet{width:390px;background:var(--paper);color:var(--paper-ink);border-radius:14px 14px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,0.4);overflow:hidden;} .ds-sheet-head{display:flex;align-items:center;justify-content:space-between;padding:8px 8px 8px 16px;background:var(--cover);color:var(--cover-ink);border-bottom:1.5px solid var(--cover-ink);} .ds-sheet-title{font-family:var(--font-label);font-size:20px;font-weight:700;letter-spacing:0.02em;} .ds-close{width:44px;height:44px;display:grid;place-items:center;background:transparent;border:none;border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-close:active{background:var(--cover-deep);} .ds-sheet-body{padding:12px 16px 24px;} .ds-search{width:100%;box-sizing:border-box;height:44px;background:#fbf8ee;border:1.5px solid var(--paper-ink);border-radius:var(--radius);padding:0 12px;color:var(--paper-ink);caret-color:var(--stamp-red);font-family:var(--font-ui);font-size:16px;} .ds-search::placeholder{color:var(--paper-ink-soft);} .ds-sec{font-family:var(--font-label);font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-ink);padding:20px 0 6px;border-bottom:1.5px solid var(--paper-ink);} .ds-row{display:flex;flex-direction:column;gap:2px;padding:10px 8px;margin:0 -8px;border-bottom:1px solid var(--paper-rule);border-radius:3px;cursor:pointer;transition:background 120ms;} .ds-row:active,.ds-sel{background:rgba(184,154,90,0.3);} .ds-tag{font-family:var(--font-mono);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-desc{font-family:var(--font-ui);font-size:13px;color:var(--paper-ink-soft);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
     },
     {
       "name": "Toast",
@@ -501,12 +319,12 @@
       "refersTo": "toast",
       "description": "Paper slip that drops in below the cover band.",
       "html": "<div class=\"ds-toast\">Copied to clipboard</div>",
-      "css": ":host{--press:#2456ff;--press-deep:#1846e8;--press-ink:#ffffff;--pencil:#1846e8;--pencil-light:#5b8cff;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#e8735f;--stamp-green:#2c4f23;--rule-green:#6f8f5a;--cover:#c9b98f;--cover-deep:#b7a676;--cover-ink:#23251d;--cover-ink-soft:#4b4a3a;--graphite:#1c1e19;--graphite-2:#24271f;--graphite-3:#30342a;--graphite-line:#3a3e32;--paper:#efe9d6;--paper-ink:#2a2b22;--paper-ink-soft:#5a5946;--paper-rule:#c9cfb4;--text:#ece6d3;--text-soft:#a9a593;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-toast{display:inline-block;background:var(--paper);color:var(--paper-ink);padding:8px 16px;border-radius:var(--radius);font-family:var(--font-label);font-size:16px;font-weight:600;letter-spacing:0.02em;box-shadow:0 6px 18px rgba(0,0,0,0.35);animation:ds-toast 240ms var(--ease-out);} @keyframes ds-toast{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}"
+      "css": ":host{--press:#b89a5a;--press-deep:#a3864a;--press-ink:#0e1d61;--pencil:#0e1d61;--pencil-light:#b89a5a;--gold-ink:#735b2a;--stamp-red:#7f2214;--stamp-red-paper:#a93624;--stamp-red-light:#ff8a75;--stamp-green:#2c4f23;--rule-green:#b89a5a;--cover:#e8e0d2;--cover-deep:#d9cfbd;--cover-ink:#0e1d61;--cover-ink-soft:#4a5078;--graphite:#0e1d61;--graphite-2:#1a2b80;--graphite-3:#24379a;--graphite-line:#33459a;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#e8e0d2;--text-soft:#a9adc8;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-toast{display:inline-block;background:var(--paper);color:var(--paper-ink);padding:8px 16px;border-radius:var(--radius);font-family:var(--font-label);font-size:16px;font-weight:600;letter-spacing:0.02em;box-shadow:0 6px 18px rgba(0,0,0,0.35);animation:ds-toast 240ms var(--ease-out);} @keyframes ds-toast{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}"
     }
   ],
   "narrative": {
     "northStar": "The Field Book",
-    "overview": "The phone is the all-weather surveyor's field book carried away from the desk, and the agent run on the PC is the entry being checked on. Three materials make the whole world: a khaki cover board with graphite ink across the top, the graphite terminal pane filling the middle, and waterproof paper wherever the user writes (the prompt field and every sheet). Rubber-stamp ink states the run, a green level-book ruling measures it, and loud cobalt marks everything that can be pressed.\n\nDensity is that of a working instrument: one cover row carries the stamp, the prompt that was sent, the elapsed clock and the chime toggle; the terminal takes every remaining pixel; the bottom carries three thumb rows (snippet keys, prompt row, key row). Chrome serves the terminal and never crowds it. Type is a condensed grotesk for everything that is a label, stamp or numeral, a plain grotesk for sentences, and system monospace for anything that is or will become terminal text.\n\nThe world explicitly rejects the category default of a black SSH screen with one blue accent and a small \"connected\" dot. Status is a stamp, not a dot.",
+    "overview": "**Creative North Star: \"The Field Book\"**",
     "keyCharacteristics": [
       "Three materials: cover board (header band, sheet headers, unlock card), graphite (terminal and key rows), paper (prompt field, sheets, toast).",
       "Rubber stamps for run state, re-inked per surface for contrast.",
@@ -516,23 +334,18 @@
     ],
     "rules": [
       {
-        "name": "The Pressables-Only Rule",
-        "body": "Cobalt fills only things that can be pressed. Beyond fills, cobalt appears only as the run marks below. Never cobalt for decoration, surfaces or body text.",
+        "name": "The Three Colours Rule",
+        "body": "Every colour on screen is ivory, gold or navy, or a lighter or darker step of one of them. Red and green are status ink only and never decorate.",
+        "section": "colors"
+      },
+      {
+        "name": "The Gold-Pops-On-Navy Rule",
+        "body": "On navy, pressables are gold. On ivory, gold fades (2:1), so pressables there are solid navy blocks with ivory labels, and gold is used only for lines or as deepened gold ink for text.",
         "section": "colors"
       },
       {
         "name": "The Re-Inked Stamp Rule",
-        "body": "Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on cover, stamp-red-paper on paper, stamp-red-light on graphite), never the other way round.",
-        "section": "colors"
-      },
-      {
-        "name": "The Blue Pencil Rule",
-        "body": "Beyond pressables, cobalt marks the run: the clock, the run fill, hairlines, the focus ring and the cursor. Never a cobalt surface, never blue body text.",
-        "section": "colors"
-      },
-      {
-        "name": "The Three Materials Rule",
-        "body": "Every surface is cover, graphite or paper. A new surface picks one of the three; it does not invent a fourth tint.",
+        "body": "Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on ivory, stamp-red-paper on paper, stamp-red-light on navy), never the other way round.",
         "section": "colors"
       },
       {
@@ -547,25 +360,25 @@
       },
       {
         "name": "The One Press Shadow Rule",
-        "body": "Every cobalt pressable carries the same soft press shadow and drops 1px on press; nothing else on the key rows has a shadow.",
+        "body": "Every pressable carries the same soft press shadow and drops 1px on press; nothing else on the key rows has a shadow.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "**Do** keep cobalt (#2456ff) on pressables and the run marks only.",
-      "**Do** pick the stamp-red ink by surface: #7f2214 on cover, #a93624 on paper, #e8735f on graphite.",
-      "**Do** build every gap from the 4px module and keep touch targets 44-48px.",
-      "**Do** set every count, clock and readout in Barlow Condensed with tabular numerals.",
-      "**Do** use dashed borders to mean \"not yet\" or \"off\" (READY, muted, Pin).",
-      "**Do** let the stamp press-in be the only authored motion; other transitions stay at 100-280ms ease-out and honor reduced motion."
+      "keep gold (#B89A5A) for pressables on navy and for fine lines; use navy blocks for pressables on ivory.",
+      "pick the stamp-red ink by surface: #7f2214 on ivory, #a93624 on paper, #ff8a75 on navy.",
+      "build every gap from the 4px module and keep touch targets 44-48px.",
+      "set every count, clock and readout in Barlow Condensed with tabular numerals.",
+      "use dashed borders to mean \"not yet\" or \"off\" (READY, muted, Pin).",
+      "let the stamp press-in be the only authored motion; other transitions stay at 100-280ms ease-out and honor reduced motion."
     ],
     "donts": [
-      "**Don't** add a status dot or a blue accent; state is a stamp on the cover band.",
-      "**Don't** introduce a fourth surface tint beyond cover, graphite and paper.",
-      "**Don't** use rule-green for decoration; it divides measured data only.",
-      "**Don't** set prose in monospace, or terminal text in Barlow.",
-      "**Don't** let command rows wrap; one name line, one ellipsized note line.",
-      "**Don't** change terminal columns for the phone; font size fits, columns stay pinned to the PTY."
+      "add a status dot or a blue accent; state is a stamp on the cover band.",
+      "introduce a fourth surface tint beyond cover, graphite and paper.",
+      "use rule-green for decoration; it divides measured data only.",
+      "set prose in monospace, or terminal text in Barlow.",
+      "let command rows wrap; one name line, one ellipsized note line.",
+      "change terminal columns for the phone; font size fits, columns stay pinned to the PTY."
     ]
   }
 }
