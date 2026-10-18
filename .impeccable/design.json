@@ -4,383 +4,169 @@
   "title": "Design System: TermPilot",
   "extensions": {
     "colorMeta": {
-      "press": {
-        "role": "accent",
-        "displayName": "Deep Atlas Navy",
-        "value": "#0e1d61"
-      },
-      "press-deep": {
-        "role": "accent",
-        "displayName": "Pressed Navy",
-        "value": "#1a2b80"
-      },
-      "stamp-red": {
-        "role": "secondary",
-        "displayName": "Stamp Red On Gold",
-        "value": "#5c1810"
-      },
-      "stamp-red-paper": {
-        "role": "secondary",
-        "displayName": "Stamp Red, paper ink",
-        "value": "#a93624"
-      },
-      "stamp-red-light": {
-        "role": "secondary",
-        "displayName": "Stamp Red On Keys",
-        "value": "#a93624"
-      },
-      "rule-green": {
-        "role": "tertiary",
-        "displayName": "Deep Gold Ticks",
-        "value": "#735b2a"
-      },
-      "stamp-green": {
-        "role": "tertiary",
-        "displayName": "DONE Green",
-        "value": "#1f3a18"
-      },
-      "cover": {
-        "role": "neutral",
-        "displayName": "Gold",
-        "value": "#b89a5a"
-      },
-      "cover-deep": {
-        "role": "neutral",
-        "displayName": "Pressed Gold",
-        "value": "#a3864a"
-      },
-      "cover-ink": {
-        "role": "neutral",
-        "displayName": "Navy Ink",
-        "value": "#0e1d61"
-      },
-      "cover-ink-soft": {
-        "role": "neutral",
-        "displayName": "Soft Navy",
-        "value": "#262d5c"
-      },
-      "graphite": {
-        "role": "neutral",
-        "displayName": "Ivory Page",
-        "value": "#e8e0d2"
-      },
-      "graphite-2": {
-        "role": "neutral",
-        "displayName": "Lifted Ivory Key",
-        "value": "#f4efe6"
-      },
-      "graphite-3": {
-        "role": "neutral",
-        "displayName": "Pressed Key",
-        "value": "#e3d9c6"
-      },
-      "graphite-line": {
-        "role": "neutral",
-        "displayName": "Deep Gold Edge",
-        "value": "#9c8250"
-      },
-      "paper": {
-        "role": "neutral",
-        "displayName": "Lifted Ivory",
-        "value": "#f4efe6"
-      },
-      "paper-ink": {
-        "role": "neutral",
-        "displayName": "Paper Navy Ink",
-        "value": "#0e1d61"
-      },
-      "paper-ink-soft": {
-        "role": "neutral",
-        "displayName": "Paper Soft Ink",
-        "value": "#4a5078"
-      },
-      "paper-rule": {
-        "role": "neutral",
-        "displayName": "Gold Ruling",
-        "value": "#ddd2bc"
-      },
-      "text": {
-        "role": "neutral",
-        "displayName": "Navy Text",
-        "value": "#0e1d61"
-      },
-      "text-soft": {
-        "role": "neutral",
-        "displayName": "Soft Navy Text",
-        "value": "#262d5c"
-      },
-      "pencil": {
-        "role": "accent",
-        "displayName": "Navy Mark",
-        "value": "#0e1d61",
-        "description": "Contrast colour on cover and paper: elapsed clock, run fill, rule edge, sheet header hairline."
-      },
-      "pencil-light": {
-        "role": "accent",
-        "displayName": "Navy Line",
-        "value": "#0e1d61",
-        "description": "Blue pencil on graphite: snippet row hairline, terminal cursor and selection."
-      },
-      "press-ink": {
-        "value": "#f4efe6",
-        "displayName": "Ivory On Navy",
-        "role": "neutral"
-      },
-      "gold-ink": {
-        "value": "#735b2a",
-        "displayName": "Gold Ink",
-        "role": "neutral"
-      }
+      "signal": { "role": "primary", "displayName": "Signal Orange", "canonical": "oklch(67.0% 0.222 37)", "tonalRamp": ["#2d0000", "#560000", "#830000", "#b22200", "#e33f00", "#ff6731", "#ff9769", "#ffc49c"] },
+      "signal-deep": { "role": "primary", "displayName": "Signal Ember", "canonical": "oklch(60.9% 0.200 38)", "tonalRamp": ["#2c0000", "#550000", "#810400", "#af2800", "#df4600", "#ff7549", "#ffa17a", "#ffcdaa"] },
+      "signal-ink": { "role": "primary", "displayName": "Signal Ink (white on orange)", "canonical": "#ffffff", "tonalRamp": ["#0b0b0b", "#252525", "#424242", "#616161", "#828282", "#a5a5a5", "#c9c9c9", "#eeeeee"] },
+      "signal-text": { "role": "primary", "displayName": "Signal Rust", "canonical": "oklch(55.1% 0.181 38)", "tonalRamp": ["#2c0000", "#540000", "#7f0b00", "#ac2d00", "#d45329", "#f47f5a", "#ffa988", "#ffd3b6"] },
+      "body": { "role": "neutral", "displayName": "Porcelain", "canonical": "oklch(94.0% 0.005 95)", "tonalRamp": ["#0b0b0a", "#252524", "#424240", "#62615f", "#838280", "#a6a5a2", "#cac9c6", "#efeeea"] },
+      "panel": { "role": "neutral", "displayName": "Key Face", "canonical": "oklch(97.3% 0.004 91)", "tonalRamp": ["#0b0b0b", "#252524", "#424241", "#626160", "#838280", "#a6a5a3", "#cac9c6", "#efeeeb"] },
+      "panel-low": { "role": "neutral", "displayName": "Key Shadow Face", "canonical": "oklch(91.3% 0.008 91)", "tonalRamp": ["#0b0b0a", "#262523", "#43423f", "#62615e", "#83827e", "#a6a5a0", "#cbc9c4", "#f0eee8"] },
+      "edge": { "role": "neutral", "displayName": "Lip", "canonical": "oklch(84.6% 0.010 87)", "tonalRamp": ["#0c0b09", "#262522", "#43423e", "#63615d", "#84827d", "#a7a59f", "#ccc9c2", "#f1eee8"] },
+      "rule": { "role": "neutral", "displayName": "Hairline", "canonical": "oklch(87.6% 0.010 87)", "tonalRamp": ["#0c0b09", "#262523", "#43423f", "#63615d", "#84827d", "#a7a59f", "#ccc9c2", "#f1eee8"] },
+      "ink": { "role": "neutral", "displayName": "Graphite Ink", "canonical": "oklch(21.7% 0.002 107)", "tonalRamp": ["#0b0b0a", "#252524", "#424241", "#616160", "#828281", "#a5a5a4", "#c9c9c8", "#eeeeee"] },
+      "ink-soft": { "role": "neutral", "displayName": "Soft Graphite", "canonical": "oklch(47.6% 0.010 85)", "tonalRamp": ["#0d0b08", "#272521", "#44423c", "#64615b", "#85827c", "#a7a59f", "#cbc9c4", "#f0eeea"] },
+      "screen": { "role": "neutral", "displayName": "Glass", "canonical": "oklch(18.2% 0 0)", "tonalRamp": ["#0b0b0b", "#252525", "#424242", "#616161", "#828282", "#a5a5a5", "#c9c9c9", "#eeeeee"] },
+      "screen-text": { "role": "neutral", "displayName": "Glass Text", "canonical": "oklch(92.5% 0.007 89)", "tonalRamp": ["#0b0b0a", "#262523", "#434240", "#62615e", "#83827f", "#a6a5a1", "#cbc9c4", "#f0eee9"] },
+      "screen-dim": { "role": "neutral", "displayName": "Glass Dim", "canonical": "oklch(63.0% 0.008 89)", "tonalRamp": ["#0c0b09", "#262522", "#43423e", "#63615d", "#84827d", "#a7a5a0", "#cbc9c5", "#f0eeea"] },
+      "bezel": { "role": "neutral", "displayName": "Bezel", "canonical": "#0b0b0b", "tonalRamp": ["#0b0b0b", "#252525", "#424242", "#616161", "#828282", "#a5a5a5", "#c9c9c9", "#eeeeee"] },
+      "capsule": { "role": "neutral", "displayName": "Readout Black", "canonical": "#000000", "tonalRamp": ["#0b0b0b", "#252525", "#424242", "#616161", "#828282", "#a5a5a5", "#c9c9c9", "#eeeeee"] },
+      "ok": { "role": "state", "displayName": "Done Green", "canonical": "oklch(62.0% 0.147 151)", "tonalRamp": ["#001300", "#003105", "#00521e", "#0a7537", "#2c9a52", "#5fbc78", "#8edfa1", "#bcffcb"] },
+      "ok-text": { "role": "state", "displayName": "Done Green Text", "canonical": "#22783f", "tonalRamp": ["#001300", "#003105", "#00521e", "#0a7537", "#2c9a52", "#5fbc78", "#8edfa1", "#bcffcb"] },
+      "bad": { "role": "state", "displayName": "Fault Red", "canonical": "oklch(57.5% 0.202 31)", "tonalRamp": ["#2e0000", "#580000", "#840000", "#b31c08", "#df432f", "#ff735e", "#ffa08a", "#ffccb8"] },
+      "bad-text": { "role": "state", "displayName": "Fault Red Text", "canonical": "#b52a18", "tonalRamp": ["#2e0000", "#580000", "#840000", "#b31c08", "#df432f", "#ff735e", "#ffa08a", "#ffccb8"] }
     },
     "typographyMeta": {
-      "display": {
-        "displayName": "Display",
-        "purpose": "The 6-digit pairing code only."
-      },
-      "headline": {
-        "displayName": "Headline",
-        "purpose": "The elapsed run clock (32px at 900px+); unlock card title at 24px/1.1."
-      },
-      "title": {
-        "displayName": "Title",
-        "purpose": "Sheet titles (20px), guide entries and primary button labels (18px)."
-      },
-      "body": {
-        "displayName": "Body",
-        "purpose": "Subtitles and descriptions; prompt field at 16px so iOS never zooms."
-      },
-      "body-strong": {
-        "displayName": "Body Strong",
-        "purpose": "The sent prompt on the cover band, one ellipsized line."
-      },
-      "label": {
-        "displayName": "Label",
-        "purpose": "Key labels, zoom readout, Pin and Guide."
-      },
-      "stamp": {
-        "displayName": "Stamp",
-        "purpose": "Run-state stamps; 12px mini, 18px at 900px+."
-      },
-      "mono": {
-        "displayName": "Mono",
-        "purpose": "Shell text only: snippets, command names, copy sheet, code box, terminal."
-      }
+      "display": { "displayName": "Display", "purpose": "The 6-digit pairing code only." },
+      "headline": { "displayName": "Headline", "purpose": "Overlay titles (unlock, reconnect)." },
+      "title": { "displayName": "Title", "purpose": "The current prompt under the capsule and sheet titles; 18px under 360px, 24px from 900px." },
+      "body": { "displayName": "Body", "purpose": "Subtitles and descriptions; 14px in guide rows, 13px hints, 16px in inputs." },
+      "key": { "displayName": "Key", "purpose": "Key row labels, snippet pills, command names." },
+      "label": { "displayName": "Label", "purpose": "Run metadata line and command-sheet section headings, uppercase." }
     },
     "shadows": [
-      {
-        "name": "press",
-        "value": "0 2px 4px rgba(0,0,0,0.35)",
-        "purpose": "The one soft depth under every yellow pressable."
-      },
-      {
-        "name": "toast",
-        "value": "0 6px 18px rgba(0,0,0,0.35)",
-        "purpose": "Floating paper toast."
-      },
-      {
-        "name": "sheet",
-        "value": "0 -8px 28px rgba(0,0,0,0.4)",
-        "purpose": "Bottom sheet on phones."
-      },
-      {
-        "name": "dialog",
-        "value": "0 20px 60px rgba(0,0,0,0.55)",
-        "purpose": "Centered sheet at 600px+."
-      },
-      {
-        "name": "card",
-        "value": "0 18px 40px rgba(0,0,0,0.45), 0 2px 6px rgba(0,0,0,0.25)",
-        "purpose": "Unlock / reconnect cover card."
-      }
+      { "name": "raised", "value": "inset 0 1px 0 #fff, 0 2px 0 var(--edge), 0 3px 8px rgba(0, 0, 0, 0.08)", "purpose": "Raised physical key: key row keys, secondary copy action." },
+      { "name": "raised-low", "value": "inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 0 var(--edge)", "purpose": "Low key: pills, command plates, close buttons, icon tiles." },
+      { "name": "dial", "value": "inset 0 1px 0 #fff, 0 3px 8px rgba(0, 0, 0, 0.14), 0 1px 0 var(--edge)", "purpose": "Chime knob and mic key, over a 145deg #fbfaf8 to #dddad3 gradient." },
+      { "name": "dial-pressed", "value": "inset 0 2px 5px rgba(0, 0, 0, 0.15)", "purpose": "Knob and mic while pressed." },
+      { "name": "sunk-field", "value": "inset 0 1px 3px rgba(0, 0, 0, 0.12)", "purpose": "All text inputs; focus adds 0 0 0 2px var(--signal)." },
+      { "name": "glass-well", "value": "inset 0 0 0 1px #000, inset 0 8px 20px rgba(0, 0, 0, 0.7), 0 1px 0 #fff, 0 -1px 0 rgba(0, 0, 0, 0.06)", "purpose": "The bezel the terminal glass is set into." },
+      { "name": "signal-glow", "value": "0 6px 16px rgba(255, 79, 0, 0.32)", "purpose": "Send and primary orange buttons." },
+      { "name": "float-capsule", "value": "0 8px 20px rgba(0, 0, 0, 0.18)", "purpose": "Status capsule." },
+      { "name": "float-banner", "value": "0 14px 34px rgba(0, 0, 0, 0.18), inset 0 1px 0 #fff", "purpose": "Run-finished banner." },
+      { "name": "float-sheet", "value": "inset 0 1px 0 #fff, 0 -10px 40px rgba(0, 0, 0, 0.22)", "purpose": "Bottom sheets (centered dialogs from 600px use 0 24px 70px rgba(0,0,0,0.3))." },
+      { "name": "float-overlay", "value": "inset 0 1px 0 #fff, 0 24px 60px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12)", "purpose": "Unlock / reconnect overlay box." }
     ],
     "motion": [
-      {
-        "name": "ease-out",
-        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Every state transition and entrance."
-      },
-      {
-        "name": "stamp-press",
-        "value": "420ms ease-out: rotate(-6deg) scale(1.35) opacity 0 -> rotate(-1deg) scale(0.96) -> rotate(tilt) scale(1)",
-        "purpose": "The one authored moment, on every run-state change; tilt randomized -3deg to -1deg."
-      },
-      {
-        "name": "press",
-        "value": "120ms ease-out, translateY(1px)",
-        "purpose": "Active state of yellow pressables (keys swap background at 100-120ms)."
-      },
-      {
-        "name": "sheet-up",
-        "value": "280ms ease-out translateY(100%) -> 0",
-        "purpose": "Bottom sheet entrance; 220ms scale(0.96) pop at 600px+."
-      },
-      {
-        "name": "toast-in",
-        "value": "240ms ease-out, 8px drop + fade",
-        "purpose": "Toast entrance."
-      },
-      {
-        "name": "rule-fill",
-        "value": "900ms linear scaleX",
-        "purpose": "Duration rule growth, one hour = full."
-      },
-      {
-        "name": "mic-listen",
-        "value": "1.4s ease-out infinite ring 0 -> 12px",
-        "purpose": "Mic while dictating."
-      },
-      {
-        "name": "reduced-motion",
-        "value": "1ms",
-        "purpose": "All animation and transition durations collapse under prefers-reduced-motion."
-      }
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Presses (90-120ms), sheet slide-up (320ms), capsule check draw (480ms)." },
+      { "name": "spring", "value": "cubic-bezier(0.2, 1.25, 0.35, 1)", "purpose": "Physical things: capsule width (520ms), capsule pop (420ms), knob pointer (380ms), banner drop (600ms), dialog pop (240ms), toast (300ms)." },
+      { "name": "cap-breathe", "value": "opacity 1 to 0.45, 1.3s ease-in-out infinite", "purpose": "Running dot in the capsule." },
+      { "name": "reduced-motion", "value": "all animations and transitions to 1ms", "purpose": "prefers-reduced-motion: reduce." }
     ],
     "breakpoints": [
-      {
-        "name": "narrow",
-        "value": "max-width: 360px"
-      },
-      {
-        "name": "short",
-        "value": "max-height: 550px"
-      },
-      {
-        "name": "copy-hint",
-        "value": "max-width: 420px"
-      },
-      {
-        "name": "tablet",
-        "value": "min-width: 600px"
-      },
-      {
-        "name": "wide",
-        "value": "min-width: 900px"
-      }
+      { "name": "narrow", "value": "max-width: 360px" },
+      { "name": "short", "value": "max-height: 550px" },
+      { "name": "tablet", "value": "min-width: 600px" },
+      { "name": "wide", "value": "min-width: 900px" }
     ]
   },
   "components": [
     {
-      "name": "Press Button",
+      "name": "Send Key",
       "kind": "button",
-      "refersTo": "button-press",
-      "description": "Full-width yellow primary action in cards and sheets (Unlock, Connect, Got it).",
-      "html": "<button class=\"ds-btn-press\">Unlock</button>",
-      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-btn-press{display:block;width:280px;height:48px;background:var(--press);color:var(--press-ink);border:none;border-radius:var(--radius);font-family:var(--font-label);font-size:18px;font-weight:700;letter-spacing:0.04em;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-btn-press:active{background:var(--press-deep);transform:translateY(1px);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "refersTo": "button-send",
+      "description": "The one orange action in the prompt row.",
+      "html": "<button class=\"ds-send\" aria-label=\"Send\"><svg viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 19V5\"/><path d=\"M6 11l6-6 6 6\"/></svg></button>",
+      "css": ".ds-send { width: 50px; height: 50px; display: grid; place-items: center; background: var(--signal, #ff4f00); color: var(--signal-ink, #fff); border: none; border-radius: 99px; box-shadow: 0 6px 16px rgba(255,79,0,0.32); cursor: pointer; transition: transform 120ms cubic-bezier(0.16,1,0.3,1), background 120ms; } .ds-send:hover { background: #ff5d14; } .ds-send:active { transform: translateY(1px); background: var(--signal-deep, #e04600); } .ds-send:focus-visible { outline: 2px solid var(--signal, #ff4f00); outline-offset: 2px; }"
     },
     {
-      "name": "Prompt Row",
-      "kind": "input",
-      "refersTo": "prompt-field",
-      "description": "Round yellow mic, paper prompt field with stamp-red caret, yellow Send.",
-      "html": "<div class=\"ds-prompt-row\"><button class=\"ds-mic\" aria-label=\"Voice input\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"9\" y=\"3\" width=\"6\" height=\"11\" rx=\"3\"/><path d=\"M5.5 11a6.5 6.5 0 0 0 13 0\"/><path d=\"M12 17.5V21\"/></svg></button><textarea class=\"ds-prompt\" rows=\"1\" placeholder=\"Type / for commands, or speak…\"></textarea><button class=\"ds-send\" aria-label=\"Send\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 19V5\"/><path d=\"M6 11l6-6 6 6\"/></svg></button></div>",
-      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-prompt-row{display:flex;align-items:flex-end;gap:8px;padding:6px 8px 8px;background:var(--cover);width:360px;} .ds-mic,.ds-send{width:48px;height:48px;flex-shrink:0;display:grid;place-items:center;background:var(--press);color:var(--press-ink);border:none;box-shadow:var(--press-shadow);cursor:pointer;transition:transform 120ms var(--ease-out),background 120ms;} .ds-mic{border-radius:24px;} .ds-send{border-radius:10px;} .ds-mic:active,.ds-send:active{background:var(--press-deep);transform:translateY(1px);} .ds-prompt{flex:1;min-width:0;height:48px;background:var(--paper);color:var(--paper-ink);caret-color:var(--stamp-red);border:1.5px solid transparent;border-radius:10px;padding:12px 12px 10px;font-family:var(--font-ui);font-size:16px;line-height:1.4;resize:none;} .ds-prompt:focus{outline:none;border-color:var(--pencil);} .ds-prompt::placeholder{color:var(--paper-ink-soft);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Full-width orange pill for overlay and guide actions.",
+      "html": "<button class=\"ds-btn-primary\">Unlock</button>",
+      "css": ".ds-btn-primary { display: block; width: 100%; max-width: 340px; height: 52px; background: var(--signal, #ff4f00); color: var(--signal-ink, #fff); border: none; border-radius: 99px; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 18px; font-weight: 600; box-shadow: 0 6px 16px rgba(255,79,0,0.32); cursor: pointer; transition: transform 120ms cubic-bezier(0.16,1,0.3,1), background 120ms; } .ds-btn-primary:active { background: var(--signal-deep, #e04600); transform: translateY(1px); } .ds-btn-primary:focus-visible { outline: 2px solid var(--signal, #ff4f00); outline-offset: 2px; }"
     },
     {
-      "name": "Key Row",
+      "name": "Raised Keys",
       "kind": "button",
       "refersTo": "key",
-      "description": "Graphite touch-bar keys; ESC and ^C in graphite stamp ink.",
-      "html": "<div class=\"ds-keys\"><button class=\"ds-key ds-wide\">/ CMD</button><button class=\"ds-key ds-danger\">ESC</button><button class=\"ds-key ds-danger\">^C</button><button class=\"ds-key\">CLR</button><button class=\"ds-key\" aria-label=\"Up\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 15l6-6 6 6\"/></svg></button></div>",
-      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-keys{display:flex;gap:4px;padding:8px;background:var(--cover);width:360px;} .ds-key{flex:1;min-width:0;height:44px;display:grid;place-items:center;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-label);font-size:15px;font-weight:600;letter-spacing:0.04em;cursor:pointer;transition:background 100ms;} .ds-key:active{background:var(--graphite-3);} .ds-wide{flex:1.7;} .ds-danger{color:var(--stamp-red-light);} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "description": "Key row: porcelain keys lit from above with a lip; interrupt keys label in fault red.",
+      "html": "<div class=\"ds-keys\"><button class=\"ds-key ds-key-wide\">/ CMD</button><button class=\"ds-key ds-key-danger\">ESC</button><button class=\"ds-key ds-key-danger\">^C</button><button class=\"ds-key\">CLR</button></div>",
+      "css": ".ds-keys { display: flex; gap: 6px; padding: 12px; background: var(--body, #ecebe7); } .ds-key { flex: 1; height: 46px; min-width: 56px; background: linear-gradient(180deg, var(--panel, #f7f6f3), var(--panel-low, #e4e2dc)); border: 0; color: var(--ink, #1a1a19); border-radius: 13px; box-shadow: inset 0 1px 0 #fff, 0 2px 0 var(--edge, #cfccc5), 0 3px 8px rgba(0,0,0,0.08); font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; font-weight: 500; cursor: pointer; transition: transform 90ms, box-shadow 90ms; } .ds-key-wide { flex: 1.6; } .ds-key-danger { color: var(--bad-text, #b52a18); } .ds-key:active { transform: translateY(2px); box-shadow: inset 0 1px 0 #fff, 0 0 0 var(--edge, #cfccc5), 0 1px 3px rgba(0,0,0,0.08); } .ds-key:focus-visible { outline: 2px solid var(--signal, #ff4f00); outline-offset: 2px; }"
     },
     {
-      "name": "Snippet Keys",
+      "name": "Pinned Command Pills",
       "kind": "chip",
-      "refersTo": "snippet-key",
-      "description": "Mono shell snippets, the zoom group with tabular readout, and the dashed Pin key.",
-      "html": "<div class=\"ds-snips\"><div class=\"ds-zoom\"><button class=\"ds-snip ds-z\">A−</button><span class=\"ds-readout\">100%</span><button class=\"ds-snip ds-z\">A+</button></div><button class=\"ds-snip\">git status</button><button class=\"ds-snip ds-pin\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>Pin</button></div>",
-      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-snips{display:flex;align-items:center;gap:6px;padding:8px 8px 6px;background:var(--cover);border-top:1px solid rgba(14,29,97,0.35);} .ds-snip{display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 12px;background:var(--graphite-2);border:1px solid var(--graphite-line);color:var(--text);border-radius:var(--radius);font-family:var(--font-mono);font-size:13px;font-weight:500;cursor:pointer;transition:background 120ms;} .ds-snip:active{background:var(--graphite-3);} .ds-zoom{display:inline-flex;align-items:center;height:36px;border:1px solid var(--graphite-line);border-radius:var(--radius);overflow:hidden;} .ds-z{height:100%;min-width:36px;padding:0 8px;justify-content:center;border:none;border-radius:0;font-family:var(--font-label);font-size:16px;font-weight:600;} .ds-readout{min-width:4.2ch;padding:0 6px;text-align:center;font-family:var(--font-label);font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--text-soft);border-left:1px solid var(--graphite-line);border-right:1px solid var(--graphite-line);line-height:34px;} .ds-pin{background:transparent;border-style:dashed;color:var(--text-soft);font-family:var(--font-label);font-size:15px;font-weight:600;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "refersTo": "pill",
+      "description": "Low raised pills for one-tap commands, plus the outlined Pin pill.",
+      "html": "<div class=\"ds-pills\"><button class=\"ds-pill\">git status</button><button class=\"ds-pill\">git diff</button><button class=\"ds-pill ds-pill-add\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>Pin</button></div>",
+      "css": ".ds-pills { display: flex; gap: 8px; padding: 12px; background: var(--body, #ecebe7); } .ds-pill { display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 14px; background: var(--panel, #f7f6f3); border: 0; color: var(--ink, #1a1a19); border-radius: 99px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 0 var(--edge, #cfccc5), 0 2px 4px rgba(0,0,0,0.05); font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; font-weight: 500; cursor: pointer; transition: background 120ms, transform 120ms; } .ds-pill:active { background: var(--panel-low, #e4e2dc); transform: translateY(1px); } .ds-pill:focus-visible { outline: 2px solid var(--signal, #ff4f00); outline-offset: 2px; } .ds-pill-add { background: transparent; box-shadow: inset 0 0 0 1.5px var(--edge, #cfccc5); color: var(--ink-soft, #5f5c56); font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; }"
     },
     {
-      "name": "Run Entry",
-      "kind": "nav",
-      "refersTo": "cover-band",
-      "description": "Signature cover band: tilted state stamp, sent prompt, meta, tabular clock, chime toggle, and the 12-cell duration rule.",
-      "html": "<header class=\"ds-cover\"><div class=\"ds-entry\"><span class=\"ds-stamp ds-pressed\">RUNNING</span><div class=\"ds-entry-text\"><div class=\"ds-entry-prompt\">agy fix flaky reconnect test</div><div class=\"ds-entry-meta\"><span class=\"ds-wordmark\">TermPilot</span><span>No. 10 · 11:53 PM</span></div></div><span class=\"ds-clock\">25:00</span><button class=\"ds-icon-btn\" aria-label=\"Completion chime\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15z\"/><path d=\"M10 20.5a2.2 2.2 0 0 0 4 0\"/></svg></button></div><div class=\"ds-rule\"><i style=\"transform:scaleX(0.42)\"></i></div></header>",
-      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-cover{background:var(--cover);color:var(--cover-ink);width:390px;} .ds-entry{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px;min-height:56px;} .ds-entry-text{flex:1;min-width:0;} .ds-entry-prompt{font-family:var(--font-ui);font-size:15px;font-weight:600;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-entry-meta{display:flex;gap:8px;font-family:var(--font-ui);font-size:12px;line-height:1.3;color:var(--cover-ink-soft);white-space:nowrap;} .ds-wordmark{font-family:var(--font-label);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cover-ink);} .ds-stamp{flex:none;display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(-2deg);color:var(--stamp-red);} .ds-pressed{animation:ds-press 420ms var(--ease-out);} @keyframes ds-press{0%{transform:rotate(-6deg) scale(1.35);opacity:0;}55%{transform:rotate(-1deg) scale(0.96);opacity:1;}100%{transform:rotate(-2deg) scale(1);opacity:1;}} .ds-clock{flex:none;color:var(--pencil);font-family:var(--font-label);font-weight:600;font-size:24px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:0.01em;} .ds-icon-btn{flex:none;width:40px;height:40px;display:grid;place-items:center;background:transparent;border:1.5px solid rgba(35,37,29,0.55);border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-icon-btn:active{background:var(--cover-deep);} .ds-rule{position:relative;height:7px;border-top:1.5px solid var(--cover-ink);border-bottom:1.5px solid var(--pencil);background-image:repeating-linear-gradient(90deg,var(--rule-green) 0 1px,transparent 1px calc(100% / 12));} .ds-rule i{position:absolute;inset:0;background:var(--pencil);transform-origin:left center;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "name": "Prompt Field",
+      "kind": "input",
+      "refersTo": "input-prompt",
+      "description": "Sunk porcelain field with an orange caret and orange focus ring.",
+      "html": "<div class=\"ds-field-wrap\"><input class=\"ds-field\" placeholder=\"Ask, or / for commands\" aria-label=\"Prompt\"></div>",
+      "css": ".ds-field-wrap { padding: 12px; background: var(--body, #ecebe7); } .ds-field { width: 100%; height: 50px; background: var(--panel, #f7f6f3); color: var(--ink, #1a1a19); caret-color: var(--signal, #ff4f00); border: 0; border-radius: 25px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.12); padding: 0 18px; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 16px; outline: none; } .ds-field::placeholder { color: var(--ink-soft, #5f5c56); } .ds-field:focus { box-shadow: inset 0 1px 3px rgba(0,0,0,0.12), 0 0 0 2px var(--signal, #ff4f00); }"
     },
     {
-      "name": "Stamp States",
-      "kind": "custom",
-      "refersTo": "stamp",
-      "description": "Run-state stamps re-inked per state: RUNNING red, DONE green, READY dashed graphite, LOCKED graphite.",
-      "html": "<div class=\"ds-stamps\"><span class=\"ds-st\" style=\"--t:-2deg\">RUNNING</span><span class=\"ds-st ds-done\" style=\"--t:-1.4deg\">DONE</span><span class=\"ds-st ds-ready\" style=\"--t:-2.6deg\">READY</span><span class=\"ds-st ds-locked\" style=\"--t:-1.8deg\">LOCKED</span></div>",
-      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-stamps{display:flex;gap:16px;padding:16px;background:var(--cover);} .ds-st{display:inline-block;font-family:var(--font-label);font-weight:700;font-size:15px;line-height:1;letter-spacing:0.08em;padding:5px 7px 4px;border:2px solid currentColor;border-radius:4px;transform:rotate(var(--t,-2deg));white-space:nowrap;color:var(--stamp-red);} .ds-done{color:var(--stamp-green);} .ds-ready{color:var(--cover-ink);border-style:dashed;} .ds-locked{color:var(--cover-ink);}"
-    },
-    {
-      "name": "Command Sheet",
+      "name": "Command Plate",
       "kind": "card",
-      "refersTo": "sheet",
-      "description": "Paper sheet under a cover header; red-ink section heading over an ink rule; fixed one-line command rows.",
-      "html": "<div class=\"ds-sheet\"><div class=\"ds-sheet-head\"><span class=\"ds-sheet-title\">Antigravity commands</span><button class=\"ds-close\" aria-label=\"Close\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.75\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg></button></div><div class=\"ds-sheet-body\"><input class=\"ds-search\" placeholder=\"Search /plan, /add-dir, /mcp…\"><div class=\"ds-sec\">Workspace &amp; context</div><div class=\"ds-row ds-sel\" tabindex=\"0\"><span class=\"ds-tag\">/add-dir</span><span class=\"ds-desc\">Add a directory to the workspace context</span></div><div class=\"ds-row\" tabindex=\"0\"><span class=\"ds-tag\">/worktree</span><span class=\"ds-desc\">Manage git worktrees for isolated parallel branches</span></div></div></div>",
-      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-sheet{width:390px;background:var(--paper);color:var(--paper-ink);border-radius:14px 14px 0 0;box-shadow:0 -8px 28px rgba(0,0,0,0.4);overflow:hidden;} .ds-sheet-head{display:flex;align-items:center;justify-content:space-between;padding:8px 8px 8px 16px;background:var(--cover);color:var(--cover-ink);border-bottom:1.5px solid var(--cover-ink);} .ds-sheet-title{font-family:var(--font-label);font-size:20px;font-weight:700;letter-spacing:0.02em;} .ds-close{width:44px;height:44px;display:grid;place-items:center;background:transparent;border:none;border-radius:var(--radius);color:var(--cover-ink);cursor:pointer;} .ds-close:active{background:var(--cover-deep);} .ds-sheet-body{padding:12px 16px 24px;} .ds-search{width:100%;box-sizing:border-box;height:44px;background:#fbf8ee;border:1.5px solid var(--paper-ink);border-radius:var(--radius);padding:0 12px;color:var(--paper-ink);caret-color:var(--stamp-red);font-family:var(--font-ui);font-size:16px;} .ds-search::placeholder{color:var(--paper-ink-soft);} .ds-sec{font-family:var(--font-label);font-size:14px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--gold-ink);padding:20px 0 6px;border-bottom:1.5px solid var(--paper-ink);} .ds-row{display:flex;flex-direction:column;gap:2px;padding:10px 8px;margin:0 -8px;border-bottom:1px solid var(--paper-rule);border-radius:3px;cursor:pointer;transition:background 120ms;} .ds-row:active,.ds-sel{background:rgba(184,154,90,0.3);} .ds-tag{font-family:var(--font-mono);font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .ds-desc{font-family:var(--font-ui);font-size:13px;color:var(--paper-ink-soft);line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} :focus-visible{outline:2px solid var(--pencil-light);outline-offset:2px;}"
+      "refersTo": "command-plate",
+      "description": "A slash command as a key plate; selected shows an inner orange ring.",
+      "html": "<div class=\"ds-plates\"><div class=\"ds-plate\" tabindex=\"0\"><span class=\"ds-plate-tag\">/plan</span><span class=\"ds-plate-desc\">Step-by-step implementation planning before execution</span></div><div class=\"ds-plate ds-plate-selected\" tabindex=\"0\"><span class=\"ds-plate-tag\">/goal</span><span class=\"ds-plate-desc\">Autonomous execution until goal is fully achieved</span></div></div>",
+      "css": ".ds-plates { padding: 12px 20px; background: var(--body, #ecebe7); max-width: 420px; } .ds-plate { display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; margin-bottom: 6px; background: var(--panel, #f7f6f3); border-radius: 14px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 0 var(--edge, #cfccc5); cursor: pointer; transition: box-shadow 120ms; outline: none; } .ds-plate:hover { background: #fbfaf8; } .ds-plate:active, .ds-plate:focus-visible, .ds-plate-selected { box-shadow: inset 0 0 0 2px var(--signal, #ff4f00); } .ds-plate-tag { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 14px; font-weight: 500; color: var(--ink, #1a1a19); } .ds-plate-desc { font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 13px; color: var(--ink-soft, #5f5c56); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }"
     },
     {
-      "name": "Toast",
+      "name": "Status Capsule",
       "kind": "custom",
-      "refersTo": "toast",
-      "description": "Paper slip that drops in below the cover band.",
-      "html": "<div class=\"ds-toast\">Copied to clipboard</div>",
-      "css": ":host{--press:#0e1d61;--press-deep:#1a2b80;--press-ink:#f4efe6;--pencil:#0e1d61;--pencil-light:#0e1d61;--gold-ink:#735b2a;--stamp-red:#5c1810;--stamp-red-paper:#a93624;--stamp-red-light:#a93624;--stamp-green:#1f3a18;--rule-green:#735b2a;--cover:#b89a5a;--cover-deep:#a3864a;--cover-ink:#0e1d61;--cover-ink-soft:#262d5c;--graphite:#e8e0d2;--graphite-2:#f4efe6;--graphite-3:#e3d9c6;--graphite-line:#9c8250;--paper:#f4efe6;--paper-ink:#0e1d61;--paper-ink-soft:#4a5078;--paper-rule:#ddd2bc;--text:#0e1d61;--text-soft:#262d5c;--m:4px;--radius:6px;--font-ui:\"Barlow\",system-ui,-apple-system,\"Segoe UI\",sans-serif;--font-label:\"Barlow Condensed\",\"Barlow\",system-ui,sans-serif;--font-mono:ui-monospace,\"SF Mono\",\"Cascadia Mono\",Menlo,Consolas,\"Roboto Mono\",monospace;--ease-out:cubic-bezier(0.16,1,0.3,1);--press-shadow:0 2px 4px rgba(0,0,0,0.35);} .ds-toast{display:inline-block;background:var(--paper);color:var(--paper-ink);padding:8px 16px;border-radius:var(--radius);font-family:var(--font-label);font-size:16px;font-weight:600;letter-spacing:0.02em;box-shadow:0 6px 18px rgba(0,0,0,0.35);animation:ds-toast 240ms var(--ease-out);} @keyframes ds-toast{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:none;}}"
+      "refersTo": "status-capsule",
+      "description": "The instrument readout: running state with breathing orange dot, tabular timer and wave.",
+      "html": "<div class=\"ds-cap-stage\"><div class=\"ds-capsule\" role=\"status\"><span class=\"ds-cap-dot\"></span><span>Running</span><span class=\"ds-cap-time\">25:00</span><span class=\"ds-cap-wave\"><i style=\"height:6px\"></i><i style=\"height:11px\"></i><i style=\"height:8px\"></i><i style=\"height:14px\"></i><i style=\"height:5px\"></i><i style=\"height:10px\"></i><i style=\"height:4px\"></i><i style=\"height:12px\"></i></span></div></div>",
+      "css": ".ds-cap-stage { padding: 16px; background: var(--body, #ecebe7); display: flex; justify-content: center; } .ds-capsule { height: 36px; display: flex; align-items: center; gap: 9px; padding: 0 16px; border-radius: 99px; background: var(--capsule, #000); color: #fff; font-family: 'IBM Plex Sans', system-ui, sans-serif; font-size: 14px; font-weight: 500; white-space: nowrap; box-shadow: 0 8px 20px rgba(0,0,0,0.18); } .ds-cap-dot { width: 8px; height: 8px; border-radius: 99px; background: var(--signal, #ff4f00); box-shadow: 0 0 10px var(--signal, #ff4f00); animation: ds-breathe 1.3s ease-in-out infinite; } .ds-cap-time { font-family: 'IBM Plex Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; } .ds-cap-wave { display: flex; gap: 2px; align-items: center; height: 16px; } .ds-cap-wave i { width: 2.5px; border-radius: 2px; background: var(--signal, #ff4f00); } @keyframes ds-breathe { 50% { opacity: 0.45; } } @media (prefers-reduced-motion: reduce) { .ds-cap-dot { animation: none; } }"
+    },
+    {
+      "name": "Run-Finished Banner",
+      "kind": "custom",
+      "refersTo": "",
+      "description": "Frosted porcelain banner that drops in when a run ends while the app is open.",
+      "html": "<div class=\"ds-banner-stage\"><button class=\"ds-banner\" type=\"button\"><span class=\"ds-banner-icon\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.4\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/></svg></span><span class=\"ds-banner-text\"><span class=\"ds-banner-title\">Run 1 finished in 25:00</span><span class=\"ds-banner-sub\">agy fix flaky reconnect test</span></span></button></div>",
+      "css": ".ds-banner-stage { padding: 16px; background: var(--body, #ecebe7); } .ds-banner { display: flex; gap: 12px; align-items: center; width: 100%; max-width: 480px; padding: 12px 14px; border: 0; border-radius: 22px; text-align: left; background: rgba(250,249,246,0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 14px 34px rgba(0,0,0,0.18), inset 0 1px 0 #fff; cursor: pointer; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: var(--ink, #1a1a19); } .ds-banner:focus-visible { outline: 2px solid var(--signal, #ff4f00); outline-offset: 2px; } .ds-banner-icon { flex: none; width: 40px; height: 40px; border-radius: 11px; background: var(--screen, #121212); color: var(--ok, #2f9e55); display: grid; place-items: center; } .ds-banner-text { min-width: 0; display: grid; gap: 1px; } .ds-banner-title { font-size: 15px; font-weight: 600; } .ds-banner-sub { font-size: 13px; color: var(--ink-soft, #5f5c56); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }"
+    },
+    {
+      "name": "Chime Knob",
+      "kind": "button",
+      "refersTo": "",
+      "description": "Porcelain dial whose pointer is the chime toggle: orange up-right when on, grey swung left when muted.",
+      "html": "<div class=\"ds-knob-stage\"><button class=\"ds-knob\" aria-label=\"Completion chime\" aria-pressed=\"true\"></button><button class=\"ds-knob ds-knob-muted\" aria-label=\"Completion chime\" aria-pressed=\"false\"></button></div>",
+      "css": ".ds-knob-stage { display: flex; gap: 16px; padding: 16px; background: var(--body, #ecebe7); } .ds-knob { width: 46px; height: 46px; border: 0; border-radius: 99px; background: linear-gradient(145deg, #fbfaf8, #dddad3); box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(0,0,0,0.14), 0 1px 0 var(--edge, #cfccc5); position: relative; cursor: pointer; } .ds-knob::after { content: ''; position: absolute; left: 50%; top: 50%; width: 3px; height: 14px; margin: -14px 0 0 -1.5px; border-radius: 2px; background: var(--signal, #ff4f00); transform-origin: 50% 100%; transform: rotate(40deg); transition: transform 380ms cubic-bezier(0.2,1.25,0.35,1), background 200ms; } .ds-knob-muted::after { transform: rotate(-60deg); background: #a7a39b; } .ds-knob:active { box-shadow: inset 0 2px 5px rgba(0,0,0,0.15); } .ds-knob:focus-visible { outline: 2px solid var(--signal, #ff4f00); outline-offset: 2px; }"
     }
   ],
   "narrative": {
-    "northStar": "The Field Book",
-    "overview": "**Creative North Star: \"The Field Book\"**",
+    "northStar": "The Porcelain Instrument",
+    "overview": "TermPilot is a piece of premium hardware held in one hand: a warm porcelain body, the terminal set into it like a dark glass screen behind a bezel, raised physical keys underneath, and one signal-orange accent. The lineage is Teenage Engineering, Braun and Leica: industrial calm, honest materials, every control looking like something you could press with a thumb.\n\nThe screen is the truth and the body serves it. The dark glass takes all the space the column of controls leaves; the porcelain around it is quiet, near-white and warm, with depth carried by light and lips rather than lines. A black status capsule at the top is the instrument's readout: it breathes orange while a run is going, counts time in tabular mono, draws a green check when the run is done, and resizes with a spring as its label changes. When a run ends, a frosted banner drops in from the top and, if the phone is locked, a system notification takes its place.\n\nDensity is phone-instrument density: a fixed full-height column (readout, screen, pinned pills, prompt row, key row), no page scroll, everything within thumb reach.",
     "keyCharacteristics": [
-      "Three materials: cover board (header band, sheet headers, unlock card), graphite (terminal and key rows), paper (prompt field, sheets, toast).",
-      "Rubber stamps for run state, re-inked per surface for contrast.",
-      "One 4px spacing module; every gap is a multiple of it.",
-      "Cobalt is the loud third colour: it means pressable, and it marks the run.",
-      "Code-led: inline SVG stroke icons, CSS stamps and ruling, self-hosted webfonts; no rasters."
+      "Warm porcelain body, dark glass screen, black readout capsule: three materials, nothing else.",
+      "One signal orange for \"happening now\" and \"press this\"; green only for done, red only for offline and interrupt.",
+      "Raised keys built from light and a lip (top inner highlight, edge line, soft cast), never from borders.",
+      "IBM Plex throughout the chrome: Sans for words people read, Mono for keys, codes, commands and readouts.",
+      "Spring motion on physical things (capsule width, knob pointer, banner drop); quick ease-out on presses."
     ],
     "rules": [
-      {
-        "section": "colors",
-        "name": "The Two Main Colours Rule",
-        "body": "Every surface is gold or ivory, or a step of one. A new surface picks one of the two; navy never becomes a surface."
-      },
-      {
-        "section": "colors",
-        "name": "The Navy Contrast Rule",
-        "body": "Navy is the contrast colour: ink, the run marks (clock, run fill, stamps), hairlines and every pressable. It stays scarce so it keeps popping. Red and green are status ink only and never decorate."
-      },
-      {
-        "name": "The Re-Inked Stamp Rule",
-        "body": "Stamp red has one meaning and three inks; pick the ink by the surface it lands on (stamp-red on gold, stamp-red-paper on paper, stamp-red-light on keys), never the other way round.",
-        "section": "colors"
-      },
-      {
-        "name": "The Numerals-Are-Condensed Rule",
-        "body": "Every count, clock and readout is Barlow Condensed with tabular numerals, so digits never jitter as they tick.",
-        "section": "typography"
-      },
-      {
-        "name": "The Mono-Is-Terminal Rule",
-        "body": "Monospace marks text that is, or will be sent to, the shell (snippets, slash commands, copied output). Prose never sets in mono.",
-        "section": "typography"
-      },
-      {
-        "name": "The One Press Shadow Rule",
-        "body": "Every pressable carries the same soft press shadow and drops 1px on press; nothing else on the key rows has a shadow.",
-        "section": "elevation"
-      }
+      { "name": "The One Signal Rule", "body": "Orange means either \"the agent is working right now\" or \"this is the thing to press\". It never decorates. A screen in its resting state shows orange only on Send and the knob pointer.", "section": "colors" },
+      { "name": "The State Colors Rule", "body": "Green appears only for a finished run, red only for offline or interrupt. Neither is used as a brand or decorative hue.", "section": "colors" },
+      { "name": "The Glass Palette Rule", "body": "Inside the screen, the xterm theme owns color: background and foreground match `screen` / `screen-text`, the cursor is signal orange, brightBlack is `screen-dim`, and ANSI hues are the softened set tuned for a #121212 ground.", "section": "colors" },
+      { "name": "The Readout Rule", "body": "Numbers that change (timer, zoom percent, pairing code) are Mono with tabular figures so they never jitter.", "section": "typography" },
+      { "name": "The Sans Speaks Rule", "body": "Anything a person reads as a sentence is Plex Sans. Mono is for keys, commands, codes and readouts, not for prose.", "section": "typography" },
+      { "name": "The Screen Takes The Rest Rule", "body": "Every other row is `flex-shrink: 0`; only the screen flexes. New chrome must fit in an existing row or justify taking height from the terminal.", "section": "layout" },
+      { "name": "The Light From Above Rule", "body": "Raised porcelain always has the white top highlight and the lip below; a raised element with only a drop shadow is wrong. Shadows are soft and grey (or orange glow on orange), never hard offset blocks.", "section": "elevation" },
+      { "name": "The Press Travels Rule", "body": "A pressed key moves down 1-2px and loses its lip. Presses are fast (90-120ms ease-out); nothing scales on tap.", "section": "elevation" }
     ],
     "dos": [
-      "keep navy (#0E1D61) for ink, run marks and pressables only; surfaces are gold or ivory.",
-      "pick the stamp-red ink by surface: #5c1810 on gold, #a93624 on paper and keys.",
-      "build every gap from the 4px module and keep touch targets 44-48px.",
-      "set every count, clock and readout in Barlow Condensed with tabular numerals.",
-      "use dashed borders to mean \"not yet\" or \"off\" (READY, muted, Pin).",
-      "let the stamp press-in be the only authored motion; other transitions stay at 100-280ms ease-out and honor reduced motion."
+      "**Do** keep signal orange (#ff4f00) to running state and the one primary action per view; use `signal-text` when orange must be small text on porcelain.",
+      "**Do** build raised controls from the white top highlight, the `edge` lip and a soft cast (the Raised key / Raised low shadows); build fields as sunk.",
+      "**Do** use the black capsule language (pill, Readout Black, state dot) for status, and Mono with tabular figures for any changing number.",
+      "**Do** use the one inline SVG icon set: 24px grid, 1.75 stroke, round caps and joins, `currentColor`.",
+      "**Do** animate physical things on the spring (`cubic-bezier(0.2, 1.25, 0.35, 1)`) and presses on the ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`) at 90-120ms; honor reduced motion.",
+      "**Do** give every new row `flex-shrink: 0` so the screen keeps the remaining height."
     ],
     "donts": [
-      "add a status dot or a blue accent; state is a stamp on the cover band.",
-      "introduce a fourth surface tint beyond cover, graphite and paper.",
-      "use rule-green for decoration; it divides measured data only.",
-      "set prose in monospace, or terminal text in Barlow.",
-      "let command rows wrap; one name line, one ellipsized note line.",
-      "change terminal columns for the phone; font size fits, columns stay pinned to the PTY."
+      "**Don't** add a second accent hue, or use green and red for anything but done and offline/interrupt.",
+      "**Don't** draw borders around porcelain controls; separation is tone and shadow, with `rule` hairlines only between list rows and inset outlines only on ghost pills (Pin) and inline badges.",
+      "**Don't** use hard offset or block shadows; depth here is lit from above and soft.",
+      "**Don't** set prose in Mono or keys and readouts in Sans.",
+      "**Don't** change the terminal's column count or let chrome reflow the grid; scale its font instead."
     ]
   }
 }
