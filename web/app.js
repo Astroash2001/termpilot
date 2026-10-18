@@ -226,6 +226,310 @@ function adaptFontSizeToPty() {
   } catch (e) {}
 }
 
+// ── Coding agents ───────────────────────────────────────────────────────
+// TermPilot drives a plain terminal, so any coding agent can run in it. Each profile says
+// how to recognise the agent (the command that starts it, the banner it prints), the text
+// it shows while busy, and its slash commands for the / sheet. An agent with no profile
+// still works: its "esc to interrupt" style marker is enough to end runs correctly.
+
+const AGENT_PROFILES = {
+  claude: {
+    name: "Claude Code",
+    bins: ["claude", "claude-code"],
+    banner: /Claude Code/,
+    busy: /esc to interrupt/i,
+    commands: [
+      { title: "Session", items: [
+        ["/clear", "Start fresh, clearing the conversation"],
+        ["/compact", "Summarise the conversation to free context"],
+        ["/context", "Show what is using the context window"],
+        ["/cost", "Show token usage and cost for this session"],
+        ["/resume", "Resume an earlier conversation"],
+        ["/rewind", "Roll the conversation and code back to a checkpoint"],
+        ["/export", "Export the conversation"],
+        ["/exit", "Quit Claude Code"],
+      ] },
+      { title: "Project", items: [
+        ["/init", "Create a CLAUDE.md for this project"],
+        ["/memory", "Edit CLAUDE.md memory files"],
+        ["/add-dir ", "Add another working directory"],
+        ["/review", "Review a pull request"],
+      ] },
+      { title: "Model & tools", items: [
+        ["/model", "Choose the model"],
+        ["/permissions", "View or change tool permissions"],
+        ["/mcp", "Manage MCP servers"],
+        ["/agents", "Manage subagents"],
+        ["/hooks", "Manage hooks"],
+        ["/config", "Open settings"],
+      ] },
+      { title: "Account & help", items: [
+        ["/status", "Show version, model and account"],
+        ["/doctor", "Check the installation"],
+        ["/login", "Sign in"],
+        ["/logout", "Sign out"],
+        ["/help", "List all commands"],
+      ] },
+    ],
+  },
+  codex: {
+    name: "Codex",
+    bins: ["codex"],
+    banner: /OpenAI Codex/i,
+    busy: /esc to interrupt/i,
+    commands: [
+      { title: "Session", items: [
+        ["/new", "Start a new conversation"],
+        ["/compact", "Summarise the conversation to free context"],
+        ["/diff", "Show the git diff, including untracked files"],
+        ["/review", "Review the current changes"],
+        ["/mention ", "Mention a file"],
+        ["/quit", "Quit Codex"],
+      ] },
+      { title: "Setup", items: [
+        ["/init", "Create an AGENTS.md for this project"],
+        ["/model", "Choose the model and reasoning effort"],
+        ["/approvals", "Choose what Codex may do without asking"],
+        ["/mcp", "List configured MCP tools"],
+        ["/status", "Show session settings and token usage"],
+        ["/logout", "Sign out"],
+      ] },
+    ],
+  },
+  gemini: {
+    name: "Gemini CLI",
+    bins: ["gemini", "gemini-cli"],
+    banner: /Gemini CLI/i,
+    busy: /esc to cancel/i,
+    commands: [
+      { title: "Session", items: [
+        ["/clear", "Clear the screen and conversation"],
+        ["/compress", "Summarise the conversation to free context"],
+        ["/chat ", "Save, resume or list conversations"],
+        ["/restore", "Undo file changes from a tool call"],
+        ["/copy", "Copy the last answer"],
+        ["/stats", "Show token usage for this session"],
+        ["/quit", "Quit Gemini CLI"],
+      ] },
+      { title: "Project & tools", items: [
+        ["/init", "Create a GEMINI.md for this project"],
+        ["/memory ", "Show, add to or reload memory"],
+        ["/directory ", "Add or list workspace directories"],
+        ["/tools", "List available tools"],
+        ["/mcp", "List MCP servers and tools"],
+        ["/extensions", "List active extensions"],
+      ] },
+      { title: "Settings & help", items: [
+        ["/settings", "Open settings"],
+        ["/theme", "Change the theme"],
+        ["/auth", "Change how you sign in"],
+        ["/about", "Show version info"],
+        ["/help", "List all commands"],
+      ] },
+    ],
+  },
+  aider: {
+    name: "Aider",
+    bins: ["aider", "aider-chat"],
+    banner: /^Aider v\d/m,
+    busy: /Waiting for /i,
+    commands: [
+      { title: "Files", items: [
+        ["/add ", "Add files to the chat"],
+        ["/drop ", "Remove files from the chat"],
+        ["/ls", "List files in and out of the chat"],
+        ["/map", "Show the repository map"],
+      ] },
+      { title: "Modes", items: [
+        ["/ask ", "Ask without editing files"],
+        ["/code ", "Ask for code changes"],
+        ["/architect ", "Plan with one model, edit with another"],
+      ] },
+      { title: "Git & checks", items: [
+        ["/diff", "Show changes since the last message"],
+        ["/undo", "Undo the last commit Aider made"],
+        ["/commit", "Commit outside edits"],
+        ["/run ", "Run a shell command"],
+        ["/test ", "Run tests and fix failures"],
+        ["/lint", "Lint and fix files"],
+      ] },
+      { title: "Session", items: [
+        ["/model ", "Switch the model"],
+        ["/tokens", "Show context token usage"],
+        ["/clear", "Clear the chat history"],
+        ["/reset", "Drop all files and clear history"],
+        ["/help", "List all commands"],
+        ["/exit", "Quit Aider"],
+      ] },
+    ],
+  },
+  agy: {
+    name: "Antigravity",
+    bins: ["agy"],
+    banner: /Antigravity/i,
+    busy: /esc to interrupt/i,
+    commands: [
+    { title: "Workspace & context", items: [
+      ["/add-dir ", "Add a directory to the workspace context"],
+      ["/worktree ", "Manage git worktrees for isolated parallel branches"],
+      ["/files", "List and inspect loaded project workspace files"],
+      ["/context", "View active context window tokens and loaded files"],
+      ["/compact", "Compress conversation history to save tokens"],
+      ["clear", "Clear terminal screen and reset view"],
+      ["/reset", "Reset the workspace session to initial state"]
+    ] },
+    { title: "Agent modes & workflows", items: [
+      ["/plan ", "Step-by-step implementation planning before execution"],
+      ["/goal ", "Autonomous execution until goal is fully achieved"],
+      ["/resume ", "Resume a paused task, session, or checkpoint"],
+      ["/grill-me ", "Interactive interview to resolve design decisions"],
+      ["/teamwork-preview ", "Coordinate a team of autonomous subagents"],
+      ["/learn ", "Save workflow patterns & lessons for future tasks"],
+      ["/schedule ", "Run recurring cron or one-time timer notifications"],
+      ["/run ", "Execute scripts or commands directly with the agent"],
+      ["/review ", "Review recent code changes, diffs, and pull requests"]
+    ] },
+    { title: "Subagents & artifacts", items: [
+      ["/agents", "List available custom agents and personas"],
+      ["/subagents", "Inspect active background subagents and conversations"],
+      ["/artifact", "View and review generated markdown and code artifacts"],
+      ["/diff", "View git diff of file modifications in this session"],
+      ["/transcript", "Inspect full chronological conversation & tool execution logs"],
+      ["/undo", "Revert the last batch of agent file modifications"],
+      ["/save", "Save the current session state checkpoint"]
+    ] },
+    { title: "Skills, rules & MCP", items: [
+      ["/skills", "List, activate, and manage loaded agent skills"],
+      ["/rules", "View and edit project rules and workflows"],
+      ["/mcp", "Manage Model Context Protocol (MCP) server integrations"],
+      ["/plugins", "View and configure installed Antigravity plugins"],
+      ["/tools", "Inspect all available system tools and declarations"],
+      ["/config", "View and edit CLI settings and preferences"]
+    ] },
+    { title: "Models & reasoning", items: [
+      ["/model ", "Switch AI model (Gemini 3.7 Flash, Claude Opus, GPT, etc.)"],
+      ["/params ", "Configure temperature, thinking depth, and model parameters"],
+      ["/permissions", "Manage auto-execution and tool safety approvals"]
+    ] },
+    { title: "Chat & interaction", items: [
+      ["/btw ", "Ask a side question without interrupting current task"],
+      ["/voice", "Toggle voice transcription / speech interactions"],
+      ["/prompt ", "Load or manage custom system prompt templates"],
+      ["/feedback ", "Provide feedback or report an issue on agent behavior"]
+    ] },
+    { title: "System & account", items: [
+      ["/help", "Display full CLI command reference & shortcuts"],
+      ["/status", "View active tasks, subagents, and memory state"],
+      ["/usage", "Check API quota, token consumption, and credits"],
+      ["/cost", "View token cost breakdown for the current session"],
+      ["/changelog", "Show Antigravity release notes and changes"],
+      ["/version", "Show current Antigravity CLI version"],
+      ["/theme ", "Switch terminal UI theme and color scheme"],
+      ["/login", "Sign in and authenticate Antigravity account"],
+      ["/logout", "Sign out of current Antigravity account"],
+      ["agy", "Launch Antigravity assistant"],
+      ["/exit", "Terminate and exit current session"]
+    ] }
+  ],
+  },
+};
+
+// Most agent TUIs show one of these while they work; it identifies an agent with no profile
+const GENERIC_BUSY = /esc to (interrupt|cancel)|ctrl\+c to (interrupt|cancel)/i;
+const GENERIC_AGENT = { name: "Coding agent", busy: GENERIC_BUSY, commands: [] };
+const QUIET_MS = 2500; // an idle agent stops printing: this long silent and not busy means done
+
+let currentAgent = null; // profile id, "generic", or null while the plain shell has the terminal
+let lastAgent = null;    // the / sheet keeps the last agent's commands after it exits
+let quietTimer = null;
+const agentLabel = document.getElementById("agent-label");
+
+function agentProfile(id = currentAgent) {
+  return id === "generic" ? GENERIC_AGENT : AGENT_PROFILES[id] || null;
+}
+
+function setAgent(id) {
+  if (id === currentAgent) return;
+  currentAgent = id;
+  if (id) lastAgent = id;
+  agentLabel.textContent = id ? agentProfile(id).name : "TermPilot";
+}
+
+// The command that starts an agent: "claude", "codex --model x", "npx @openai/codex@latest",
+// "C:\tools\aider.exe". Only the program word counts, so "git commit -m claude" is not a launch.
+function detectAgentFromCommand(text) {
+  const words = text.trim().split(/\s+/);
+  let program = words[0] || "";
+  if (/^(npx|bunx|pnpx)$/i.test(program) || (/^(pnpm|yarn)$/i.test(program) && /^dlx$/i.test(words[1] || ""))) {
+    program = words.slice(1).find((w) => !w.startsWith("-") && !/^dlx$/i.test(w)) || "";
+  }
+  const name = program.toLowerCase().split(/[\\/]/).pop().replace(/@.*$/, "").replace(/\.(exe|cmd|ps1|bat)$/, "");
+  for (const [id, profile] of Object.entries(AGENT_PROFILES)) {
+    if (profile.bins.includes(name)) return id;
+  }
+  return null;
+}
+
+// Banners catch agents started another way (a script, an alias, a session already open).
+// Only while the shell has the terminal: an agent quoting another agent's name must not relabel it.
+function noteAgentOutput(chunk) {
+  if (currentAgent && currentAgent !== "generic") return;
+  const text = chunk.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "");
+  for (const [id, profile] of Object.entries(AGENT_PROFILES)) {
+    if (profile.banner.test(text)) return setAgent(id);
+  }
+  if (!currentAgent && GENERIC_BUSY.test(text)) setAgent("generic");
+}
+
+// True while any visible line shows the agent's "still working" marker
+function agentLooksBusy() {
+  const profile = agentProfile();
+  const buf = term.buffer.active;
+  for (let y = buf.baseY; y < buf.baseY + term.rows; y++) {
+    const line = buf.getLine(y);
+    if (!line) continue;
+    const text = line.translateToString(true);
+    if (profile.busy.test(text) || GENERIC_BUSY.test(text)) return true;
+  }
+  return false;
+}
+
+// The / sheet lists the running agent's commands, or the last one's after it exits
+const agentCommands = document.getElementById("agent-commands");
+const commandsTitle = document.getElementById("commands-title");
+let renderedAgent;
+
+function renderAgentCommands() {
+  const id = currentAgent || lastAgent;
+  if (id === renderedAgent) return;
+  renderedAgent = id;
+  const profile = agentProfile(id);
+  const make = (cls, text) => { const el = document.createElement(cls === "cmd-item" ? "div" : "span"); el.className = cls; if (text) el.textContent = text; return el; };
+  if (!profile || !profile.commands.length) {
+    commandsTitle.textContent = "Agent commands";
+    const note = document.createElement("p");
+    note.className = "cmd-empty";
+    note.textContent = profile
+      ? `${profile.name} is running. TermPilot doesn't know its commands, so type them in the box.`
+      : "Start a coding agent in the terminal, such as claude, codex, gemini, aider or agy. Its commands show up here.";
+    agentCommands.replaceChildren(note);
+    return;
+  }
+  commandsTitle.textContent = `${profile.name} commands`;
+  agentCommands.replaceChildren(...profile.commands.flatMap((section) => {
+    const title = document.createElement("div");
+    title.className = "cmd-section-title";
+    title.textContent = section.title;
+    return [title, ...section.items.map(([insert, desc]) => {
+      const item = make("cmd-item");
+      item.dataset.cmd = insert.trim();
+      item.onclick = () => insertCommand(insert);
+      item.append(make("cmd-tag", insert.trim()), make("cmd-desc", desc));
+      return item;
+    })];
+  }));
+}
+
 // ── Run Entry (status capsule) ──────────────────────────────────────────
 // Answers "is it working, done, or stuck?" in one glance: a black capsule with the state,
 // a live timer, and a wave that moves with the agent's output; below it, what was sent.
@@ -351,10 +655,29 @@ function terminalShowsPrompt() {
 
 // Called after output lands and once shortly after each send. The 3s guard skips the
 // echo of the command itself, which also starts with "PS ".
-function checkRunComplete(chunk = "") {
+function checkRunComplete() {
   if (!isCommandRunning || performance.now() - lastCommandTime <= 3000) return;
-  const chunkSaysDone = chunk.includes("PS ") || chunk.includes("> ") || chunk.includes("? for shortcuts");
-  if (!chunkSaysDone && !terminalShowsPrompt()) return;
+  if (terminalShowsPrompt()) return completeRun();
+  // Inside an agent the shell prompt never returns. The agent is done once it stops
+  // printing and nothing on screen says it is still working.
+  if (agentProfile()) {
+    clearTimeout(quietTimer);
+    quietTimer = setTimeout(checkAgentIdle, QUIET_MS);
+  }
+}
+
+function checkAgentIdle() {
+  if (!isCommandRunning || !agentProfile()) return;
+  // Silent but still marked busy (a long tool call): look again later
+  if (agentLooksBusy()) {
+    quietTimer = setTimeout(checkAgentIdle, QUIET_MS);
+    return;
+  }
+  completeRun();
+}
+
+function completeRun() {
+  clearTimeout(quietTimer);
   isCommandRunning = false;
   finishRun();
   if (runChimes) {
@@ -456,7 +779,12 @@ function connect() {
       // Completion is checked once the chunk is parsed, so the cursor line is current.
       const chunk = payload.data;
       outputBytes += chunk.length;
-      term.write(chunk, () => checkRunComplete(chunk));
+      noteAgentOutput(chunk);
+      term.write(chunk, () => {
+        // Back at a bare shell prompt: whatever agent was running has exited
+        if (currentAgent && performance.now() - lastCommandTime > 1500 && terminalShowsPrompt()) setAgent(null);
+        checkRunComplete();
+      });
     } else if (payload.type === "PTY_SIZE") {
       ptyCols = payload.cols;
       ptyRows = payload.rows;
@@ -684,6 +1012,11 @@ function sendCommand() {
   triggerHaptic(20);
   askNotificationPermission();
   saveToHistory(text);
+  // Typing an agent's name at the shell starts it; inside an agent, words are just a prompt
+  if (!currentAgent) {
+    const launched = detectAgentFromCommand(text);
+    if (launched) setAgent(launched);
+  }
   lastCommandTime = performance.now();
   isCommandRunning = true;
   startRun(text);
@@ -995,6 +1328,7 @@ function renderHistorySection() {
 }
 
 function openCommandsModal(filter = "") {
+  renderAgentCommands();
   renderHistorySection();
   commandsModal.style.display = "flex";
   if (cmdSearch) {

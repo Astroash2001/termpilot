@@ -742,6 +742,18 @@ button {
   padding: calc(var(--m) * 5) 0 calc(var(--m) * 2);
 }
 
+/* Shown when no agent has run yet, or the running agent has no known commands */
+.cmd-empty {
+  margin-top: calc(var(--m) * 4);
+  padding: calc(var(--m) * 4);
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: var(--raised-low);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
 /* Each command is a key plate: name in mono, one note that never wraps */
 .cmd-item {
   display: flex;
