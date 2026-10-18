@@ -428,6 +428,12 @@ async def websocket_client(websocket: WebSocket):
         pass
     finally:
         manager.disconnect_client(websocket)
+        # The PTY may be sized for the phone that just left; let the PC have it back
+        if not manager.client_ws:
+            try:
+                await manager.send_to_agent({"type": "PHONES_GONE"})
+            except Exception:
+                pass
 
 if __name__ == "__main__":
     if "--rotate-key" in sys.argv:

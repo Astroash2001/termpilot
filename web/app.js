@@ -166,9 +166,10 @@ function getCharWidthRatio() {
   return charWidthRatio || 0.605;
 }
 
-// Manual text-size control. This scales the FONT only - never the column count, which
-// stays pinned to ptyCols below. Zooming by changing columns would make the phone wrap
-// lines the PTY never wrapped and bring the duplicated-menu bug straight back.
+// Manual text-size control. While the phone sizes the PTY (phone fit, below) A-/A+ change
+// the font and the PC re-wraps to the new column count. While the PC sizes it, they scale
+// the font only: columns stay pinned to ptyCols, because a phone wrapping lines the PTY
+// never wrapped brings the duplicated-menu bug straight back.
 const ZOOM_MIN = 0.6, ZOOM_MAX = 2.6, ZOOM_STEP = 0.15;
 let termZoom = 1.0;
 try {
@@ -193,16 +194,50 @@ function paintZoomReadout() {
 }
 paintZoomReadout();
 
+// ── Phone fit ──
+// The PTY lives on the PC, so by default it is as wide as the PC's console window (~120
+// columns) and the phone must shrink the text to show it. Instead the phone asks the agent
+// to size the PTY to this screen at a readable font, so the shell and every app in it wrap
+// to the phone. The agent hands the size back to the PC as soon as someone types there and
+// back to the phone on its next input (tmux's "latest client" rule).
+const FIT_FONT = 12; // px at 100% zoom: about 50 columns on a 390px-wide phone
+let wsAuthed = false;
+let fitCols = 0, fitRows = 0; // the size this phone last asked for
+let fitPending = false; // asked, and the PC hasn't answered with a PTY_SIZE yet
+
+function fitFontSize() {
+  return Math.max(7, Math.min(28, FIT_FONT * termZoom));
+}
+
+// Call right after fit() at the fit font: the fitted grid is the size to ask the PC for
+function requestPhoneFit() {
+  const cols = term.cols, rows = term.rows;
+  if (cols < 20 || rows < 5) return;
+  // The keyboard sliding up only costs rows. Resizing the PTY for that would make every app
+  // redraw each time the prompt box is tapped, so rows alone only change with the keyboard down.
+  const typing = document.activeElement === mobileInput;
+  if (cols === fitCols && (rows === fitRows || typing)) return;
+  fitCols = cols;
+  fitRows = rows;
+  fitPending = true;
+  ws.send(JSON.stringify({ type: "RESIZE", cols, rows }));
+}
+
 function adaptFontSizeToPty() {
   const container = document.getElementById('xterm-container');
   if (!container) return;
   const availableWidth = container.clientWidth || window.innerWidth || 400;
+  // Phone fit holds until the PC takes the terminal back, which shows as a PTY_SIZE that
+  // isn't the one we asked for. The font only changes when that happens, never per call.
+  const phoneFit = wsAuthed && ptyCols >= 20 && (!fitCols || fitPending || ptyCols === fitCols);
 
   // Past 1x the grid is wider than the screen, so let the wrapper pan horizontally.
   // At 1x this class is absent and the layout is byte-for-byte what it was before.
-  container.classList.toggle('zoomed', termZoom > 1.001);
+  container.classList.toggle('zoomed', !phoneFit && termZoom > 1.001);
 
-  if (ptyCols && ptyCols >= 20) {
+  if (phoneFit) {
+    if (Math.abs(term.options.fontSize - fitFontSize()) > 0.1) term.options.fontSize = fitFontSize();
+  } else if (ptyCols && ptyCols >= 20) {
     // 1. Size the font so all ptyCols fit across the screen. No comfort floor here: a
     // terminal showing fewer columns than the PTY wraps lines the PTY never wrapped, so
     // an app that repaints by moving the cursor up N lines lands short of its old output
@@ -218,9 +253,12 @@ function adaptFontSizeToPty() {
   // 2. Fill 100% of vertical container height cleanly without dead zones or empty black blocks
   try {
     fitAddon.fit();
-    // fit() derives columns from the container, which can still land a column or two off.
-    // Wrapping must match the PTY exactly, so pin the columns and keep the fitted rows.
-    if (ptyCols && ptyCols >= 20 && term.cols !== ptyCols) {
+    if (phoneFit) {
+      // The fitted grid is this screen at a readable size: the PTY follows it
+      requestPhoneFit();
+    } else if (ptyCols && ptyCols >= 20 && term.cols !== ptyCols) {
+      // fit() derives columns from the container, which can still land a column or two off.
+      // Wrapping must match the PTY exactly, so pin the columns and keep the fitted rows.
       term.resize(ptyCols, term.rows);
     }
   } catch (e) {}
@@ -862,6 +900,11 @@ function connect() {
   ws.onmessage = (event) => {
     const payload = JSON.parse(event.data);
     if (payload.type === "AUTH_OK") {
+      wsAuthed = true;
+      // A new link: the old size may be stale and the PC may have the terminal back.
+      // Phone fit starts once the relay says what size the PTY is now.
+      fitCols = fitRows = ptyCols = ptyRows = 0;
+      fitPending = false;
       setConnected(true);
       adaptFontSizeToPty();
     } else if (payload.type === "RAW") {
@@ -879,6 +922,7 @@ function connect() {
     } else if (payload.type === "PTY_SIZE") {
       ptyCols = payload.cols;
       ptyRows = payload.rows;
+      fitPending = false;
       adaptFontSizeToPty();
     } else if (payload.type === "STDERR") {
       // Show errors visibly in the terminal
@@ -891,6 +935,7 @@ function connect() {
   };
 
   ws.onclose = (event) => {
+    wsAuthed = false;
     if (event.code === 4001) {
       // Wrong or rotated key: retrying with it would only fail again
       setAccessKey("");

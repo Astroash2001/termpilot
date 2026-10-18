@@ -33,6 +33,19 @@ BACKEND_HTTP_URL = "http://localhost:8000"
 
 active_pty = None
 
+# The link to the relay. Replaced on every reconnect; the PTY threads outlive any one link,
+# so they read it from here instead of holding the socket they started with.
+relay_ws = None
+relay_loop = None
+
+# Who sizes the PTY. A phone reports its screen with RESIZE; this console has its window.
+# Like tmux's "latest" window-size rule, whoever typed last gets a terminal sized for them,
+# so neither side has to read one wrapped for the other.
+size_lock = threading.Lock()
+phone_size = None   # (cols, rows) from the phone's last RESIZE
+size_owner = "host"
+pty_size = None     # (cols, rows) the PTY has now
+
 _console_owned_by_pty = False
 _original_console_mode = None
 AGENT_LOG_FILE = os.path.join(os.path.dirname(__file__), "agent.log")
@@ -171,6 +184,44 @@ def clean_pty_output(data: str) -> str:
     cleaned = DA_RESPONSE_REGEX.sub('', cleaned)
     return cleaned
 
+def send_to_relay(message: dict):
+    """Queue a message for the relay from any thread. Sends keep their call order."""
+    if relay_ws and relay_loop:
+        asyncio.run_coroutine_threadsafe(relay_ws.send(json.dumps(message)), relay_loop)
+
+def host_size():
+    ts = shutil.get_terminal_size(fallback=pty_size or (100, 30))
+    return ts.columns, ts.lines
+
+def parse_phone_size(payload: dict):
+    """The phone's RESIZE, or None if it isn't a sane grid. It comes off the network."""
+    try:
+        cols, rows = int(payload["cols"]), int(payload["rows"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    if 20 <= cols <= 500 and 5 <= rows <= 300:
+        return cols, rows
+    return None
+
+def give_size_to(owner: str, force: bool = False):
+    """Size the PTY for the phone or the host console, and tell the phones.
+
+    PTY_SIZE goes out before the resize so a phone's terminal has its new size before any
+    output drawn at that size arrives. ConPTY sends no repaint on resize; each side reflows
+    what it already shows, and the shell redraws its prompt line on the resize event.
+    """
+    global size_owner, pty_size
+    with size_lock:
+        size = phone_size if owner == "phone" else host_size()
+        if not size or not (active_pty and active_pty.isalive()):
+            return
+        if not force and owner == size_owner and size == pty_size:
+            return
+        size_owner, pty_size = owner, size
+        cols, rows = size
+        send_to_relay({"type": "PTY_SIZE", "cols": cols, "rows": rows})
+        active_pty.setwinsize(rows, cols)
+
 def safe_pty_write(data: str):
     """Write input to PTY cleanly."""
     if not data or not active_pty or not active_pty.isalive():
@@ -225,15 +276,18 @@ def pair_device(pairing_code: str, device_name: str = None):
         print(f"❌ Pairing failed: {e}\n")
         return False
 
-def start_pty_session(ws, loop):
+def start_pty_session():
     """Start a persistent PowerShell session using winpty."""
-    global active_pty
+    global active_pty, pty_size
     
     # Check before touching console modes: on a relay reconnect the PTY is still alive and
     # still owns the console. Re-running enable_virtual_terminal_processing() here would put
     # auto-return back on and break \n semantics for a session we never re-align.
     if active_pty and active_pty.isalive():
         agent_print("PTY is already running.")
+        # A new relay has no cached size to give phones that connect to it
+        if pty_size:
+            send_to_relay({"type": "PTY_SIZE", "cols": pty_size[0], "rows": pty_size[1]})
         return
 
     enable_virtual_terminal_processing()
@@ -277,15 +331,9 @@ def start_pty_session(ws, loop):
             backend=pty_backend
         )
         agent_print(f"🚀 Started persistent PTY session (PID: {active_pty.pid}, size: {ts.columns}x{ts.lines}, backend: {pty_backend or 'default'})")
+        pty_size = (ts.columns, ts.lines)
         # Announce initial PTY dimensions to backend & phone client
-        asyncio.run_coroutine_threadsafe(
-            ws.send(json.dumps({
-                "type": "PTY_SIZE",
-                "cols": ts.columns,
-                "rows": ts.lines
-            })),
-            loop
-        )
+        send_to_relay({"type": "PTY_SIZE", "cols": ts.columns, "rows": ts.lines})
     except Exception as e:
         agent_print(f"❌ Failed to spawn PTY process: {e}")
         import traceback
@@ -307,13 +355,7 @@ def start_pty_session(ws, loop):
                     sys.stdout.write(data)
                     sys.stdout.flush()
                     # Forward to WebSocket
-                    asyncio.run_coroutine_threadsafe(
-                        ws.send(json.dumps({
-                            "type": "RAW",
-                            "data": data
-                        })),
-                        loop
-                    )
+                    send_to_relay({"type": "RAW", "data": data})
             except EOFError:
                 agent_print("📄 PTY EOF reached.")
                 break
@@ -379,21 +421,11 @@ def start_pty_session(ws, loop):
         last_cols, last_rows = ts.columns, ts.lines
         while active_pty and active_pty.isalive():
             try:
-                # Sync PTY size with the host laptop window dynamically
+                # Resizing the laptop window counts as using it: the PTY follows the window
                 cur = shutil.get_terminal_size(fallback=(last_cols, last_rows))
                 if cur.columns != last_cols or cur.lines != last_rows:
                     last_cols, last_rows = cur.columns, cur.lines
-                    if active_pty and active_pty.isalive():
-                        active_pty.setwinsize(last_rows, last_cols)
-                        # Notify connected clients of laptop window dimension update
-                        asyncio.run_coroutine_threadsafe(
-                            ws.send(json.dumps({
-                                "type": "PTY_SIZE",
-                                "cols": last_cols,
-                                "rows": last_rows
-                            })),
-                            loop
-                        )
+                    give_size_to("host", force=True)
 
                 # Process all buffered keystrokes immediately in exact arrival order
                 if msvcrt.kbhit():
@@ -426,6 +458,8 @@ def start_pty_session(ws, loop):
                             pending.append(ch)
                     # Send the whole burst as one PTY write so ordering is preserved
                     if pending:
+                        # Typing here takes the size back from the phone first
+                        give_size_to("host")
                         safe_pty_write(''.join(pending))
                 else:
                     time.sleep(0.005)
@@ -436,7 +470,7 @@ def start_pty_session(ws, loop):
     input_thread.start()
 
 async def start_agent():
-    global active_pty
+    global active_pty, relay_ws, relay_loop, phone_size
     config = load_config()
     device_id = config.get("device_id")
     secret_key = config.get("secret_key")
@@ -454,8 +488,10 @@ async def start_agent():
             async with websockets.connect(server_url) as ws:
                 agent_print("🟢 Authenticated Desktop Agent Connected & Ready!\n")
                 
+                relay_ws, relay_loop = ws, asyncio.get_running_loop()
+
                 # Start the persistent terminal session when connected
-                start_pty_session(ws, asyncio.get_running_loop())
+                start_pty_session()
 
                 while True:
                     message_text = await ws.recv()
@@ -464,7 +500,19 @@ async def start_agent():
 
                     if msg_type == "INPUT":
                         data = payload.get("data", "")
+                        # Typing on the phone takes the size back from this console first
+                        give_size_to("phone")
                         safe_pty_write(data)
+                    elif msg_type == "RESIZE":
+                        size = parse_phone_size(payload)
+                        if size:
+                            phone_size = size
+                            # Always answer, so the phone knows its request landed
+                            give_size_to("phone", force=True)
+                    elif msg_type == "PHONES_GONE":
+                        # Nobody left to read a phone-sized terminal: back to the window's size
+                        phone_size = None
+                        give_size_to("host")
                                 
         except websockets.exceptions.ConnectionClosed as e:
             if e.code == 4001:
