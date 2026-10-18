@@ -367,9 +367,22 @@ button {
 }
 .pc-mute .i { width: 12px; height: 12px; }
 .pc-fig.muted .pc-mute { display: flex; }
-/* Over the glass, bottom right; the badge flips light to read on the dark screen */
-.bezel > .pc-fig { position: absolute; right: 14px; bottom: 14px; z-index: 2; }
-.bezel .pc-mute { background: var(--panel); color: var(--ink); }
+/* Docked at the right end of the pinned-command row: pills scroll under it, and the fade
+   on its left edge lets them slip away instead of cutting off hard */
+.snippets-bar > .pc-fig {
+  position: sticky;
+  /* Pinned over the row's own right padding too, so no pill peeks out past it */
+  right: calc(var(--m) * -3);
+  margin-right: calc(var(--m) * -3);
+  box-sizing: content-box;
+  width: 48px;
+  height: 37px;
+  /* Vertical padding (cancelled by margin) so the fade also covers the pills' drop shadow */
+  padding: 6px calc(var(--m) * 3) 6px 14px;
+  margin-block: -6px;
+  margin-left: auto;
+  background: linear-gradient(to right, transparent, var(--body) 12px);
+}
 /* No PC to mirror: grey it out (the capsule already says why) */
 .app-layout:has(.capsule[data-state="offline"]) .pc-fig > svg { opacity: 0.35; filter: grayscale(1); }
 
@@ -424,7 +437,6 @@ button {
   background: var(--bezel);
   box-shadow: inset 0 0 0 1px #000, inset 0 8px 20px rgba(0, 0, 0, 0.7), 0 1px 0 #fff, 0 -1px 0 rgba(0, 0, 0, 0.06);
   overflow: hidden;
-  position: relative;
 }
 /* Speaker grille across the top of the screen */
 .grille {
