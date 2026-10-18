@@ -16,6 +16,7 @@ from starlette.requests import HTTPConnection
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 import uvicorn
+import qrcode
 
 # Emoji status lines crash startup with UnicodeEncodeError when stdout is redirected
 # (Windows then falls back to cp1252). Force UTF-8 and never fail on a character.
@@ -32,9 +33,14 @@ async def lifespan(app: FastAPI):
     # TERMPILOT_NGROK=0 skips the tunnel (local testing)
     public_url = start_ngrok_tunnel() if os.environ.get("TERMPILOT_NGROK", "1") != "0" else None
     # The key rides in the URL fragment, which browsers never send to the server or ngrok.
+    phone_url = f"{(public_url or 'http://localhost:8000')}/#key={ACCESS_KEY}"
     print("=" * 65)
-    print("🔐 Open this link on your phone (it contains your access key - keep it private):")
-    print(f"   {(public_url or 'http://localhost:8000')}/#key={ACCESS_KEY}")
+    print("🔐 Scan this QR code with your phone (it contains your access key - keep it private):")
+    qr = qrcode.QRCode(border=2)
+    qr.add_data(phone_url)
+    # invert=True draws dark modules as spaces, so the code scans on a dark terminal
+    qr.print_ascii(invert=True)
+    print(f"   Or open: {phone_url}")
     print("=" * 65 + "\n")
     yield
     # Shutdown
