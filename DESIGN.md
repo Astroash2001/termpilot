@@ -18,6 +18,7 @@ colors:
   screen-dim: "#8b8984"
   bezel: "#0b0b0b"
   capsule: "#000000"
+  key-lit: "#2563eb"
   ok: "#2f9e55"
   ok-text: "#22783f"
   bad: "#d6331f"
@@ -154,14 +155,14 @@ Density is phone-instrument density: a fixed full-height column (readout, screen
 - One signal orange for "happening now" and "press this"; green only for done, red only for offline and interrupt.
 - Raised keys built from light and a lip (top inner highlight, edge line, soft cast), never from borders.
 - IBM Plex throughout the chrome: Sans for words people read, Mono for keys, codes, commands and readouts.
-- Spring motion on physical things (capsule width, knob pointer, banner drop); quick ease-out on presses.
+- Spring motion on physical things (capsule width, banner drop); quick ease-out on presses.
 
 ## Colors
 
 A warm neutral body and a near-black screen, with signal orange as the only voice and green/red reserved for state.
 
 ### Primary
-- **Signal Orange** (`signal`): the running dot and wave in the capsule, the Send key, primary buttons, the knob pointer when the chime is on, the terminal cursor, focus rings, input carets and the selected command plate. Pressed state deepens to **Signal Ember** (`signal-deep`). Labels and icons on orange are white (`signal-ink`). When orange must be small text on porcelain, use **Signal Rust** (`signal-text`, 4.6:1).
+- **Signal Orange** (`signal`): the running dot and wave in the capsule, the Send key, primary buttons, the desk PC's screen while output arrives, the terminal cursor, focus rings, input carets and the selected command plate. Pressed state deepens to **Signal Ember** (`signal-deep`). Labels and icons on orange are white (`signal-ink`). When orange must be small text on porcelain, use **Signal Rust** (`signal-text`, 4.6:1).
 
 ### Neutral
 - **Porcelain** (`body`): the device body, sheets, overlay boxes. Also the browser theme color.
@@ -181,7 +182,7 @@ A warm neutral body and a near-black screen, with signal orange as the only voic
 - **Fault Red** (`bad`) for offline dots; **Fault Red Text** (`bad-text`) for the ESC and ^C key labels.
 
 ### Named Rules
-**The One Signal Rule.** Orange means either "the agent is working right now" or "this is the thing to press". It never decorates. A screen in its resting state shows orange only on Send and the knob pointer.
+**The One Signal Rule.** Orange means either "the agent is working right now" or "this is the thing to press". It never decorates. A screen in its resting state shows orange only on Send. The one other hue is **Key Blue** (`key-lit`, #2563eb), which flashes a key on the desk PC as you type and appears nowhere else.
 
 **The State Colors Rule.** Green appears only for a finished run, red only for offline or interrupt. Neither is used as a brand or decorative hue.
 
@@ -210,7 +211,7 @@ A warm neutral body and a near-black screen, with signal orange as the only voic
 
 ## Layout
 
-A fixed, full-viewport column with no page scroll (`100dvh`, safe-area aware): header (capsule centered, then the prompt line with the chime knob on the right), the bezel-framed screen taking all remaining height, a horizontally scrolling pinned-command row, the prompt row (mic, auto-growing textarea, Send), and the key row of equal-flex keys.
+A fixed, full-viewport column with no page scroll (`100dvh`, safe-area aware): header (capsule centered, then the prompt line with the desk PC on the right), the bezel-framed screen taking all remaining height, a horizontally scrolling pinned-command row, the prompt row (mic, auto-growing textarea, Send), and the key row of equal-flex keys.
 
 Spacing runs on a 4px module (`--m`), used as multiples: 8px gutters at the screen edge, 12px for row padding and gaps, 16-20px inside sheets and overlays. Sheets are bottom sheets on phones (max 500px wide, grab handle) and become centered dialogs from 600px. From 600px horizontal padding widens; from 900px keys stop stretching (min 88px, arrows 64px), the capsule grows to 40px, and the prompt title to 24px. Short viewports (under 550px tall) drop the metadata line, collapse the grille, and shrink keys to 36px.
 
@@ -223,7 +224,7 @@ Depth is physical. Porcelain objects are lit from above: a 1px white inner highl
 ### Shadow Vocabulary
 - **Raised key** (`box-shadow: inset 0 1px 0 #fff, 0 2px 0 var(--edge), 0 3px 8px rgba(0,0,0,0.08)`): key row keys, secondary copy action.
 - **Raised low** (`box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 0 var(--edge)`): pills, command plates, close buttons, icon tiles.
-- **Dial** (`box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(0,0,0,0.14), 0 1px 0 var(--edge)` over a 145deg #fbfaf8 to #dddad3 gradient): the chime knob and the mic key.
+- **Dial** (`box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(0,0,0,0.14), 0 1px 0 var(--edge)` over a 145deg #fbfaf8 to #dddad3 gradient): the mic key.
 - **Pressed** (key travels 1-2px down and its lip collapses; dials invert to `inset 0 2px 5px rgba(0,0,0,0.15)`).
 - **Sunk field** (`box-shadow: inset 0 1px 3px rgba(0,0,0,0.12)`): all text inputs; focus adds `0 0 0 2px var(--signal)`.
 - **Glass well** (`box-shadow: inset 0 0 0 1px #000, inset 0 8px 20px rgba(0,0,0,0.7), 0 1px 0 #fff`): the bezel.
@@ -237,7 +238,7 @@ Depth is physical. Porcelain objects are lit from above: a 1px white inner highl
 
 ## Shapes
 
-Soft, machined corners and full pills. Round things are controls you turn or tap with a thumb (Send, mic, knob, close: circles; pills, inputs, capsule: 99px). Rectangular keys are gently rounded (13px), command plates 14px, icon tiles 12px, the banner 22px, the bezel 26px with the glass inset at 20px, sheets and overlay boxes 28px. Borders are almost absent: separation comes from tone and the raised/sunk shadow, with `rule` hairlines only between list rows and in the zoom group. The speaker grille, a short centered strip of 10px-pitch dots masked to the middle quarter of the bezel's top, is the screen's one ornament and doubles as the visual top edge of the glass.
+Soft, machined corners and full pills. Round things are controls you turn or tap with a thumb (Send, mic, close: circles; pills, inputs, capsule: 99px). Rectangular keys are gently rounded (13px), command plates 14px, icon tiles 12px, the banner 22px, the bezel 26px with the glass inset at 20px, sheets and overlay boxes 28px. Borders are almost absent: separation comes from tone and the raised/sunk shadow, with `rule` hairlines only between list rows and in the zoom group. The speaker grille, a short centered strip of 10px-pitch dots masked to the middle quarter of the bezel's top, is the screen's one ornament and doubles as the visual top edge of the glass.
 
 ## Components
 
@@ -245,7 +246,8 @@ Soft, machined corners and full pills. Round things are controls you turn or tap
 Tactile and certain: each looks like hardware you could press.
 - **Send:** 50px orange circle, white 2.4-stroke arrow, signal glow; pressed deepens to `signal-deep` and drops 1px.
 - **Primary (overlays, guide):** full-width 52px orange pill, Sans 600 18px, signal glow, same press.
-- **Mic / Knob:** 46-50px porcelain dials (Dial shadow). The mic turns solid orange with an expanding orange ring pulse while listening. The knob's pointer is the chime toggle: orange at 40deg when on, swung to -60deg and grey when muted, on a 380ms spring.
+- **Mic:** a 46-50px porcelain dial (Dial shadow). It turns solid orange with an expanding orange ring pulse while listening.
+- **Desk PC (chime toggle):** a 76x58px isometric desk PC drawn in porcelain tokens (`panel` tops, `panel-low` fronts, `edge` sides, `ink-soft` hairlines) with a `screen` glass. The key for each typed letter flashes Key Blue; the screen's lines turn orange while output arrives. Tapping it mutes the chime: the figure drops to 50% with a graphite bell-off badge. It greys out while the capsule is offline. Kernel after iso-figure (Tolga Cohce) and iso-glow (April Zhu), MIT.
 - **Close:** 40px `panel` circle, raised low, presses to `panel-low`.
 - **Secondary action:** a second action next to an orange one becomes a `panel` key with the raised shadow.
 

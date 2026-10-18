@@ -32,6 +32,7 @@
   --bad: #d6331f;            /* offline, interrupt keys */
   --bad-text: #b52a18;       /* interrupt key labels (5.5:1 on panel) */
   --capsule: #000000;
+  --key-lit: #2563eb;        /* a key on the desk PC as you type it */
 
   --m: 4px;
   --radius: 14px;
@@ -296,7 +297,7 @@ button {
 .capsule.pop { animation: capPop 420ms var(--spring); }
 @keyframes capPop { 0% { transform: scale(0.92); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
 
-/* ---------- Entry: what you asked for, and the chime knob ---------- */
+/* ---------- Entry: what you asked for, and the desk PC (chime toggle) ---------- */
 .entry {
   display: flex;
   align-items: flex-end;
@@ -328,33 +329,46 @@ button {
   text-overflow: ellipsis;
 }
 
-/* The chime toggle is a dial: pointer up-right and orange when on, swung left and grey when off */
-.knob {
+/* The chime toggle is a small isometric desk PC in porcelain: a key flashes as you type,
+   the dark glass screen lights orange when output arrives. Muted: dimmed with a bell-off badge. */
+.pc-fig {
   flex: none;
-  width: 46px;
-  height: 46px;
-  border: 0;
-  border-radius: 99px;
-  background: linear-gradient(145deg, #fbfaf8, #dddad3);
-  box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(0, 0, 0, 0.14), 0 1px 0 var(--edge);
   position: relative;
+  width: 76px;
+  height: 58px;
+  padding: 0;
+  border: 0;
+  background: none;
 }
-.knob::after {
-  content: "";
+.pc-fig > svg { display: block; width: 100%; height: 100%; overflow: visible; transition: opacity 200ms, filter 200ms; }
+.pc-fig rect { stroke: var(--ink-soft); stroke-width: 0.8; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.pc-fig .pc-top { fill: var(--panel); }
+.pc-fig .pc-front { fill: var(--panel-low); }
+.pc-fig .pc-side { fill: var(--edge); }
+.pc-fig .pc-key { fill: var(--panel); stroke: var(--edge); transition: fill 280ms var(--ease-out); }
+.pc-fig .pc-key.hot { fill: var(--key-lit); stroke: var(--key-lit); transition: none; }
+.pc-fig .pc-glass { fill: var(--screen); stroke: var(--bezel); }
+.pc-fig .pc-scr { fill: #3a3936; stroke: none; transition: fill 420ms var(--ease-out); }
+.pc-fig.hot:not(.muted) .pc-scr { fill: var(--signal); transition: none; }
+.pc-fig:active > svg { transform: translateY(1px); }
+.pc-fig.muted > svg { opacity: 0.5; }
+.pc-mute {
+  display: none;
   position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 3px;
-  height: 14px;
-  margin: -14px 0 0 -1.5px;
-  border-radius: 2px;
-  background: var(--signal);
-  transform-origin: 50% 100%;
-  transform: rotate(40deg);
-  transition: transform 380ms var(--spring), background 200ms;
+  right: -2px;
+  bottom: -2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 99px;
+  background: var(--ink);
+  color: var(--body);
+  align-items: center;
+  justify-content: center;
 }
-.knob.muted::after { transform: rotate(-60deg); background: #a7a39b; }
-.knob:active { box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.15); }
+.pc-mute .i { width: 12px; height: 12px; }
+.pc-fig.muted .pc-mute { display: flex; }
+/* No PC to mirror: grey it out (the capsule already says why) */
+.app-header:has(.capsule[data-state="offline"]) .pc-fig > svg { opacity: 0.35; filter: grayscale(1); }
 
 /* ---------- Finished banner: the in-app half of the finished notification ---------- */
 .run-banner {
@@ -991,7 +1005,7 @@ button {
 @media (max-width: 360px) {
   .app-header { padding-left: calc(var(--m) * 3); padding-right: calc(var(--m) * 3); }
   .entry-prompt { font-size: 18px; }
-  .knob { width: 40px; height: 40px; }
+  .pc-fig { width: 66px; height: 50px; }
   .tb-btn { font-size: 12px; }
   .mic-btn, .send-btn { width: 44px; height: 44px; }
   .cmd-input { min-height: 44px; height: 44px; padding: 11px 14px; }
@@ -1002,7 +1016,7 @@ button {
   .app-header { gap: var(--m); padding-bottom: var(--m); }
   .entry-meta { display: none; }
   .entry-prompt { font-size: 16px; }
-  .knob { width: 36px; height: 36px; }
+  .pc-fig { width: 52px; height: 40px; }
   .grille { height: 8px; background: none; }
   .snippets-bar { padding-top: calc(var(--m) * 1.5); padding-bottom: var(--m); }
   .snippet-pill, .zoom-group { height: 32px; }

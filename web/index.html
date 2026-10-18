@@ -12,7 +12,7 @@
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
   <link rel="preload" href="/fonts/plex-sans.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=47">
+  <link rel="stylesheet" href="styles.css?v=48">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -154,6 +154,14 @@
           </div>
         </div>
 
+        <div class="feature-card">
+          <div class="feature-icon-box"><svg class="i"><use href="#i-bell"/></svg></div>
+          <div class="feature-info">
+            <div class="feature-title">The desk PC</div>
+            <div class="feature-desc">The little PC at the top right mirrors your computer: a key flashes as you type and its screen lights when output arrives. Tap it to turn the completion chime off or on. Drawing after iso-figure by Tolga Cohce and iso-glow by April Zhu (MIT).</div>
+          </div>
+        </div>
+
         <button id="btn-got-it" class="btn-primary btn-got-it">Got it</button>
 
       </div>
@@ -196,7 +204,10 @@
           <div class="entry-meta"><span id="agent-label" class="wordmark">TermPilot</span><span id="run-meta">connecting…</span></div>
           <div id="run-prompt" class="entry-prompt">No run yet</div>
         </div>
-        <button id="btn-sound-toggle" class="knob" title="Completion chime" aria-label="Completion chime" aria-pressed="true"></button>
+        <button id="btn-sound-toggle" class="pc-fig" title="Completion chime" aria-label="Completion chime" aria-pressed="true">
+          <svg id="pc-fig-art" aria-hidden="true"></svg>
+          <span class="pc-mute" aria-hidden="true"><svg class="i"><use href="#i-bell-off"/></svg></span>
+        </button>
       </div>
     </header>
 
@@ -260,6 +271,6 @@
 
   </div>
 
-  <script src="app.js?v=48"></script>
+  <script src="app.js?v=49"></script>
 </body>
 </html>

@@ -869,6 +869,7 @@ function connect() {
       // Completion is checked once the chunk is parsed, so the cursor line is current.
       const chunk = payload.data;
       outputBytes += chunk.length;
+      pulsePcScreen();
       noteAgentOutput(chunk);
       term.write(colourise(chunk), () => {
         // Back at a bare shell prompt: whatever agent was running has exited
@@ -953,6 +954,69 @@ if (btnSoundToggle) {
     triggerHaptic(25);
     if (soundEnabled) playCompletionChime();
   });
+}
+
+// ── Desk PC figure (the chime toggle) ───────────────────────────────────
+// Isometric kernel from iso-figure by Tolga Cohce, via iso-glow by April Zhu (both MIT).
+// +x runs down-right, +y down-left, +z up; rects drawn on a face plane land on that face.
+const ISO_C = Math.cos(Math.PI / 6), ISO_S = Math.sin(Math.PI / 6);
+const isoD = (x, y, z) => [(x - y) * ISO_C, (x + y) * ISO_S - z];
+function isoPlane(o, u, v) {
+  const [a, b] = isoD(...u), [c, d] = isoD(...v), [e, f] = isoD(...o);
+  return `matrix(${a} ${b} ${c} ${d} ${e.toFixed(2)} ${f.toFixed(2)})`;
+}
+const isoTop = (x, y, z) => isoPlane([x, y, z], [1, 0, 0], [0, 1, 0]);
+const isoFront = (x, y, z) => isoPlane([x, y, z], [1, 0, 0], [0, 0, -1]); // the y = max face
+const isoSide = (x, y, z) => isoPlane([x, y, z], [0, -1, 0], [0, 0, -1]); // the x = max face
+
+const PC_KEY_ROWS = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
+
+function drawPcFigure(svg) {
+  const pts = [];
+  const rect = (t, w, h, cls, attrs = "") => `<rect transform="${t}" width="${w}" height="${h}" class="${cls}" ${attrs}/>`;
+  const box = (x, y, z, w, d, h) => {
+    for (const p of [[x, y, z], [x + w, y, z], [x, y + d, z], [x + w, y + d, z]]) pts.push(isoD(p[0], p[1], p[2]), isoD(p[0], p[1], p[2] + h));
+    return rect(isoTop(x, y, z + h), w, d, "pc-top") + rect(isoFront(x, y + d, z + h), w, h, "pc-front") + rect(isoSide(x + w, y + d, z + h), d, h, "pc-side");
+  };
+  // Back to front: stand, monitor, then the keyboard in front of it
+  let out = box(44, -64, 0, 32, 22, 3) + box(56, -54, 3, 8, 4, 19) + box(4, -50, 22, 112, 4, 70);
+  const screen = isoFront(4, -46, 92);
+  out += rect(screen, 100, 58, "pc-glass", 'x="6" y="6"');
+  [60, 84, 44, 72].forEach((w, i) => { out += rect(screen, w, 4, "pc-scr", `x="14" y="${16 + i * 11}"`); });
+  out += box(0, 0, 0, 120, 44, 5);
+  const keys = isoTop(0, 0, 5);
+  PC_KEY_ROWS.forEach((row, r) => {
+    [...row].forEach((k, c) => { out += rect(keys, 9, 7, "pc-key", `x="${5 + r * 5 + c * 11}" y="${4 + r * 10}" data-k="${k}"`); });
+  });
+  out += rect(keys, 55, 7, "pc-key", 'x="30" y="34" data-k=" "');
+  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+  const minX = Math.min(...xs), minY = Math.min(...ys);
+  svg.setAttribute("viewBox", `${(minX - 2).toFixed(1)} ${(minY - 2).toFixed(1)} ${(Math.max(...xs) - minX + 4).toFixed(1)} ${(Math.max(...ys) - minY + 4).toFixed(1)}`);
+  svg.innerHTML = out;
+}
+
+const pcFigArt = document.getElementById("pc-fig-art");
+if (pcFigArt) drawPcFigure(pcFigArt);
+
+let pcScreenTimer = null;
+// Output arrived: light the screen briefly; a steady stream keeps it lit
+function pulsePcScreen() {
+  if (!btnSoundToggle) return;
+  btnSoundToggle.classList.add("hot");
+  clearTimeout(pcScreenTimer);
+  pcScreenTimer = setTimeout(() => btnSoundToggle.classList.remove("hot"), 180);
+}
+
+// Flash the key for the last character typed; keys the drawing lacks (digits, symbols) stay dark
+function flashPcKey(typed) {
+  const ch = (typed || "").slice(-1).toLowerCase();
+  const key = ch && pcFigArt && [...pcFigArt.querySelectorAll(".pc-key")].find((el) => el.dataset.k === ch);
+  if (!key) return;
+  key.classList.remove("hot");
+  void key.getBBox(); // restart the fade if the same key is hit twice in a row
+  key.classList.add("hot");
+  clearTimeout(key._fade);
+  key._fade = setTimeout(() => key.classList.remove("hot"), 120);
 }
 
 // ── Smart Command History ───────────────────────────────────────────────
@@ -1477,6 +1541,7 @@ if (cmdSearch) {
 // Auto-trigger commands modal when user types '/' in command box
 mobileInput.addEventListener("input", (e) => {
   autoGrowInput();
+  flashPcKey(e.data);
   const val = mobileInput.value.trim();
   if (val === "/") {
     openCommandsModal("/");
