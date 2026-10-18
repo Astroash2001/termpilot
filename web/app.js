@@ -758,19 +758,24 @@ function setConnected(on) {
 }
 
 // ── Output colouring ────────────────────────────────────────────────────
-// Much Windows output arrives with no colour at all, so problems are easy to miss. Only
-// what needs attention gets colour: errors red, warnings amber, and the shell prompt dimmed
-// so each command stands apart from its output. Everything else keeps the default colour,
-// and anything the program coloured itself is left alone. The inserted codes are zero-width,
-// so cursor positions, TUI redraws and copied text are unchanged.
+// Much Windows output arrives with no colour at all (PowerShell, many tools, an agent's
+// plain prose), so the screen reads as one grey block. Text the program left in the default
+// colour gets light highlighting: errors red, warnings amber, passes green, paths and links
+// blue, and the shell prompt dimmed with its folder in cyan. Anything the program coloured
+// itself is left alone. The inserted codes are zero-width, so cursor positions and TUI
+// redraws are unaffected, and copied text is unchanged.
 
 const ESC = "\x1b";
 const DEFAULT_FG = ESC + "[39m";
 const HIGHLIGHT = new RegExp([
-  /(\b(?:error|errors|failed|failure|failures|fatal|traceback)\b|\b\w+(?:Error|Exception)\b|✗|✘)/.source, // 1 problem (incl. ModuleNotFoundError)
-  /(\b(?:warning|warnings|warn|deprecated)\b|⚠)/.source,                                              // 2 warning
+  /(https?:\/\/[^\s'"<>)\]]+)/.source,                                                        // 1 link
+  /((?:[A-Za-z]:\\|\.{1,2}[\\/]|[\\/])?(?:[\w.@-]+[\\/])+[\w.@-]+\.[A-Za-z0-9]{1,6}(?::\d+){0,2})/.source, // 2 path in a folder
+  /\b([\w-]+\.(?:py|js|mjs|ts|tsx|jsx|json|md|html|css|go|rs|java|cs|cpp|c|h|rb|php|sh|ps1|yml|yaml|toml|txt|lock|sql)(?::\d+){0,2})\b/.source, // 3 bare file
+  /(\b(?:error|errors|failed|failure|failures|fatal|exception|traceback|denied|cannot|unable)\b|\b\w+(?:Error|Exception)\b|✗|✘)/.source, // 4 problem (incl. ModuleNotFoundError)
+  /(\b(?:warning|warnings|warn|deprecated)\b|⚠)/.source,                                    // 5 warning
+  /(\b(?:passed|passing|success|successful|successfully|succeeded|completed|done|ok)\b|✓|✔)/.source, // 6 good
 ].join("|"), "gi");
-const HIGHLIGHT_CODES = [null, ESC + "[31m", ESC + "[33m"];
+const HIGHLIGHT_CODES = [null, [ESC + "[4;34m", ESC + "[24;39m"], [ESC + "[34m"], [ESC + "[34m"], [ESC + "[31m"], [ESC + "[33m"], [ESC + "[32m"]];
 const PROMPT_LINE = /^(PS )([A-Za-z]:\\[^>\r\n]*)(>)/;
 // One escape sequence: CSI, OSC, a charset pick (ESC ( B), or any two-byte escape (ESC 7, ESC M)
 const ESC_SEQ = /\x1b(?:\[[0-?]*[ -\/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[()*+#%][ -~]|[^\[\]()*+#%])/g;
@@ -797,13 +802,14 @@ function highlightLine(text) {
   if (atLineStart) {
     const m = PROMPT_LINE.exec(text);
     if (m) {
-      lead = ESC + "[90m" + m[0] + DEFAULT_FG;
+      lead = ESC + "[90m" + m[1] + ESC + "[36m" + m[2] + ESC + "[90m" + m[3] + DEFAULT_FG;
       text = text.slice(m[0].length);
     }
   }
   return lead + text.replace(HIGHLIGHT, (match, ...groups) => {
-    const g = groups[0] !== undefined ? 1 : 2;
-    return HIGHLIGHT_CODES[g] + match + DEFAULT_FG;
+    const g = groups.slice(0, 6).findIndex((v) => v !== undefined) + 1;
+    const [open, close = DEFAULT_FG] = HIGHLIGHT_CODES[g];
+    return open + match + close;
   });
 }
 

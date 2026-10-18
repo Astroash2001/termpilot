@@ -28,11 +28,11 @@ for (const s of samples) {
   }
 }
 
-// 2. Only problems and warnings get colour; the rest stays default
+// 2. Plain text gets meaning-based colour
 const plain = colourise("error: cannot open src/app.js\r\n");
 check("error is red", plain.includes("\x1b[31merror\x1b[39m"));
-check("path keeps default colour", plain.includes(" src/app.js\r\n"));
-check("passed keeps default colour", colourise("12 passed\r\n") === "12 passed\r\n");
+check("path is blue", plain.includes("\x1b[34msrc/app.js\x1b[39m"));
+check("passed is green", colourise("12 passed\r\n").includes("\x1b[32mpassed\x1b[39m"));
 check("exception names are red", colourise("ModuleNotFoundError: x\r\n").includes("\x1b[31mModuleNotFoundError\x1b[39m"));
 
 // 3. Text the program coloured itself is left alone, until it resets
@@ -40,8 +40,8 @@ const own = colourise("\x1b[33mwarning: error inside yellow\x1b[0m error\r\n");
 check("program colour respected", own.startsWith("\x1b[33mwarning: error inside yellow\x1b[0m"));
 check("highlight resumes after reset", own.endsWith("\x1b[31merror\x1b[39m\r\n"));
 
-// 4. The PowerShell prompt is dimmed so the command stands out
-check("prompt dimmed", colourise("PS C:\\code> ls\r\n").startsWith("\x1b[90mPS C:\\code>\x1b[39m ls"));
+// 4. The PowerShell prompt is dimmed with its folder in cyan
+check("prompt styled", colourise("PS C:\\code> ls\r\n").startsWith("\x1b[90mPS \x1b[36mC:\\code\x1b[90m>\x1b[39m"));
 
 console.log(failed ? failed + " checks failed" : "all colouring checks pass");
 process.exit(failed ? 1 : 0);
