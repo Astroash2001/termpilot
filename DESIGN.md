@@ -211,7 +211,7 @@ A warm neutral body and a near-black screen, with signal orange as the only voic
 
 ## Layout
 
-A fixed, full-viewport column with no page scroll (`100dvh`, safe-area aware): header (capsule centered, then the prompt line with the desk PC on the right), the bezel-framed screen taking all remaining height, a horizontally scrolling pinned-command row, the prompt row (mic, auto-growing textarea, Send), and the key row of equal-flex keys.
+A fixed, full-viewport column with no page scroll (`100dvh`, safe-area aware): header (capsule centered, then the prompt line), the bezel-framed screen taking all remaining height with the desk PC floating in its bottom-right corner, a horizontally scrolling pinned-command row, the prompt row (mic, auto-growing textarea, Send), and the key row of equal-flex keys.
 
 Spacing runs on a 4px module (`--m`), used as multiples: 8px gutters at the screen edge, 12px for row padding and gaps, 16-20px inside sheets and overlays. Sheets are bottom sheets on phones (max 500px wide, grab handle) and become centered dialogs from 600px. From 600px horizontal padding widens; from 900px keys stop stretching (min 88px, arrows 64px), the capsule grows to 40px, and the prompt title to 24px. Short viewports (under 550px tall) drop the metadata line, collapse the grille, and shrink keys to 36px.
 
