@@ -757,6 +757,96 @@ function setConnected(on) {
   }
 }
 
+// ── Output colouring ────────────────────────────────────────────────────
+// Much Windows output arrives with no colour at all (PowerShell, many tools, an agent's
+// plain prose), so the screen reads as one grey block. Text the program left in the default
+// colour gets light highlighting: errors red, warnings amber, passes green, paths and links
+// blue, and the shell prompt dimmed with its folder in cyan. Anything the program coloured
+// itself is left alone. The inserted codes are zero-width, so cursor positions and TUI
+// redraws are unaffected, and copied text is unchanged.
+
+const ESC = "\x1b";
+const DEFAULT_FG = ESC + "[39m";
+const HIGHLIGHT = new RegExp([
+  /(https?:\/\/[^\s'"<>)\]]+)/.source,                                                        // 1 link
+  /((?:[A-Za-z]:\\|\.{1,2}[\\/]|[\\/])?(?:[\w.@-]+[\\/])+[\w.@-]+\.[A-Za-z0-9]{1,6}(?::\d+){0,2})/.source, // 2 path in a folder
+  /\b([\w-]+\.(?:py|js|mjs|ts|tsx|jsx|json|md|html|css|go|rs|java|cs|cpp|c|h|rb|php|sh|ps1|yml|yaml|toml|txt|lock|sql)(?::\d+){0,2})\b/.source, // 3 bare file
+  /(\b(?:error|errors|failed|failure|failures|fatal|exception|traceback|denied|cannot|unable)\b|\b\w+(?:Error|Exception)\b|✗|✘)/.source, // 4 problem (incl. ModuleNotFoundError)
+  /(\b(?:warning|warnings|warn|deprecated)\b|⚠)/.source,                                    // 5 warning
+  /(\b(?:passed|passing|success|successful|successfully|succeeded|completed|done|ok)\b|✓|✔)/.source, // 6 good
+].join("|"), "gi");
+const HIGHLIGHT_CODES = [null, [ESC + "[4;34m", ESC + "[24;39m"], [ESC + "[34m"], [ESC + "[34m"], [ESC + "[31m"], [ESC + "[33m"], [ESC + "[32m"]];
+const PROMPT_LINE = /^(PS )([A-Za-z]:\\[^>\r\n]*)(>)/;
+// One escape sequence: CSI, OSC, a charset pick (ESC ( B), or any two-byte escape (ESC 7, ESC M)
+const ESC_SEQ = /\x1b(?:\[[0-?]*[ -\/]*[@-~]|\][^\x07\x1b]*(?:\x07|\x1b\\)|[()*+#%][ -~]|[^\[\]()*+#%])/g;
+
+let fgIsDefault = true;   // the program's current foreground colour is the default
+let atLineStart = true;
+let heldEscape = "";      // an escape sequence cut off at the end of the last chunk
+
+// Follow SGR codes so highlighting only ever paints text the program left uncoloured
+function trackSgr(seq) {
+  const params = seq.slice(2, -1).split(";");
+  for (let i = 0; i < params.length; i++) {
+    const n = params[i] === "" ? 0 : Number(params[i]);
+    if (n === 0 || n === 39) fgIsDefault = true;
+    else if ((n >= 30 && n <= 37) || (n >= 90 && n <= 97)) fgIsDefault = false;
+    else if (n === 38) { fgIsDefault = false; i += params[i + 1] === "5" ? 2 : 4; }
+    else if (n === 48) i += params[i + 1] === "5" ? 2 : 4; // background colour: skip its arguments
+  }
+}
+
+function highlightLine(text) {
+  if (!fgIsDefault || !text) return text;
+  let lead = "";
+  if (atLineStart) {
+    const m = PROMPT_LINE.exec(text);
+    if (m) {
+      lead = ESC + "[90m" + m[1] + ESC + "[36m" + m[2] + ESC + "[90m" + m[3] + DEFAULT_FG;
+      text = text.slice(m[0].length);
+    }
+  }
+  return lead + text.replace(HIGHLIGHT, (match, ...groups) => {
+    const g = groups.slice(0, 6).findIndex((v) => v !== undefined) + 1;
+    const [open, close = DEFAULT_FG] = HIGHLIGHT_CODES[g];
+    return open + match + close;
+  });
+}
+
+function highlightText(text) {
+  let out = "";
+  for (const part of text.split(/(\r\n|\r|\n)/)) {
+    if (part === "\r\n" || part === "\r" || part === "\n") { out += part; atLineStart = true; continue; }
+    out += highlightLine(part);
+    if (part) atLineStart = false;
+  }
+  return out;
+}
+
+function colourise(chunk) {
+  chunk = heldEscape + chunk;
+  heldEscape = "";
+  // Keep a trailing, unfinished escape for the next chunk instead of painting inside it
+  const lastEsc = chunk.lastIndexOf(ESC);
+  if (lastEsc !== -1) {
+    ESC_SEQ.lastIndex = lastEsc;
+    const m = ESC_SEQ.exec(chunk);
+    // Bounded, so a stray ESC can never hold back the stream
+    if ((!m || m.index !== lastEsc) && chunk.length - lastEsc < 256) {
+      heldEscape = chunk.slice(lastEsc);
+      chunk = chunk.slice(0, lastEsc);
+    }
+  }
+  let out = "", last = 0, m;
+  ESC_SEQ.lastIndex = 0;
+  while ((m = ESC_SEQ.exec(chunk))) {
+    out += highlightText(chunk.slice(last, m.index)) + m[0];
+    if (m[0][1] === "[" && m[0].endsWith("m")) trackSgr(m[0]);
+    last = ESC_SEQ.lastIndex;
+  }
+  return out + highlightText(chunk.slice(last));
+}
+
 function connect() {
   const accessKey = getAccessKey();
   if (!accessKey) {
@@ -780,7 +870,7 @@ function connect() {
       const chunk = payload.data;
       outputBytes += chunk.length;
       noteAgentOutput(chunk);
-      term.write(chunk, () => {
+      term.write(colourise(chunk), () => {
         // Back at a bare shell prompt: whatever agent was running has exited
         if (currentAgent && performance.now() - lastCommandTime > 1500 && terminalShowsPrompt()) setAgent(null);
         checkRunComplete();
