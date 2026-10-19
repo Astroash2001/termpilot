@@ -1193,6 +1193,20 @@ function sanitizeTerminalInput(str) {
   return str.replace(/(\x1b)?\[\?[0-9;]*c/g, '').replace(/(\x1b)?\[>[0-9;]*c/g, '').replace(/(\x1b)?\[[0-9]+;[0-9]+R/g, '');
 }
 
+// The cursor line is asking for a password ("Password:", "user@host's password:",
+// "Enter passphrase for key ...:"). Wrapped rows are joined first: phone fit makes long
+// prompts wrap, which would split the word from the colon.
+function terminalAsksForSecret() {
+  const buf = term.buffer.active;
+  let row = buf.baseY + buf.cursorY;
+  let text = buf.getLine(row)?.translateToString(true) || "";
+  while (row > 0 && buf.getLine(row)?.isWrapped) {
+    row -= 1;
+    text = (buf.getLine(row)?.translateToString(true) || "") + text;
+  }
+  return /(pass(word|phrase|code)|\bpin\b|secret|token).*:\s*$/i.test(text);
+}
+
 function sendCommand() {
   const text = mobileInput.value;
   
@@ -1209,6 +1223,15 @@ function sendCommand() {
   }
   
   triggerHaptic(20);
+  // An answer to a password prompt is sent and forgotten: never saved to history, shown as
+  // the run title, or used as notification text (which can show on the lock screen)
+  if (terminalAsksForSecret()) {
+    ws.send(JSON.stringify({ type: "INPUT", data: sanitizeTerminalInput(text) + "\r" }));
+    mobileInput.value = "";
+    mobileInput.style.height = "48px";
+    mobileInput.focus();
+    return;
+  }
   askNotificationPermission();
   saveToHistory(text);
   // Typing an agent's name at the shell starts it; inside an agent, words are just a prompt

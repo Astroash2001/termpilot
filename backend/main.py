@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import hmac
+import hashlib
 import secrets
 import asyncio
 import uuid
@@ -82,6 +83,14 @@ ACCESS_KEY = load_or_create_access_key()
 def is_valid_access_key(key) -> bool:
     return isinstance(key, str) and hmac.compare_digest(key.encode(), ACCESS_KEY.encode())
 
+def device_mac(secret_key: str, role: str, nonce: str) -> str:
+    """Proof of a device secret over the other side's fresh nonce. Must match desktop-agent/agent.py."""
+    return hmac.new(secret_key.encode(), f"{role}:{nonce}".encode(), hashlib.sha256).hexdigest()
+
+def printable(value, limit: int = 64) -> str:
+    """A request value made safe for the console: no newlines or escape sequences to forge lines with."""
+    return "".join(c for c in str(value)[:limit] if c.isprintable())
+
 def is_direct_local(conn: HTTPConnection) -> bool:
     """True only for a process on this PC talking to us directly (the desktop agent).
 
@@ -127,7 +136,7 @@ class ConnectionManager:
         self.pty_rows: int = None
 
     async def connect_agent(self, websocket: WebSocket):
-        await websocket.accept()
+        # Caller has already accepted and authenticated the socket
         self.agent_ws = websocket
         print("🟢 Authenticated Desktop Agent Connected!")
 
@@ -340,7 +349,7 @@ def verify_pairing(req: PairingVerifyRequest, request: Request):
     save_registered_devices()
     code_info["used"] = True
     failed_pair_attempts = 0
-    print(f"✅ Device '{req.device_name}' paired successfully! Device ID: {device_id}")
+    print(f"✅ Device '{printable(req.device_name)}' paired successfully! Device ID: {device_id}")
 
     return {
         "status": "SUCCESS",
@@ -350,22 +359,40 @@ def verify_pairing(req: PairingVerifyRequest, request: Request):
 
 # 3. Authenticated Agent WebSocket Endpoint
 @app.websocket("/ws/agent")
-async def websocket_agent(websocket: WebSocket, device_id: str = None, secret_key: str = None):
-    # Ensure registered devices cache is fresh
-    load_registered_devices()
-
-    device_info = registered_devices.get(device_id)
-    stored_key = device_info.get("secret_key") if device_info else None
-    authorized = (
-        is_direct_local(websocket)  # the agent never comes through the tunnel
-        and isinstance(stored_key, str) and isinstance(secret_key, str)
-        and hmac.compare_digest(stored_key.encode(), secret_key.encode())
-    )
+async def websocket_agent(websocket: WebSocket):
+    await websocket.accept()
+    # Mutual challenge-response: each side MACs the other's fresh nonce with the device
+    # secret, so the secret never crosses the socket (or lands in a URL or log), and the
+    # agent can tell this relay from a process squatting the port.
+    authorized = False
+    stored_key = None
+    agent_nonce = None
+    if is_direct_local(websocket):  # the agent never comes through the tunnel
+        load_registered_devices()
+        relay_nonce = secrets.token_hex(16)
+        try:
+            await websocket.send_text(json.dumps({"type": "CHALLENGE", "nonce": relay_nonce}))
+            first = json.loads(await asyncio.wait_for(websocket.receive_text(), timeout=10))
+        except Exception:
+            first = None
+        if isinstance(first, dict) and first.get("type") == "AUTH":
+            device_info = registered_devices.get(first.get("device_id")) if isinstance(first.get("device_id"), str) else None
+            stored_key = device_info.get("secret_key") if isinstance(device_info, dict) else None
+            agent_nonce = first.get("nonce")
+            mac = first.get("mac")
+            authorized = (
+                isinstance(stored_key, str) and isinstance(mac, str)
+                and isinstance(agent_nonce, str) and len(agent_nonce) >= 32
+                and hmac.compare_digest(mac, device_mac(stored_key, "agent", relay_nonce))
+            )
     if not authorized:
-        print(f"⛔ Unauthorized agent connection attempt (device_id: {device_id})")
-        await websocket.accept()
-        await websocket.close(code=4001, reason="Unauthorized")
+        print("⛔ Unauthorized agent connection attempt")
+        try:
+            await websocket.close(code=4001, reason="Unauthorized")
+        except Exception:
+            pass
         return
+    await websocket.send_text(json.dumps({"type": "AUTH_OK", "mac": device_mac(stored_key, "relay", agent_nonce)}))
 
     await manager.connect_agent(websocket)
     try:

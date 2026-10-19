@@ -1,5 +1,8 @@
 import os
 import sys
+import hmac
+import hashlib
+import secrets
 import re
 import json
 import atexit
@@ -29,7 +32,10 @@ if sys.platform == "win32":
         pass
 
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.json")
-BACKEND_HTTP_URL = "http://localhost:8000"
+# 127.0.0.1, not "localhost": the relay listens on IPv4 loopback only, and "localhost"
+# can resolve to ::1 first, where any other local account could be listening instead.
+BACKEND_HTTP_URL = "http://127.0.0.1:8000"
+RELAY_WS_URL = "ws://127.0.0.1:8000/ws/agent"
 
 active_pty = None
 
@@ -183,6 +189,31 @@ def clean_pty_output(data: str) -> str:
     cleaned = TERMINAL_QUERY_REGEX.sub('', data)
     cleaned = DA_RESPONSE_REGEX.sub('', cleaned)
     return cleaned
+
+def device_mac(secret_key: str, role: str, nonce: str) -> str:
+    """Proof of the device secret over the other side's fresh nonce. Must match backend/main.py."""
+    return hmac.new(secret_key.encode(), f"{role}:{nonce}".encode(), hashlib.sha256).hexdigest()
+
+async def prove_identities(ws, device_id: str, secret_key: str) -> bool:
+    """Handshake with the relay. The secret never crosses the socket: the agent MACs the
+    relay's nonce, and the relay must MAC the agent's nonce back before any INPUT is
+    trusted, so a process squatting the port can neither learn the secret nor pass as
+    the relay."""
+    challenge = json.loads(await asyncio.wait_for(ws.recv(), timeout=10))
+    if not isinstance(challenge, dict) or challenge.get("type") != "CHALLENGE" \
+            or not isinstance(challenge.get("nonce"), str):
+        return False
+    nonce = secrets.token_hex(16)
+    await ws.send(json.dumps({
+        "type": "AUTH",
+        "device_id": device_id,
+        "nonce": nonce,
+        "mac": device_mac(secret_key, "agent", challenge["nonce"]),
+    }))
+    reply = json.loads(await asyncio.wait_for(ws.recv(), timeout=10))
+    return isinstance(reply, dict) and reply.get("type") == "AUTH_OK" \
+        and isinstance(reply.get("mac"), str) \
+        and hmac.compare_digest(reply["mac"], device_mac(secret_key, "relay", nonce))
 
 def send_to_relay(message: dict):
     """Queue a message for the relay from any thread. Sends keep their call order."""
@@ -480,12 +511,15 @@ async def start_agent():
         print("👉 Run: python agent.py --pair <6-digit-code>\n")
         return
 
-    server_url = f"ws://localhost:8000/ws/agent?device_id={device_id}&secret_key={secret_key}"
     print(f"Connecting Desktop Agent (ID: {device_id[:8]}...) to Relay Server...")
 
     while True:
         try:
-            async with websockets.connect(server_url) as ws:
+            async with websockets.connect(RELAY_WS_URL) as ws:
+                if not await prove_identities(ws, device_id, secret_key):
+                    agent_print("⛔ Whatever is on port 8000 could not prove it is the TermPilot relay. Not trusting it; retrying in 3 seconds...")
+                    await asyncio.sleep(3)
+                    continue
                 agent_print("🟢 Authenticated Desktop Agent Connected & Ready!\n")
                 
                 relay_ws, relay_loop = ws, asyncio.get_running_loop()
