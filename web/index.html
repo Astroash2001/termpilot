@@ -12,7 +12,7 @@
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
   <link rel="preload" href="/fonts/plex-sans.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=54">
+  <link rel="stylesheet" href="styles.css?v=55">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -158,7 +158,7 @@
           <div class="feature-icon-box"><svg class="i"><use href="#i-bell"/></svg></div>
           <div class="feature-info">
             <div class="feature-title">The desk PC</div>
-            <div class="feature-desc">The little PC in the strip under the terminal text mirrors your computer: a key flashes as you type and its screen lights when output arrives. Tap it to turn the completion chime off or on. Drawing after iso-figure by Tolga Cohce and iso-glow by April Zhu (MIT).</div>
+            <div class="feature-desc">The little PC in the bubble under the screen's bottom-right corner mirrors your computer: a key flashes as you type and its screen lights when output arrives. Tap it to turn the completion chime off or on. Drawing after iso-figure by Tolga Cohce and iso-glow by April Zhu (MIT).</div>
           </div>
         </div>
 
@@ -225,9 +225,12 @@
     <div class="bezel">
       <div class="grille" aria-hidden="true"></div>
       <div id="xterm-container" class="xterm-wrapper"></div>
-      <!-- Chin: a strip of the same glass under the last line, so the desk PC (chime toggle)
-           sits in the screen without covering text, and stays in view with the keyboard up -->
-      <div class="screen-chin">
+    </div>
+
+    <!-- PC bubble: a bump of the bezel hanging below the screen's bottom-right, holding the
+         desk PC (chime toggle). Its anchor has no height, so the terminal keeps every row -->
+    <div class="pc-bubble-anchor">
+      <div class="pc-bubble">
         <button id="btn-sound-toggle" class="pc-fig" title="Completion chime" aria-label="Completion chime" aria-pressed="true">
           <svg id="pc-fig-art" aria-hidden="true"></svg>
           <span class="pc-mute" aria-hidden="true"><svg class="i"><use href="#i-bell-off"/></svg></span>

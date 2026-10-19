@@ -367,19 +367,29 @@ button {
 }
 .pc-mute .i { width: 12px; height: 12px; }
 .pc-fig.muted .pc-mute { display: flex; }
-/* In the screen's chin, under the last line of text; the badge flips light to read on the glass */
-.screen-chin {
-  flex: none;
+/* PC bubble: grows out of the bezel's bottom edge under the screen's bottom-right corner.
+   The anchor has no height, so the terminal keeps every row; the bubble overlaps the end of
+   the pinned-command row, whose right padding lets its last pill scroll clear. */
+.pc-bubble-anchor { position: relative; height: 0; z-index: 3; }
+.pc-bubble {
+  position: absolute;
+  top: -1px; /* over the bezel's bottom edge, so there is no seam */
+  right: calc(var(--m) * 2 + 28px); /* bezel margin, then clear of its 26px corner */
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  height: 40px;
-  padding-right: 14px;
-  border-radius: 0 0 20px 20px;
-  background: var(--screen);
+  justify-content: center;
+  width: 62px;
+  height: 46px;
+  border-radius: 0 0 22px 22px;
+  background: var(--bezel);
 }
-.screen-chin .pc-fig { width: 44px; height: 34px; }
-.screen-chin .pc-mute { background: var(--panel); color: var(--ink); }
+/* Concave fillets where the bubble meets the bezel, so the two read as one shape */
+.pc-bubble::before,
+.pc-bubble::after { content: ""; position: absolute; top: 0; width: 12px; height: 12px; }
+.pc-bubble::before { left: -12px; background: radial-gradient(circle at 0 100%, transparent 11.5px, var(--bezel) 12px); }
+.pc-bubble::after { right: -12px; background: radial-gradient(circle at 100% 100%, transparent 11.5px, var(--bezel) 12px); }
+.pc-bubble .pc-fig { width: 46px; height: 35px; }
+.pc-bubble .pc-mute { background: var(--panel); color: var(--ink); }
 /* No PC to mirror: grey it out (the capsule already says why) */
 .app-layout:has(.capsule[data-state="offline"]) .pc-fig > svg { opacity: 0.35; filter: grayscale(1); }
 
@@ -453,6 +463,7 @@ button {
   position: relative;
   overflow: hidden;
   padding: 0;
+  border-radius: 0 0 20px 20px;
   background-color: var(--screen);
 }
 
@@ -835,7 +846,11 @@ button {
   display: flex;
   align-items: center;
   gap: calc(var(--m) * 2);
-  padding: calc(var(--m) * 3) calc(var(--m) * 3) calc(var(--m) * 2);
+  /* The row ends at the PC bubble: pills fade out just before it, and the wide right
+     padding lets the last one scroll clear of the fade */
+  padding: calc(var(--m) * 3) 124px calc(var(--m) * 2) calc(var(--m) * 3);
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 130px), transparent calc(100% - 112px));
+  mask-image: linear-gradient(to right, #000 calc(100% - 130px), transparent calc(100% - 112px));
   overflow-x: auto;
   white-space: nowrap;
   flex-shrink: 0;
