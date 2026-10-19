@@ -1849,5 +1849,61 @@ xtermContainer.addEventListener("touchend", () => {
   clearTimeout(terminalTouchTimer);
 }, { passive: true });
 
+// ── Native touch scrolling ──────────────────────────────────────────────
+// xterm.js 5 handles touch itself: it cancels every touchmove, moves its viewport by hand,
+// and snaps back to a whole row on each repaint. A phone gets no fling and a jittery,
+// row-stepped drag. On touch screens a transparent native scroller sits over the terminal
+// instead, so the browser scrolls with the phone's own physics. The terminal follows it:
+// whole rows through scrollToLine, the part of a row as a transform on the screen.
+// shortcut: in the zoomed pan mode (PC owns the size, zoom > 1) the scroller only covers
+// the first screen width; past it xterm's own touch scrolling takes over.
+if (window.matchMedia("(pointer: coarse)").matches) {
+  const scroller = document.createElement("div");
+  scroller.className = "scroll-proxy";
+  const fill = document.createElement("div");
+  scroller.appendChild(fill);
+  xtermContainer.appendChild(scroller);
+  const screen = term.element.querySelector(".xterm-screen");
+  // Fractional on purpose: a rounded row height drifts by rows deep in the scrollback
+  const rowHeight = () => screen.getBoundingClientRect().height / term.rows;
+
+  // Only a finger, or the fling it leaves behind, drives the terminal. Layout changes
+  // (new output, a resize, a font change) also fire scroll events, and those must not.
+  let touching = false;
+  let flingUntil = 0;
+  const userScrolling = () => touching || performance.now() < flingUntil;
+  scroller.addEventListener("touchstart", () => { touching = true; }, { passive: true });
+  const lift = () => { touching = false; flingUntil = performance.now() + 200; };
+  scroller.addEventListener("touchend", lift, { passive: true });
+  scroller.addEventListener("touchcancel", lift, { passive: true });
+
+  scroller.addEventListener("scroll", () => {
+    if (!userScrolling()) return;
+    if (!touching) flingUntil = performance.now() + 200; // still gliding
+    const rh = rowHeight();
+    if (!rh) return;
+    const exact = scroller.scrollTop / rh;
+    const line = Math.min(Math.floor(exact), term.buffer.active.baseY);
+    if (line !== term.buffer.active.viewportY) term.scrollToLine(line);
+    screen.style.transform = `translate3d(0, ${-(exact - line) * rh}px, 0)`;
+  }, { passive: true });
+
+  // The terminal moved on its own (new output, scrollToBottom, a resize): bring the
+  // scroller along, unless a finger or fling is moving it right now.
+  const follow = () => {
+    const rh = rowHeight();
+    if (!rh) return;
+    const buf = term.buffer.active;
+    fill.style.height = buf.baseY * rh + scroller.clientHeight + "px";
+    if (userScrolling()) return;
+    scroller.scrollTop = buf.viewportY * rh;
+    screen.style.transform = "";
+  };
+  term.onScroll(follow);
+  // After each paint the row height is current, including after a font or size change
+  term.onRender(follow);
+  follow();
+}
+
 // ── Boot ────────────────────────────────────────────────────────────────
 connect();
