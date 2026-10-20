@@ -1926,6 +1926,49 @@ if (window.matchMedia("(pointer: coarse)").matches) {
   // After each paint the row height is current, including after a font or size change
   term.onRender(follow);
   follow();
+
+  // Full-screen apps (Claude Code's fullscreen renderer, vim, less) draw on the alternate
+  // screen, which has no scrollback: the app scrolls its own view. There a swipe becomes the
+  // mouse wheel, and xterm encodes it as the app asked: wheel reports in mouse mode, arrow
+  // keys otherwise. The terminal is display-only (disableStdin), so input opens just for the
+  // synchronous dispatch and whatever xterm emits goes to the PC like typed input.
+  const onAltScreen = () => term.buffer.active.type === "alternate";
+  const placeScroller = () => {
+    // The scroller stays on top so taps never focus xterm's textarea (that pops the keyboard)
+    scroller.style.overflowY = onAltScreen() ? "hidden" : "";
+    scroller.style.touchAction = onAltScreen() ? "none" : "";
+    screen.style.transform = "";
+    follow();
+  };
+  term.buffer.onBufferChange(placeScroller);
+  placeScroller();
+
+  let forwarding = false;
+  term.onData((data) => {
+    if (forwarding && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "INPUT", data }));
+  });
+  let lastY = null;
+  scroller.addEventListener("touchstart", (e) => {
+    lastY = onAltScreen() && e.touches.length === 1 ? e.touches[0].clientY : null;
+  }, { passive: true });
+  scroller.addEventListener("touchmove", (e) => {
+    if (lastY === null || !onAltScreen()) return;
+    const t = e.touches[0];
+    const dy = lastY - t.clientY; // finger up = content up = wheel down
+    lastY = t.clientY;
+    forwarding = true;
+    term.options.disableStdin = false;
+    try {
+      // Pixel deltas: xterm adds up the part-rows and sends one step per whole row
+      screen.dispatchEvent(new WheelEvent("wheel", {
+        deltaY: dy, deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+        clientX: t.clientX, clientY: t.clientY, bubbles: true, cancelable: true,
+      }));
+    } finally {
+      term.options.disableStdin = true;
+      forwarding = false;
+    }
+  }, { passive: true });
 }
 
 // ── Boot ────────────────────────────────────────────────────────────────
