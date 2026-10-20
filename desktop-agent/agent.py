@@ -330,7 +330,13 @@ def start_pty_session():
     env["TERM"] = "xterm-256color"
     env["COLORTERM"] = "truecolor"
     env["FORCE_COLOR"] = "3"
-    
+    # Claude Code's classic renderer re-prints the conversation into scrollback on every
+    # resize, and the PTY resizes each time phone and PC trade it. Its fullscreen renderer
+    # draws on the alternate screen and repaints in place; ConPTY needs full repaints there
+    # or it leaves stale fragments. setdefault: a value the user set themselves still wins.
+    env.setdefault("CLAUDE_CODE_NO_FLICKER", "1")
+    env.setdefault("CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT", "1")
+
     # Detect natural terminal size from the host console
     ts = shutil.get_terminal_size(fallback=(100, 30))
     try:
