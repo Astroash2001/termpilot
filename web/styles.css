@@ -26,6 +26,8 @@
   --signal: #ff4f00;         /* signal orange: running, Send, the one thing to press */
   --signal-deep: #e04600;
   --signal-ink: #ffffff;     /* icons and large labels on orange */
+  --signal-fill: #d64200;    /* orange behind small white text (4.5:1) and focus rings (3.8:1) */
+  --signal-fill-deep: #b83a00; /* pressed */
   --signal-text: #c43c00;    /* orange as small text on porcelain (4.6:1) */
   --ok: #2f9e55;             /* DONE */
   --ok-text: #22783f;        /* DONE as text (5.1:1 on porcelain) */
@@ -81,7 +83,7 @@ button {
 
 :focus { outline: none; }
 :focus-visible {
-  outline: 2px solid var(--signal);
+  outline: 2px solid var(--signal-fill);
   outline-offset: 2px;
 }
 
@@ -197,7 +199,7 @@ button {
   display: block;
   width: 100%;
   height: 52px;
-  background: var(--signal);
+  background: var(--signal-fill);
   color: var(--signal-ink);
   border: none;
   border-radius: 99px;
@@ -206,7 +208,7 @@ button {
   box-shadow: var(--signal-glow);
   transition: transform 120ms var(--ease-out), background 120ms;
 }
-.btn-primary:active { background: var(--signal-deep); transform: translateY(1px); }
+.btn-primary:active { background: var(--signal-fill-deep); transform: translateY(1px); }
 
 #pairing-display { margin-top: calc(var(--m) * 5); }
 
@@ -710,7 +712,7 @@ button {
   gap: calc(var(--m) * 1.5);
   height: 42px;
   padding: 0 calc(var(--m) * 4);
-  background: var(--signal);
+  background: var(--signal-fill);
   color: var(--signal-ink);
   border: none;
   border-radius: 99px;

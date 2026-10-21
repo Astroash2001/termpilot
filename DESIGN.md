@@ -6,6 +6,8 @@ colors:
   signal-deep: "#e04600"
   signal-ink: "#ffffff"
   signal-text: "#c43c00"
+  signal-fill: "#d64200"
+  signal-fill-deep: "#b83a00"
   body: "#ecebe7"
   panel: "#f7f6f3"
   panel-low: "#e4e2dc"
@@ -162,7 +164,7 @@ Density is phone-instrument density: a fixed full-height column (readout, screen
 A warm neutral body and a near-black screen, with signal orange as the only voice and green/red reserved for state.
 
 ### Primary
-- **Signal Orange** (`signal`): the running dot and wave in the capsule, the Send key, primary buttons, the desk PC's screen while output arrives, the terminal cursor, focus rings, input carets and the selected command plate. Pressed state deepens to **Signal Ember** (`signal-deep`). Labels and icons on orange are white (`signal-ink`). When orange must be small text on porcelain, use **Signal Rust** (`signal-text`, 4.6:1).
+- **Signal Orange** (`signal`): the running dot and wave in the capsule, the Send key, primary buttons, the desk PC's screen while output arrives, the terminal cursor, focus rings, input carets and the selected command plate. Pressed state deepens to **Signal Ember** (`signal-deep`). Labels and icons on orange are white (`signal-ink`). When orange must be small text on porcelain, use **Signal Rust** (`signal-text`, 4.6:1). Buttons with white text labels (Unlock, Copy all) and focus rings use **Signal Fill** (`signal-fill`, white on it 4.5:1, 3.8:1 against porcelain), pressed **Signal Fill Deep** (`signal-fill-deep`); Send keeps full orange because it carries an icon, not text.
 
 ### Neutral
 - **Porcelain** (`body`): the device body, sheets, overlay boxes. Also the browser theme color.
