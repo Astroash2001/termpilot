@@ -1947,27 +1947,51 @@ if (window.matchMedia("(pointer: coarse)").matches) {
   term.onData((data) => {
     if (forwarding && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "INPUT", data }));
   });
-  let lastY = null;
+  // Hand synthetic events to xterm with input open, so it encodes them for the app. xterm
+  // focuses its hidden textarea on mousedown; focus goes straight back so no keyboard pops.
+  const toApp = (...events) => {
+    const focused = document.activeElement;
+    forwarding = true;
+    term.options.disableStdin = false;
+    try {
+      events.forEach((ev) => screen.dispatchEvent(ev));
+    } finally {
+      term.options.disableStdin = true;
+      forwarding = false;
+      if (focused && focused !== document.body) focused.focus({ preventScroll: true });
+      else term.blur();
+    }
+  };
+
+  let lastY = null, startX = 0, startY = 0, startAt = 0, moved = false;
   scroller.addEventListener("touchstart", (e) => {
-    lastY = onAltScreen() && e.touches.length === 1 ? e.touches[0].clientY : null;
+    if (!onAltScreen() || e.touches.length !== 1) { lastY = null; return; }
+    const t = e.touches[0];
+    lastY = startY = t.clientY;
+    startX = t.clientX;
+    startAt = performance.now();
+    moved = false;
   }, { passive: true });
   scroller.addEventListener("touchmove", (e) => {
     if (lastY === null || !onAltScreen()) return;
     const t = e.touches[0];
+    if (Math.hypot(t.clientX - startX, t.clientY - startY) > 10) moved = true;
     const dy = lastY - t.clientY; // finger up = content up = wheel down
     lastY = t.clientY;
-    forwarding = true;
-    term.options.disableStdin = false;
-    try {
-      // Pixel deltas: xterm adds up the part-rows and sends one step per whole row
-      screen.dispatchEvent(new WheelEvent("wheel", {
-        deltaY: dy, deltaMode: WheelEvent.DOM_DELTA_PIXEL,
-        clientX: t.clientX, clientY: t.clientY, bubbles: true, cancelable: true,
-      }));
-    } finally {
-      term.options.disableStdin = true;
-      forwarding = false;
-    }
+    // Pixel deltas: xterm adds up the part-rows and sends one wheel step per whole row.
+    // Apps move about 3 lines per step (Claude Code, vim), so a step per 3 rows of finger
+    // travel keeps the content under the finger.
+    toApp(new WheelEvent("wheel", {
+      deltaY: dy / 3, deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+      clientX: t.clientX, clientY: t.clientY, bubbles: true, cancelable: true,
+    }));
+  }, { passive: true });
+  // A short tap is a click: it picks options in the app's menus (/resume, /model, permission
+  // prompts). A hold stays the long-press copy gesture.
+  scroller.addEventListener("touchend", () => {
+    if (lastY === null || moved || !onAltScreen() || performance.now() - startAt > 400) return;
+    const at = { clientX: startX, clientY: startY, button: 0, bubbles: true, cancelable: true };
+    toApp(new MouseEvent("mousedown", { ...at, buttons: 1 }), new MouseEvent("mouseup", { ...at, buttons: 0 }));
   }, { passive: true });
 }
 
