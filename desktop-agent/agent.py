@@ -336,6 +336,13 @@ def start_pty_session():
     # or it leaves stale fragments. setdefault: a value the user set themselves still wins.
     env.setdefault("CLAUDE_CODE_NO_FLICKER", "1")
     env.setdefault("CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT", "1")
+    # An agent started from inside a Claude Code session inherits that session's identity.
+    # A claude run in the PTY would then join it: transcript saving off, /resume stuck on it.
+    for name in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT", "CLAUDE_CODE_SESSION_ID",
+                 "CLAUDE_CODE_CHILD_SESSION", "CLAUDE_CODE_SESSION_ATTENDED", "CLAUDE_CODE_SSE_PORT",
+                 "CLAUDE_CODE_MESSAGING_SOCKET", "CLAUDE_CODE_MESSAGING_TOKEN", "CLAUDE_CODE_EXECPATH",
+                 "CLAUDE_PID", "CLAUDE_JOB_DIR", "CLAUDE_EFFORT"):
+        env.pop(name, None)
 
     # Detect natural terminal size from the host console
     ts = shutil.get_terminal_size(fallback=(100, 30))
