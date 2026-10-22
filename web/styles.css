@@ -398,7 +398,8 @@ button {
 .pc-bubble::after { content: ""; position: absolute; top: 0; width: 12px; height: 12px; }
 .pc-bubble::before { left: -12px; background: radial-gradient(circle at 0 100%, transparent 11.5px, var(--bezel) 12px); }
 .pc-bubble::after { right: -12px; background: radial-gradient(circle at 100% 100%, transparent 11.5px, var(--bezel) 12px); }
-.pc-bubble .pc-fig { width: 46px; height: 35px; }
+/* The whole bubble is the button; the drawing keeps its 46x36 size inside the padding */
+.pc-bubble .pc-fig { width: 62px; height: 46px; padding: 4px 8px 6px; }
 .pc-bubble .pc-mute { background: var(--panel); color: var(--ink); }
 /* No PC to mirror: grey it out (the capsule already says why) */
 .app-layout:has(.capsule[data-state="offline"]) .pc-fig > svg { opacity: 0.35; filter: grayscale(1); }
@@ -599,8 +600,8 @@ button {
 }
 
 .modal-close-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: grid;
   place-items: center;
   background: var(--panel);
@@ -879,7 +880,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: var(--m);
-  height: 36px;
+  height: 40px;
   padding: 0 calc(var(--m) * 3.5);
   background: var(--panel);
   border: 0;
@@ -897,7 +898,7 @@ button {
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  height: 36px;
+  height: 40px;
   border-radius: 99px;
   background: var(--panel);
   box-shadow: var(--raised-low), 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -905,7 +906,7 @@ button {
 }
 .snippet-pill.zoom-pill {
   height: 100%;
-  min-width: 38px;
+  min-width: 42px;
   padding: 0 calc(var(--m) * 2);
   justify-content: center;
   box-shadow: none;
@@ -926,7 +927,7 @@ button {
   color: var(--ink-soft);
   border-left: 1px solid var(--rule);
   border-right: 1px solid var(--rule);
-  line-height: 36px;
+  line-height: 40px;
 }
 
 .snippet-pill.tool-pill { padding: 0 calc(var(--m) * 3); position: relative; margin-right: calc(var(--m) * 3); }
