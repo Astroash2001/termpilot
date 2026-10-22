@@ -150,7 +150,7 @@
           <div class="feature-icon-box"><svg class="i"><use href="#i-keys"/></svg></div>
           <div class="feature-info">
             <div class="feature-title">Key row</div>
-            <div class="feature-desc"><span class="feature-badge">^C</span> interrupts, <span class="feature-badge">ESC</span> leaves a menu, <span class="feature-badge">CLR</span> clears the screen. Long-press the terminal to copy text.</div>
+            <div class="feature-desc"><span class="feature-badge">^C</span> interrupts, <span class="feature-badge">ESC</span> leaves a menu, <span class="feature-badge">CLR</span> clears the screen, <span class="feature-badge">TAB</span> accepts the agent's suggestion or completes a path. To copy text, long-press the terminal or tap the copy button next to the text size.</div>
           </div>
         </div>
 
@@ -245,6 +245,8 @@
         <span id="zoom-readout" class="zoom-readout" aria-live="polite">100%</span>
         <button class="snippet-pill zoom-pill" onclick="adjustTerminalZoom(1)" title="Larger terminal text" aria-label="Larger terminal text">A+</button>
       </div>
+      <!-- Terminal tools end at a hairline; pinned commands follow -->
+      <button class="snippet-pill tool-pill" onclick="openTextSelectModal()" title="Copy terminal text" aria-label="Copy terminal text"><svg class="i"><use href="#i-copy"/></svg></button>
       <button class="snippet-pill" onclick="sendSnippet('git status\r')">git status</button>
       <button class="snippet-pill" onclick="sendSnippet('git diff\r')">git diff</button>
       <button class="snippet-pill" onclick="sendSnippet('git log -n 5\r')">git log</button>
@@ -274,7 +276,7 @@
     <!-- Mobile Touch Bar -->
     <div class="touch-bar">
       <button class="tb-btn cmd-trigger" id="btn-commands" aria-label="Commands">/ CMD</button>
-      <button class="tb-btn" onclick="openTextSelectModal()" title="Copy terminal text" aria-label="Copy terminal text"><svg class="i"><use href="#i-copy"/></svg></button>
+      <button class="tb-btn" onclick="sendInput('\t')" title="Tab: accept the agent's suggestion or complete a path" aria-label="Tab">TAB</button>
       <button class="tb-btn danger" onclick="handleEscKey()" title="Escape: leave menus" aria-label="Escape">ESC</button>
       <button class="tb-btn danger" onclick="sendInput('\x03')" title="Interrupt (Ctrl+C)" aria-label="Interrupt (Control C)">^C</button>
       <button class="tb-btn" onclick="sendInput('clear\r')" title="Clear screen" aria-label="Clear screen">CLR</button>
