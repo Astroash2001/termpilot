@@ -1701,6 +1701,7 @@ function closeFeaturesModal() {
 if (btnFeatures) {
   btnFeatures.addEventListener("click", (e) => {
     e.preventDefault();
+    commandsModal.style.display = "none"; // one sheet at a time
     openFeaturesModal();
   });
 }
@@ -2018,7 +2019,7 @@ if (window.matchMedia("(pointer: coarse)").matches) {
 // logic runs as usual. Only the header listens, so lists inside sheets scroll normally.
 document.querySelectorAll(".modal-sheet").forEach((sheet) => {
   const header = sheet.querySelector(".modal-header");
-  const close = sheet.querySelector(".modal-close-btn");
+  const close = sheet.querySelector('.modal-close-btn[aria-label="Close"]');
   if (!header || !close) return;
   let startY = null, dy = 0;
   header.addEventListener("touchstart", (e) => {

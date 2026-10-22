@@ -613,6 +613,7 @@ button {
   box-shadow: var(--raised-low);
 }
 .modal-close-btn .i { width: 18px; height: 18px; }
+.modal-header-actions { display: flex; gap: calc(var(--m) * 2); }
 .modal-close-btn:active { background: var(--panel-low); }
 
 .features-sheet { max-height: 86vh; }
@@ -944,14 +945,6 @@ button {
   font-size: 14px;
 }
 .snippet-pill.add-snippet .i { width: 16px; height: 16px; }
-.snippet-pill.guide-pill {
-  background: transparent;
-  box-shadow: none;
-  color: var(--ink-soft);
-  font-family: var(--font-ui);
-  font-size: 14px;
-}
-.snippet-pill.guide-pill .i { width: 17px; height: 17px; }
 
 /* ==================== PROMPT ROW ==================== */
 .input-bar {

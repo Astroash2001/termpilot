@@ -75,7 +75,10 @@
     <div class="modal-sheet" role="dialog" aria-modal="true" aria-label="Agent commands">
       <div class="modal-header">
         <span id="commands-title" class="modal-title">Agent commands</span>
-        <button id="btn-close-modal" class="modal-close-btn" aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
+        <div class="modal-header-actions">
+          <button id="btn-features" class="modal-close-btn" title="How TermPilot works" aria-label="How TermPilot works"><svg class="i"><use href="#i-help"/></svg></button>
+          <button id="btn-close-modal" class="modal-close-btn" aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
+        </div>
       </div>
       <div class="modal-search-box">
         <input type="text" id="cmd-search" class="cmd-search-input" placeholder="Search commands…" autocomplete="off" spellcheck="false" aria-label="Search commands">
@@ -253,7 +256,6 @@
       <button class="snippet-pill" onclick="sendSnippet('dir\r')">dir</button>
       <button class="snippet-pill" onclick="sendSnippet('python main.py\r')">python main.py</button>
       <button class="snippet-pill add-snippet" onclick="promptAddSnippet()"><svg class="i"><use href="#i-plus"/></svg>Pin</button>
-      <button id="btn-features" class="snippet-pill guide-pill" title="How TermPilot works" aria-label="How TermPilot works"><svg class="i"><use href="#i-help"/></svg>Guide</button>
     </div>
 
     <!-- Input Bar with Voice Mic & Send Button -->
