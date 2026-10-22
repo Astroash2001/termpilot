@@ -1764,7 +1764,12 @@ function getTerminalBufferText() {
   const lines = [];
   for (let i = 0; i < buffer.length; i++) {
     const line = buffer.getLine(i);
-    if (line) lines.push(line.translateToString(true));
+    if (!line) continue;
+    // A row the terminal wrapped continues the one above: join them, keeping the spaces at
+    // the wrap point, or copied text gets a line break in the middle of a word
+    const text = line.translateToString(!buffer.getLine(i + 1)?.isWrapped);
+    if (line.isWrapped && lines.length) lines[lines.length - 1] += text;
+    else lines.push(text);
   }
   return lines.join('\n').trimEnd();
 }

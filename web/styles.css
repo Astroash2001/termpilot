@@ -754,7 +754,7 @@ button {
   color: var(--screen-text);
   background: var(--screen);
   white-space: pre-wrap;
-  word-break: break-all;
+  overflow-wrap: anywhere; /* break long tokens only, not every word */
   user-select: text !important;
   -webkit-user-select: text !important;
   -webkit-overflow-scrolling: touch;
