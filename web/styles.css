@@ -809,6 +809,11 @@ button {
 .cmd-item {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  border: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
   gap: 2px;
   padding: calc(var(--m) * 2.5) calc(var(--m) * 3.5);
   margin-bottom: calc(var(--m) * 1.5);

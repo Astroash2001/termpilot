@@ -542,7 +542,8 @@ function renderAgentCommands() {
   if (id === renderedAgent) return;
   renderedAgent = id;
   const profile = agentProfile(id);
-  const make = (cls, text) => { const el = document.createElement(cls === "cmd-item" ? "div" : "span"); el.className = cls; if (text) el.textContent = text; return el; };
+  // Rows are real buttons so screen readers and keyboards can reach them
+  const make = (cls, text) => { const el = document.createElement(cls === "cmd-item" ? "button" : "span"); if (cls === "cmd-item") el.type = "button"; el.className = cls; if (text) el.textContent = text; return el; };
   if (!profile || !profile.commands.length) {
     commandsTitle.textContent = "Agent commands";
     const note = document.createElement("p");
@@ -1528,7 +1529,8 @@ function renderHistorySection() {
     const key = cmd.trim().toLowerCase().replace(/\s+$/, '');
     if (staticCmds.has(key)) continue;   // skip duplicates of built-in commands
 
-    const item = document.createElement("div");
+    const item = document.createElement("button");
+    item.type = "button";
     item.className = "cmd-item";
     item.onclick = () => insertCommand(cmd);
     

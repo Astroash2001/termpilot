@@ -72,7 +72,7 @@
 
   <!-- Slash commands of whichever coding agent is running -->
   <div id="commands-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-sheet" role="dialog" aria-label="Agent commands">
+    <div class="modal-sheet" role="dialog" aria-modal="true" aria-label="Agent commands">
       <div class="modal-header">
         <span id="commands-title" class="modal-title">Agent commands</span>
         <button id="btn-close-modal" class="modal-close-btn" aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
@@ -98,7 +98,7 @@
 
   <!-- Features & Shortcuts Guide Modal -->
   <div id="features-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-sheet features-sheet" role="dialog" aria-label="How TermPilot works">
+    <div class="modal-sheet features-sheet" role="dialog" aria-modal="true" aria-label="How TermPilot works">
       <div class="modal-header">
         <span class="modal-title">How TermPilot works</span>
         <button id="btn-close-features" class="modal-close-btn" aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
@@ -181,7 +181,7 @@
 
   <!-- Select & Copy Plain Text Modal -->
   <div id="select-modal" class="modal-overlay" style="display: none;">
-    <div class="modal-sheet select-sheet" role="dialog" aria-label="Copy terminal text">
+    <div class="modal-sheet select-sheet" role="dialog" aria-modal="true" aria-label="Copy terminal text">
       <div class="modal-header">
         <span class="modal-title">Copy terminal text</span>
         <button id="btn-close-select" class="modal-close-btn" aria-label="Close"><svg class="i"><use href="#i-close"/></svg></button>
@@ -273,11 +273,11 @@
 
     <!-- Mobile Touch Bar -->
     <div class="touch-bar">
-      <button class="tb-btn cmd-trigger" id="btn-commands">/ CMD</button>
+      <button class="tb-btn cmd-trigger" id="btn-commands" aria-label="Commands">/ CMD</button>
       <button class="tb-btn" onclick="openTextSelectModal()" title="Copy terminal text" aria-label="Copy terminal text"><svg class="i"><use href="#i-copy"/></svg></button>
-      <button class="tb-btn danger" onclick="handleEscKey()" title="Escape: leave menus">ESC</button>
-      <button class="tb-btn danger" onclick="sendInput('\x03')" title="Interrupt (Ctrl+C)">^C</button>
-      <button class="tb-btn" onclick="sendInput('clear\r')" title="Clear screen">CLR</button>
+      <button class="tb-btn danger" onclick="handleEscKey()" title="Escape: leave menus" aria-label="Escape">ESC</button>
+      <button class="tb-btn danger" onclick="sendInput('\x03')" title="Interrupt (Ctrl+C)" aria-label="Interrupt (Control C)">^C</button>
+      <button class="tb-btn" onclick="sendInput('clear\r')" title="Clear screen" aria-label="Clear screen">CLR</button>
       <button class="tb-btn arrow" onclick="handleSmartArrowNav('up')" title="Up: menus or history" aria-label="Up"><svg class="i"><use href="#i-up"/></svg></button>
       <button class="tb-btn arrow" onclick="handleSmartArrowNav('down')" title="Down: menus or history" aria-label="Down"><svg class="i"><use href="#i-down"/></svg></button>
       <button class="tb-btn arrow" onclick="sendInput('\x1b[D')" aria-label="Left"><svg class="i"><use href="#i-left"/></svg></button>
