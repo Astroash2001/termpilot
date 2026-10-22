@@ -1116,6 +1116,17 @@ button {
   .tb-btn.arrow { min-width: 64px; }
 }
 
+/* Increased contrast: darker secondary ink (8.2:1), visible edges and hairlines (3:1),
+   and the deeper orange everywhere */
+@media (prefers-contrast: more) {
+  :root {
+    --ink-soft: #46443f;
+    --rule: #8a877f;
+    --edge: #8a877f;
+    --signal: #d64200;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 1ms !important;
