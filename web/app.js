@@ -908,6 +908,7 @@ function connect() {
       fitPending = false;
       setConnected(true);
       adaptFontSizeToPty();
+      offerGuideOnce();
     } else if (payload.type === "RAW") {
       // Native xterm.js ANSI rendering without forced scrolling interference.
       // Completion is checked once the chunk is parsed, so the cursor line is current.
@@ -1558,7 +1559,9 @@ function openCommandsModal(filter = "") {
   if (cmdSearch) {
     cmdSearch.value = filter;
     filterCommands(filter);
-    cmdSearch.focus();
+    // Typing "/..." opened the sheet: keep typing in search. Opened from the key, the list
+    // matters more than a keyboard that would cover half of it.
+    if (filter) cmdSearch.focus();
   }
 }
 
@@ -1578,8 +1581,12 @@ function filterCommands(query) {
     sec.style.display = q ? "none" : "block";
   });
 
-  // Highlight first match by default
-  updateModalSelection(0, false);
+  // Highlight the first match while searching; an unfiltered list starts with nothing picked
+  if (q) updateModalSelection(0, false);
+  else {
+    modalSelectedIndex = -1;
+    items.forEach((item) => item.classList.remove("selected"));
+  }
 }
 
 if (cmdSearch) {
@@ -1712,12 +1719,15 @@ if (featuresModal) {
   });
 }
 
-// Show guide on first time visit
-try {
-  if (!localStorage.getItem("termpilot_features_seen")) {
-    setTimeout(openFeaturesModal, 800);
-  }
-} catch (e) {}
+// First visit: the guide opens once the phone is unlocked, never behind the unlock screen
+let guideOffered = false;
+function offerGuideOnce() {
+  if (guideOffered) return;
+  guideOffered = true;
+  try {
+    if (!localStorage.getItem("termpilot_features_seen")) setTimeout(openFeaturesModal, 600);
+  } catch (e) {}
+}
 
 // ── Pairing ─────────────────────────────────────────────────────────────
 
@@ -2001,6 +2011,37 @@ if (window.matchMedia("(pointer: coarse)").matches) {
     toApp(new MouseEvent("mousedown", { ...at, buttons: 1 }), new MouseEvent("mouseup", { ...at, buttons: 0 }));
   }, { passive: true });
 }
+
+// ── Swipe a sheet down to close it ──────────────────────────────────────
+// The grab handle sits in each sheet's header. Dragging the header moves the sheet with the
+// finger; past 80px it closes through the sheet's own close button, so each sheet's close
+// logic runs as usual. Only the header listens, so lists inside sheets scroll normally.
+document.querySelectorAll(".modal-sheet").forEach((sheet) => {
+  const header = sheet.querySelector(".modal-header");
+  const close = sheet.querySelector(".modal-close-btn");
+  if (!header || !close) return;
+  let startY = null, dy = 0;
+  header.addEventListener("touchstart", (e) => {
+    if (e.touches.length !== 1) return;
+    startY = e.touches[0].clientY;
+    dy = 0;
+    sheet.style.transition = "none";
+  }, { passive: true });
+  header.addEventListener("touchmove", (e) => {
+    if (startY === null) return;
+    dy = Math.max(0, e.touches[0].clientY - startY);
+    sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+  const end = () => {
+    if (startY === null) return;
+    startY = null;
+    sheet.style.transition = "transform 240ms var(--ease-out)";
+    sheet.style.transform = "";
+    if (dy > 80) close.click();
+  };
+  header.addEventListener("touchend", end, { passive: true });
+  header.addEventListener("touchcancel", end, { passive: true });
+});
 
 // ── Boot ────────────────────────────────────────────────────────────────
 connect();

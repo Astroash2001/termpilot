@@ -42,6 +42,7 @@
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --spring: cubic-bezier(0.2, 1.25, 0.35, 1);
+  --ease-sheet: cubic-bezier(0.52, 0.16, 0.24, 1); /* sheet slide-up (applecn) */
   /* A raised physical key: light catching the top edge, a lip underneath, a soft cast shadow */
   --raised: inset 0 1px 0 #fff, 0 2px 0 var(--edge), 0 3px 8px rgba(0, 0, 0, 0.08);
   --raised-low: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 0 var(--edge);
@@ -564,7 +565,7 @@ button {
   display: flex;
   flex-direction: column;
   box-shadow: inset 0 1px 0 #fff, 0 -10px 40px rgba(0, 0, 0, 0.22);
-  animation: slideUp 320ms var(--ease-out);
+  animation: slideUp 400ms var(--ease-sheet);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -574,6 +575,7 @@ button {
 }
 
 .modal-header {
+  touch-action: none; /* the header drags the sheet (app.js) */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -587,7 +589,7 @@ button {
   top: 8px;
   left: 50%;
   width: 36px;
-  height: 4px;
+  height: 5px;
   margin-left: -18px;
   border-radius: 99px;
   background: #c9c6bf;
