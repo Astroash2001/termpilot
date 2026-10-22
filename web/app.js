@@ -1130,12 +1130,19 @@ window.sendSnippet = function(cmd) {
   }
 };
 
+// Pin pins what is typed in the composer: no browser dialog over the app
 window.promptAddSnippet = function() {
   triggerHaptic(15);
-  const name = prompt("Enter custom command (e.g., 'npm test' or 'git push'):");
-  if (name && name.trim()) {
-    saveCustomSnippet(name.trim());
+  const name = mobileInput.value.trim();
+  if (!name) {
+    showToast("Type a command in the box, then tap Pin");
+    mobileInput.focus();
+    return;
   }
+  saveCustomSnippet(name);
+  mobileInput.value = "";
+  autoGrowInput();
+  showToast("Pinned");
 };
 
 function loadCustomSnippets() {
