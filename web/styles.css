@@ -46,6 +46,14 @@
   --raised: inset 0 1px 0 #fff, 0 2px 0 var(--edge), 0 3px 8px rgba(0, 0, 0, 0.08);
   --raised-low: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 1px 0 var(--edge);
   --signal-glow: 0 6px 16px rgba(255, 79, 0, 0.32);
+  /* One point of reading text. Reading text (help, menus, dialogs) is sized in --pt so it follows
+     the phone's text-size setting; keys, the composer and the terminal keep fixed sizes. */
+  --pt: 1px;
+}
+/* iOS: the root takes the Dynamic Type body size (17px at the default setting) */
+@supports (font: -apple-system-body) and (-webkit-touch-callout: none) {
+  html { font: -apple-system-body; }
+  :root { --pt: calc(1rem / 17); }
 }
 
 * {
@@ -163,7 +171,7 @@ button {
 
 .overlay-title {
   font-weight: 600;
-  font-size: 26px;
+  font-size: calc(26 * var(--pt));
   line-height: 1.15;
   letter-spacing: -0.01em;
   margin-bottom: calc(var(--m) * 2);
@@ -172,7 +180,7 @@ button {
 
 .subtitle {
   color: var(--ink-soft);
-  font-size: 15px;
+  font-size: calc(15 * var(--pt));
   line-height: 1.45;
   margin-bottom: calc(var(--m) * 5);
 }
@@ -189,7 +197,7 @@ button {
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
   padding: 0 calc(var(--m) * 5);
   font-family: var(--font-mono);
-  font-size: 15px;
+  font-size: 16px; /* 16px keeps iOS from zooming on focus */
   margin-bottom: calc(var(--m) * 3);
 }
 .paper-input::placeholder { color: var(--ink-soft); font-family: var(--font-ui); }
@@ -223,7 +231,7 @@ button {
 }
 
 .hint {
-  font-size: 13px;
+  font-size: calc(13 * var(--pt));
   color: var(--ink-soft);
   margin-bottom: calc(var(--m) * 2);
 }
@@ -431,8 +439,8 @@ button {
 }
 .run-banner-icon .i { width: 20px; height: 20px; stroke-width: 2.4; }
 .run-banner-text { min-width: 0; display: grid; gap: 1px; }
-.run-banner-title { font-size: 15px; font-weight: 600; }
-.run-banner-sub { font-size: 13px; color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.run-banner-title { font-size: calc(15 * var(--pt)); font-weight: 600; }
+.run-banner-sub { font-size: calc(13 * var(--pt)); color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ==================== TERMINAL: dark glass set into the body ==================== */
 .bezel {
@@ -585,7 +593,7 @@ button {
 }
 
 .modal-title {
-  font-size: 20px;
+  font-size: calc(20 * var(--pt));
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -644,13 +652,13 @@ button {
 }
 
 .feature-title {
-  font-size: 16px;
+  font-size: calc(16 * var(--pt));
   font-weight: 600;
   line-height: 1.25;
 }
 
 .feature-desc {
-  font-size: 14px;
+  font-size: calc(14 * var(--pt));
   color: var(--ink-soft);
   line-height: 1.5;
 }
@@ -800,7 +808,7 @@ button {
   border-radius: 14px;
   background: var(--panel);
   box-shadow: var(--raised-low);
-  font-size: 14px;
+  font-size: calc(14 * var(--pt));
   line-height: 1.5;
   color: var(--ink-soft);
 }
@@ -831,7 +839,7 @@ button {
 
 .cmd-tag {
   font-family: var(--font-mono);
-  font-size: 14px;
+  font-size: calc(14 * var(--pt));
   font-weight: 500;
   color: var(--ink);
   white-space: nowrap;
@@ -840,7 +848,7 @@ button {
 }
 
 .cmd-desc {
-  font-size: 13px;
+  font-size: calc(13 * var(--pt));
   color: var(--ink-soft);
   line-height: 1.35;
   white-space: nowrap;
