@@ -8,15 +8,15 @@ web
 
 ## Users
 
-One developer (the author), using their own phone while away from the desk. The PC at home or the office runs a long AI coding session (Google Antigravity `agy`) or a PowerShell task; the phone is how they keep an eye on it and steer it.
+One developer (the author), using their own phone while away from the desk. The PC at home or the office runs anything in its terminal: a shell task, a build, a server, or a long coding-agent session (Claude Code, Codex, Gemini CLI, Aider, Antigravity `agy`); the phone is how they keep an eye on it and steer it.
 
 ## Product Purpose
 
-TermPilot mirrors a live PowerShell session from the user's Windows PC to their phone browser, so they can watch, steer, and finish agent runs without walking back to the computer. Success: the user can glance at the phone, know whether the run is working, waiting for input, or done, and answer it in a few taps or a spoken prompt.
+TermPilot mirrors a live PowerShell session from the user's Windows PC to their phone browser, so they can run, watch, and steer anything in it without walking back to the computer. Success: the user can glance at the phone, know whether the run is working, waiting for input, or done, and answer it in a few taps or a spoken prompt.
 
 ## Positioning
 
-It is not a generic SSH client. It mirrors the exact ConPTY session already running on the PC (same columns, same in-place agent redraws), with the phone tuned for the agent workflow: prompt box with voice dictation, slash-command sheet for `agy`, a done-chime when a run finishes.
+It is not a generic SSH client. It mirrors the exact ConPTY session already running on the PC (same columns, same in-place agent redraws), with the phone tuned for terminal work: prompt box with voice dictation, a slash-command sheet for whichever coding agent is running, a done-chime when a run finishes.
 
 ## Operating Context
 
@@ -28,9 +28,9 @@ It is not a generic SSH client. It mirrors the exact ConPTY session already runn
 ## Capabilities and Constraints
 
 Core jobs, in priority order (confirmed):
-1. Watch long agent runs: read output, get the completion chime and haptic.
-2. Send prompts: typed or dictated (Web Speech API), slash commands for `agy`.
-3. Quick shell commands: snippet pills (`git status`, `git diff`, `dir`, `python`, custom pins), touch bar (^C, ESC, arrows, CLR).
+1. Watch long runs (commands or agents): read output, get the completion chime and haptic.
+2. Send input: typed or dictated (Web Speech API), slash commands for the running agent.
+3. Drive the terminal: key row (/ CMD, TAB, ESC, ^C, CLR, arrows).
 
 Also present: copy terminal text or the last response, command history (swipe or arrows), text-size zoom, sound toggle, features guide.
 
