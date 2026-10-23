@@ -209,8 +209,17 @@ function fitFontSize() {
   return Math.max(7, Math.min(28, FIT_FONT * termZoom));
 }
 
-// Call right after fit() at the fit font: the fitted grid is the size to ask the PC for
+// Call right after fit() at the fit font: the fitted grid is the size to ask the PC for.
+// The font changes on the phone at once; the PC is asked once taps (A−/A+) or a rotation
+// settle, so three quick taps cost one PTY resize and one app redraw, not three.
+let fitTimer = 0;
 function requestPhoneFit() {
+  clearTimeout(fitTimer);
+  fitTimer = setTimeout(sendPhoneFit, 250);
+}
+
+function sendPhoneFit() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
   const cols = term.cols, rows = term.rows;
   if (cols < 20 || rows < 5) return;
   // The keyboard sliding up only costs rows. Resizing the PTY for that would make every app
@@ -784,6 +793,9 @@ function connect() {
       // Phone fit starts once the relay says what size the PTY is now.
       fitCols = fitRows = ptyCols = ptyRows = 0;
       fitPending = false;
+      // The relay replays its saved output next. Written over what this phone already
+      // shows, every reconnect (lock, app switch, network change) would add another copy.
+      term.reset();
       setConnected(true);
       adaptFontSizeToPty();
       offerGuideOnce();
@@ -1745,14 +1757,19 @@ if (window.matchMedia("(pointer: coarse)").matches) {
 
   // The terminal moved on its own (new output, scrollToBottom, a resize): bring the
   // scroller along, unless a finger or fling is moving it right now.
+  // Runs after every paint, so it writes to the page only when a value changed: each
+  // write forces a layout, and streaming output paints many times a second.
+  let fillHeight = -1;
   const follow = () => {
     const rh = rowHeight();
     if (!rh) return;
     const buf = term.buffer.active;
-    fill.style.height = buf.baseY * rh + scroller.clientHeight + "px";
+    const height = buf.baseY * rh + scroller.clientHeight;
+    if (height !== fillHeight) { fillHeight = height; fill.style.height = height + "px"; }
     if (userScrolling()) return;
-    scroller.scrollTop = buf.viewportY * rh;
-    screen.style.transform = "";
+    const top = buf.viewportY * rh;
+    if (Math.abs(scroller.scrollTop - top) > 1) scroller.scrollTop = top;
+    if (screen.style.transform) screen.style.transform = "";
   };
   term.onScroll(follow);
   // After each paint the row height is current, including after a font or size change
@@ -1775,24 +1792,48 @@ if (window.matchMedia("(pointer: coarse)").matches) {
   term.buffer.onBufferChange(placeScroller);
   placeScroller();
 
-  let forwarding = false;
+  let forwarded = null; // collects what xterm emits during one toApp call
   term.onData((data) => {
-    if (forwarding && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "INPUT", data }));
+    if (forwarded !== null) forwarded += data;
   });
-  // Hand synthetic events to xterm with input open, so it encodes them for the app. xterm
-  // focuses its hidden textarea on mousedown; focus goes straight back so no keyboard pops.
+  // Hand synthetic events to xterm with input open, so it encodes them for the app, and send
+  // all of it as one INPUT: the app reads it in one go and redraws once. xterm focuses its
+  // hidden textarea on mousedown; focus goes straight back so no keyboard pops.
   const toApp = (...events) => {
     const focused = document.activeElement;
-    forwarding = true;
+    forwarded = "";
     term.options.disableStdin = false;
     try {
       events.forEach((ev) => screen.dispatchEvent(ev));
     } finally {
       term.options.disableStdin = true;
-      forwarding = false;
+      const data = forwarded;
+      forwarded = null;
+      if (data && ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "INPUT", data }));
       if (focused && focused !== document.body) focused.focus({ preventScroll: true });
       else term.blur();
     }
+  };
+
+  // Every wheel step makes the app redraw its whole screen on the PC and send it back, so
+  // finger travel is gathered and sent at most every 50ms as one batch of steps. Apps move
+  // about 3 lines per step (Claude Code, vim): a step per 3 rows of finger travel keeps the
+  // content under the finger.
+  let wheelPx = 0, wheelAt = null, wheelTimer = 0;
+  const flushWheel = () => {
+    wheelTimer = 0;
+    const rh = rowHeight();
+    if (!rh || !onAltScreen()) { wheelPx = 0; return; }
+    const steps = Math.trunc(wheelPx / (3 * rh));
+    if (!steps) return;
+    wheelPx -= steps * 3 * rh;
+    // One row of pixel delta per event: xterm sends one wheel report (or one arrow) for each
+    const sign = Math.sign(steps);
+    const events = Array.from({ length: Math.abs(steps) }, () => new WheelEvent("wheel", {
+      deltaY: sign * rh * 1.001, deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+      clientX: wheelAt.x, clientY: wheelAt.y, bubbles: true, cancelable: true,
+    }));
+    toApp(...events);
   };
 
   let lastY = null, startX = 0, startY = 0, startAt = 0, moved = false;
@@ -1803,20 +1844,16 @@ if (window.matchMedia("(pointer: coarse)").matches) {
     startX = t.clientX;
     startAt = performance.now();
     moved = false;
+    wheelPx = 0;
   }, { passive: true });
   scroller.addEventListener("touchmove", (e) => {
     if (lastY === null || !onAltScreen()) return;
     const t = e.touches[0];
     if (Math.hypot(t.clientX - startX, t.clientY - startY) > 10) moved = true;
-    const dy = lastY - t.clientY; // finger up = content up = wheel down
+    wheelPx += lastY - t.clientY; // finger up = content up = wheel down
     lastY = t.clientY;
-    // Pixel deltas: xterm adds up the part-rows and sends one wheel step per whole row.
-    // Apps move about 3 lines per step (Claude Code, vim), so a step per 3 rows of finger
-    // travel keeps the content under the finger.
-    toApp(new WheelEvent("wheel", {
-      deltaY: dy / 3, deltaMode: WheelEvent.DOM_DELTA_PIXEL,
-      clientX: t.clientX, clientY: t.clientY, bubbles: true, cancelable: true,
-    }));
+    wheelAt = { x: t.clientX, y: t.clientY };
+    if (!wheelTimer) wheelTimer = setTimeout(flushWheel, 50);
   }, { passive: true });
   // A short tap is a click: it picks options in the app's menus (/resume, /model, permission
   // prompts). A hold stays the long-press copy gesture.
