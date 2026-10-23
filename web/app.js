@@ -404,7 +404,8 @@ const AGENT_PROFILES = {
   agy: {
     name: "Antigravity",
     bins: ["agy"],
-    banner: /Antigravity/i,
+    // No banner: "Antigravity" turns up in ordinary output (docs, tips, paths), so only
+    // typing agy marks it running
     busy: /esc to interrupt/i,
     commands: [
     { title: "Workspace & context", items: [
@@ -490,7 +491,7 @@ function setAgent(id) {
   if (id === currentAgent) return;
   currentAgent = id;
   if (id) lastAgent = id;
-  agentLabel.textContent = id ? agentProfile(id).name : "TermPilot";
+  agentLabel.textContent = id ? agentProfile(id).name : "Terminal";
 }
 
 // The command that starts an agent: "claude", "codex --model x", "npx @openai/codex@latest",
@@ -514,7 +515,7 @@ function noteAgentOutput(chunk) {
   if (currentAgent && currentAgent !== "generic") return;
   const text = chunk.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "");
   for (const [id, profile] of Object.entries(AGENT_PROFILES)) {
-    if (profile.banner.test(text)) return setAgent(id);
+    if (profile.banner?.test(text)) return setAgent(id);
   }
   if (!currentAgent && GENERIC_BUSY.test(text)) setAgent("generic");
 }
@@ -550,7 +551,7 @@ function renderAgentCommands() {
     note.className = "cmd-empty";
     note.textContent = profile
       ? `${profile.name} is running. TermPilot doesn't know its commands, so type them in the box.`
-      : "Start a coding agent in the terminal, such as claude, codex, gemini, aider or agy. Its commands show up here.";
+      : "Run any program in the terminal. Start a coding agent such as claude, codex, gemini, aider or agy and its commands show up here.";
     agentCommands.replaceChildren(note);
     return;
   }
