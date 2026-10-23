@@ -8,6 +8,7 @@ import json
 import atexit
 import asyncio
 import platform
+import queue
 import shutil
 import threading
 import time
@@ -384,6 +385,18 @@ def start_pty_session():
         agent_print(traceback.format_exc())
         return
 
+    # The console echo is slow on Windows, so it runs on its own thread: the phone's copy
+    # of each chunk never waits for this window to finish drawing the last one.
+    echo_queue = queue.Queue()
+
+    def echo_locally():
+        while True:
+            data = echo_queue.get()
+            while not echo_queue.empty():
+                data += echo_queue.get_nowait()
+            sys.stdout.write(data)
+            sys.stdout.flush()
+
     def read_pty_output():
         """Continuously read raw PTY output and send to the browser."""
         while active_pty and active_pty.isalive():
@@ -395,11 +408,8 @@ def start_pty_session():
                     data = clean_pty_output(data)
                     if not data:
                         continue
-                    # Print locally for debugging
-                    sys.stdout.write(data)
-                    sys.stdout.flush()
-                    # Forward to WebSocket
                     send_to_relay({"type": "RAW", "data": data})
+                    echo_queue.put(data)
             except EOFError:
                 agent_print("📄 PTY EOF reached.")
                 break
@@ -414,6 +424,7 @@ def start_pty_session():
     # before the first byte of PTY output is mirrored, so the two origins coincide.
     align_console_origin()
 
+    threading.Thread(target=echo_locally, daemon=True).start()
     reader_thread = threading.Thread(target=read_pty_output, daemon=True)
     reader_thread.start()
 
