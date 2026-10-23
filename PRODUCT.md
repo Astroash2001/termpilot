@@ -12,7 +12,7 @@ One developer (the author), using their own phone while away from the desk. The 
 
 ## Product Purpose
 
-TermPilot mirrors a live PowerShell session from the user's Windows PC to their phone browser, so they can run, watch, and steer anything in it without walking back to the computer. Success: the user can glance at the phone, know whether the run is working, waiting for input, or done, and answer it in a few taps or a spoken prompt.
+TermPilot mirrors a live PowerShell session from the user's Windows PC to their phone browser, so they can run, watch, and steer anything in it without walking back to the computer. Success: the user can glance at the phone, see whether it is connected to the PC and what the terminal shows, and answer it in a few taps or a spoken prompt.
 
 ## Positioning
 
@@ -49,7 +49,7 @@ No testimonials, users, or metrics exist. Do not invent any.
 
 ## Product Principles
 
-1. Status at a glance: whether the run is working, waiting, or done must read in under a second.
+1. Status at a glance: whether the phone is connected to the PC must read in under a second; the terminal itself shows the run.
 2. The terminal is the truth; the chrome around it serves it and never crowds it.
 3. One-handed, interrupted use: primary actions within thumb reach, nothing that needs precision tapping.
 4. Fidelity to the PC session over phone-native reflow.

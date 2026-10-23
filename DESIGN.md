@@ -154,17 +154,17 @@ Density is phone-instrument density: a fixed full-height column (readout, screen
 
 **Key Characteristics:**
 - Warm porcelain body, dark glass screen, black readout capsule: three materials, nothing else.
-- One signal orange for "happening now" and "press this"; green only for done, red only for offline and interrupt.
+- One signal orange for "happening now" and "press this"; green only for connected, red only for offline and interrupt.
 - Raised keys built from light and a lip (top inner highlight, edge line, soft cast), never from borders.
 - IBM Plex throughout the chrome: Sans for words people read, Mono for keys, codes, commands and readouts.
-- Spring motion on physical things (capsule width, banner drop); quick ease-out on presses.
+- Spring motion on physical things (capsule width, sheets); quick ease-out on presses.
 
 ## Colors
 
 A warm neutral body and a near-black screen, with signal orange as the only voice and green/red reserved for state.
 
 ### Primary
-- **Signal Orange** (`signal`): the running dot and wave in the capsule, the Send key, primary buttons, the desk PC's screen while output arrives, the terminal cursor, focus rings, input carets and the selected command plate. Pressed state deepens to **Signal Ember** (`signal-deep`). Labels and icons on orange are white (`signal-ink`). When orange must be small text on porcelain, use **Signal Rust** (`signal-text`, 4.6:1). Buttons with white text labels (Unlock, Copy all) and focus rings use **Signal Fill** (`signal-fill`, white on it 4.5:1, 3.8:1 against porcelain), pressed **Signal Fill Deep** (`signal-fill-deep`); Send keeps full orange because it carries an icon, not text.
+- **Signal Orange** (`signal`): the Send key, primary buttons, the desk PC's screen while output arrives, the terminal cursor, focus rings, input carets and the selected command plate. Pressed state deepens to **Signal Ember** (`signal-deep`). Labels and icons on orange are white (`signal-ink`). When orange must be small text on porcelain, use **Signal Rust** (`signal-text`, 4.6:1). Buttons with white text labels (Unlock, Copy all) and focus rings use **Signal Fill** (`signal-fill`, white on it 4.5:1, 3.8:1 against porcelain), pressed **Signal Fill Deep** (`signal-fill-deep`); Send keeps full orange because it carries an icon, not text.
 
 ### Neutral
 - **Porcelain** (`body`): the device body, sheets, overlay boxes. Also the browser theme color.
@@ -180,7 +180,7 @@ A warm neutral body and a near-black screen, with signal orange as the only voic
 - **Readout Black** (`capsule`): the status capsule, small status pills, toasts.
 
 ### State
-- **Done Green** (`ok`) for the capsule check, done dots and the banner icon; **Done Green Text** (`ok-text`) when it is text on porcelain.
+- **Done Green** (`ok`) for the connected dot in the capsule and status pills; **Done Green Text** (`ok-text`) when it is text on porcelain.
 - **Fault Red** (`bad`) for offline dots; **Fault Red Text** (`bad-text`) for the ESC and ^C key labels.
 
 ### Named Rules
@@ -231,7 +231,7 @@ Depth is physical. Porcelain objects are lit from above: a 1px white inner highl
 - **Sunk field** (`box-shadow: inset 0 1px 3px rgba(0,0,0,0.12)`): all text inputs; focus adds `0 0 0 2px var(--signal)`.
 - **Glass well** (`box-shadow: inset 0 0 0 1px #000, inset 0 8px 20px rgba(0,0,0,0.7), 0 1px 0 #fff`): the bezel.
 - **Signal glow** (`box-shadow: 0 6px 16px rgba(255,79,0,0.32)`): Send and primary buttons.
-- **Float** (`0 8px 20px rgba(0,0,0,0.18)` capsule; `0 14px 34px rgba(0,0,0,0.18)` banner; `0 -10px 40px rgba(0,0,0,0.22)` sheet; `0 24px 60px rgba(0,0,0,0.28)` overlay box).
+- **Float** (`0 8px 20px rgba(0,0,0,0.18)` capsule; `0 -10px 40px rgba(0,0,0,0.22)` sheet; `0 24px 60px rgba(0,0,0,0.28)` overlay box).
 
 ### Named Rules
 **The Light From Above Rule.** Raised porcelain always has the white top highlight and the lip below; a raised element with only a drop shadow is wrong. Shadows are soft and grey (or orange glow on orange), never hard offset blocks.
@@ -272,10 +272,9 @@ Each command is a `panel` key plate (14px radius, raised low): command in Mono 5
 Porcelain surfaces with a white top highlight and large soft shadow over a 40-45% graphite scrim with 4-6px blur. Bottom sheets slide up (320ms ease-out) with a grab handle; from 600px they pop in as centered 28px-radius dialogs (240ms spring).
 
 ### Status Capsule (signature)
-The black readout centered at the top, 36px (40px from 900px), Sans 500 14px white label. States: **Running** (breathing orange dot with glow, Mono tabular timer, a 10-bar orange wave whose heights follow output volume), **Done** (green check that draws itself over 480ms, final time), **Ready / Locked** (grey dot), **Offline / No PC** (red dot). Width is measured and animated on a 520ms spring; each state change pops it (scale 0.92 to 1.04 to 1). The same black-capsule language appears small as status pills (Mono 11px uppercase with a 7px state dot) in the overlay and guide, and as the toast.
+The black readout centered at the top, 36px (40px from 900px), Sans 500 14px white label. It shows only the link to the PC's terminal: **Connected** (green dot), **Locked** (grey dot), **Offline / PC offline** (red dot). No run states, timers or completion messages. Width is measured and animated on a 520ms spring; each state change pops it (scale 0.92 to 1.04 to 1). The same black-capsule language appears small as status pills (Mono 11px uppercase with a 7px state dot) in the overlay and guide, and as the toast.
 
-### Run-Finished Banner (signature)
-When a run ends while the app is open, a frosted porcelain banner (94% opaque, 20px blur, 22px radius, max 480px) drops from the top on a 600ms spring: a 40px glass tile holding a green check, a Sans 600 15px title with the run number and duration, and the prompt as an ellipsized subline. When the page is hidden, the same title and body go out as a service-worker notification, with haptics and the optional chime.
+When a run ends there is no banner or notification; only the optional chime and a haptic.
 
 ### Terminal Screen
 The bezel (black, 26px radius, glass well shadow) holds the grille strip and the xterm glass (`screen`, bottom corners 20px). The terminal is display-only; its column count is pinned to the PC's PTY and the font size scales, so nothing in the chrome may change its width.
@@ -291,7 +290,7 @@ The bezel (black, 26px radius, glass well shadow) holds the grille strip and the
 - **Do** give every new row `flex-shrink: 0` so the screen keeps the remaining height.
 
 ### Don't:
-- **Don't** add a second accent hue, or use green and red for anything but done and offline/interrupt.
+- **Don't** add a second accent hue, or use green and red for anything but connected and offline/interrupt.
 - **Don't** draw borders around porcelain controls; separation is tone and shadow, with `rule` hairlines only between list rows and inset outlines only on inline badges.
 - **Don't** use hard offset or block shadows; depth here is lit from above and soft.
 - **Don't** set prose in Mono or keys and readouts in Sans.

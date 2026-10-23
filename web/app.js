@@ -570,38 +570,18 @@ function renderAgentCommands() {
   }));
 }
 
-// ── Run Entry (status capsule) ──────────────────────────────────────────
-// Answers "is it working, done, or stuck?" in one glance: a black capsule with the state,
-// a live timer, and a wave that moves with the agent's output; below it, what was sent.
+// ── Status capsule ──────────────────────────────────────────────────────
+// Says only whether the phone reaches the PC's terminal. Below it, what was last sent.
+// Runs are still tracked so the chime can sound when one ends; nothing pops up.
 
 const runStamp = document.getElementById("run-stamp");
 const capLabel = document.getElementById("cap-label");
-const capWaveBars = Array.from(document.querySelectorAll("#cap-wave i"));
 const runPrompt = document.getElementById("run-prompt");
 const runMeta = document.getElementById("run-meta");
-const runClock = document.getElementById("run-clock");
 
-let runStartedAt = 0;
-let runEndedAt = 0;
-let runTimer = null;
 let runChimes = true;
-let runCount = 0; // runs are numbered for the session
-let outputBytes = 0; // output since the last wave frame, fed by the RAW handler
-let waveTimer = null;
 
-const CAPSULE_LABELS = { READY: "Ready", RUNNING: "Running", DONE: "Done", OFFLINE: "Offline", "NO PC": "PC offline", LOCKED: "Locked" };
-
-function formatElapsed(ms) {
-  const s = Math.max(0, Math.floor(ms / 1000));
-  const pad = (n) => String(n).padStart(2, "0");
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  return h ? `${h}:${pad(m)}:${pad(s % 60)}` : `${pad(m)}:${pad(s % 60)}`;
-}
-
-function clockTime(ts) {
-  return new Date(ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-}
+const CAPSULE_LABELS = { READY: "Connected", OFFLINE: "Offline", "NO PC": "PC offline", LOCKED: "Locked" };
 
 // The capsule animates its width, which CSS can't do to "auto": measure the new content
 // on a hidden clone, pin the old width, then let the transition run to the new one.
@@ -626,63 +606,16 @@ function setStamp(state, label) {
   runStamp.classList.remove("pop");
   void runStamp.offsetWidth;
   runStamp.classList.add("pop");
-  clearInterval(waveTimer);
-  if (state === "running") waveTimer = setInterval(paintWave, 140);
-}
-
-// Bar heights follow output volume, so a busy agent visibly churns and a stuck one goes flat
-function paintWave() {
-  const level = Math.min(1, outputBytes / 600);
-  outputBytes = 0;
-  capWaveBars.forEach((bar) => {
-    const h = 3 + (level * 11 + 2) * Math.random();
-    bar.style.height = h.toFixed(1) + "px";
-  });
-}
-
-function paintRunClock() {
-  if (!runStartedAt) {
-    runClock.textContent = "";
-    return;
-  }
-  const before = runClock.textContent.length;
-  runClock.textContent = formatElapsed((runEndedAt || Date.now()) - runStartedAt);
-  // 59:59 to 1:00:00 adds characters; resize so the capsule never clips them
-  if (runClock.textContent.length !== before) sizeCapsule();
 }
 
 function startRun(label, { chime = true } = {}) {
-  runStartedAt = Date.now();
-  runCount += 1;
-  runEndedAt = 0;
   runChimes = chime;
   runPrompt.textContent = label;
-  runMeta.textContent = `Run ${runCount} · ${clockTime(runStartedAt)}`;
-  hideRunBanner();
-  clearInterval(runTimer);
-  runTimer = setInterval(paintRunClock, 1000);
-  paintRunClock();
-  setStamp("running", "RUNNING");
 }
 
-function finishRun() {
-  if (!runStartedAt || runEndedAt) return;
-  runEndedAt = Date.now();
-  clearInterval(runTimer);
-  paintRunClock();
-  // The frozen clock already shows how long it took
-  runMeta.textContent = "finished " + clockTime(runEndedAt);
-  setStamp("done", "DONE");
-}
-
-// Stop the clock without claiming success (agent dropped, connection lost)
+// Stop waiting for the run to end (agent dropped, connection lost)
 function abandonRun(reason) {
   isCommandRunning = false;
-  if (runStartedAt && !runEndedAt) {
-    runEndedAt = Date.now();
-    clearInterval(runTimer);
-    paintRunClock();
-  }
   runMeta.textContent = reason;
 }
 
@@ -719,73 +652,17 @@ function checkAgentIdle() {
 function completeRun() {
   clearTimeout(quietTimer);
   isCommandRunning = false;
-  finishRun();
   if (runChimes) {
     playCompletionChime();
     triggerHaptic([25, 40, 25]);
-    notifyRunFinished();
-  }
-}
-
-// ── Finished notification ───────────────────────────────────────────────
-// In the app: a banner drops in under the capsule. Phone locked or app in the background:
-// a system notification, which needs a secure page (ngrok's https) and the user's permission.
-
-const runBanner = document.getElementById("run-banner");
-const runBannerTitle = document.getElementById("run-banner-title");
-const runBannerSub = document.getElementById("run-banner-sub");
-let bannerTimer = null;
-let swRegistration = null;
-
-if ("serviceWorker" in navigator && window.isSecureContext) {
-  // Android Chrome only shows notifications through a service worker registration
-  navigator.serviceWorker.register("/sw.js").then((reg) => { swRegistration = reg; }).catch(() => {});
-}
-
-// Ask once, from a tap (browsers ignore permission prompts that aren't user-initiated)
-function askNotificationPermission() {
-  if (!("Notification" in window) || !window.isSecureContext) return;
-  if (Notification.permission === "default") {
-    try { Notification.requestPermission(); } catch (e) {}
-  }
-}
-
-function hideRunBanner() {
-  clearTimeout(bannerTimer);
-  runBanner.classList.remove("show");
-}
-runBanner.addEventListener("click", hideRunBanner);
-
-function notifyRunFinished() {
-  const title = `Run ${runCount} finished in ${formatElapsed(runEndedAt - runStartedAt)}`;
-  const body = runPrompt.textContent;
-
-  if (document.visibilityState === "visible") {
-    runBannerTitle.textContent = title;
-    runBannerSub.textContent = body;
-    runBanner.classList.add("show");
-    clearTimeout(bannerTimer);
-    bannerTimer = setTimeout(hideRunBanner, 6000);
-    return;
-  }
-  if (!("Notification" in window) || Notification.permission !== "granted") return;
-  const options = { body, tag: "termpilot-run", renotify: true, icon: "/favicon.svg" };
-  if (swRegistration) {
-    swRegistration.showNotification(title, options).catch(() => {});
-  } else {
-    try { new Notification(title, options); } catch (e) {}
   }
 }
 
 function setConnected(on) {
   if (on) {
     overlay.style.display = "none";
-    if (!runStartedAt) {
-      setStamp("ready", "READY");
-      runMeta.textContent = "connected";
-    } else if (runEndedAt && runStamp.dataset.state === "offline") {
-      setStamp("ready", "READY");
-    }
+    setStamp("ready", "READY");
+    runMeta.textContent = "connected";
     setTimeout(adaptFontSizeToPty, 50);
     setTimeout(adaptFontSizeToPty, 200);
   } else {
@@ -914,7 +791,6 @@ function connect() {
       // Native xterm.js ANSI rendering without forced scrolling interference.
       // Completion is checked once the chunk is parsed, so the cursor line is current.
       const chunk = payload.data;
-      outputBytes += chunk.length;
       pulsePcScreen();
       noteAgentOutput(chunk);
       term.write(colourise(chunk), () => {
@@ -1173,7 +1049,6 @@ function sendCommand() {
     mobileInput.focus();
     return;
   }
-  askNotificationPermission();
   saveToHistory(text);
   // Typing an agent's name at the shell starts it; inside an agent, words are just a prompt
   if (!currentAgent) {

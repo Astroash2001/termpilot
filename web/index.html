@@ -13,7 +13,7 @@
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
   <link rel="preload" href="/fonts/plex-sans.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=61">
+  <link rel="stylesheet" href="styles.css?v=62">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -111,10 +111,10 @@
       <div class="features-scroll-content">
 
         <div class="feature-card">
-          <div class="feature-icon-box"><span class="stamp mini" data-state="running">RUN</span></div>
+          <div class="feature-icon-box"><span class="stamp mini" data-state="ready">ON</span></div>
           <div class="feature-info">
             <div class="feature-title">The status capsule</div>
-            <div class="feature-desc">The black capsule at the top shows the state: <span class="feature-badge">Running</span> with a live timer and a wave that moves with the output, then <span class="feature-badge">Done</span> with a chime once the shell is back at its prompt. Below it is what you last sent. If your phone is locked when a run ends, you get a notification.</div>
+            <div class="feature-desc">The black capsule at the top says whether the phone reaches your PC's terminal: <span class="feature-badge">Connected</span>, <span class="feature-badge">Offline</span> or <span class="feature-badge">PC offline</span>. Below it is what you last sent.</div>
           </div>
         </div>
 
@@ -199,24 +199,15 @@
     <header class="app-header">
       <div id="run-stamp" class="capsule" data-state="offline" role="status" aria-live="polite">
         <span class="cap-dot"></span>
-        <svg class="cap-check" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 9.5l4 4 8-9"/></svg>
         <span id="cap-label" class="cap-label">Offline</span>
-        <span id="run-clock" class="cap-time"></span>
-        <span id="cap-wave" class="cap-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
       </div>
       <div class="entry">
         <div class="entry-text">
           <div class="entry-meta"><span id="agent-label" class="wordmark">Terminal</span><span id="run-meta">connecting…</span></div>
-          <div id="run-prompt" class="entry-prompt">No run yet</div>
+          <div id="run-prompt" class="entry-prompt">Nothing sent yet</div>
         </div>
       </div>
     </header>
-
-    <!-- Finished banner: shown when a run ends while the app is open -->
-    <button id="run-banner" class="run-banner" type="button" aria-live="polite">
-      <span class="run-banner-icon"><svg class="i"><use href="#i-check"/></svg></span>
-      <span class="run-banner-text"><span id="run-banner-title" class="run-banner-title">Run finished</span><span id="run-banner-sub" class="run-banner-sub"></span></span>
-    </button>
 
     <!-- Terminal Display (read-only), set into a dark glass screen -->
     <div class="bezel">
@@ -277,6 +268,6 @@
 
   </div>
 
-  <script src="app.js?v=61"></script>
+  <script src="app.js?v=62"></script>
 </body>
 </html>

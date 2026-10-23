@@ -132,9 +132,7 @@ button {
   white-space: nowrap;
 }
 .stamp::before { content: ""; width: 7px; height: 7px; border-radius: 99px; background: var(--bad); }
-.stamp[data-state="running"]::before { background: var(--signal); }
-.stamp[data-state="done"]::before { background: var(--ok); }
-.stamp[data-state="ready"]::before { background: #9a978f; }
+.stamp[data-state="ready"]::before { background: var(--ok); }
 .stamp[data-state="locked"]::before { background: #9a978f; }
 .stamp.mini { font-size: 10px; padding: 5px 8px; }
 
@@ -288,23 +286,10 @@ button {
   transition: width 520ms var(--spring);
 }
 .cap-dot { width: 8px; height: 8px; border-radius: 99px; flex: none; background: #9a978f; }
-.cap-time { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: #fff; display: none; }
-.cap-wave { display: none; gap: 2px; align-items: center; height: 16px; }
-.cap-wave i { width: 2.5px; height: 4px; border-radius: 2px; background: var(--signal); transition: height 140ms; }
-.cap-check { width: 16px; height: 16px; display: none; flex: none; }
-.cap-check path { fill: none; stroke: var(--ok); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 22; stroke-dashoffset: 22; }
 
-.capsule[data-state="running"] .cap-dot { background: var(--signal); box-shadow: 0 0 10px var(--signal); animation: capBreathe 1.3s ease-in-out infinite; }
-.capsule[data-state="running"] .cap-time,
-.capsule[data-state="done"] .cap-time { display: inline; }
-.capsule[data-state="running"] .cap-wave { display: flex; }
-.capsule[data-state="done"] .cap-dot { display: none; }
-.capsule[data-state="done"] .cap-check { display: block; }
-.capsule[data-state="done"] .cap-check path { animation: capDraw 480ms 120ms var(--ease-out) forwards; }
+.capsule[data-state="ready"] .cap-dot { background: var(--ok); }
 .capsule[data-state="offline"] .cap-dot { background: var(--bad); }
 .capsule[data-state="locked"] .cap-dot { background: #9a978f; }
-@keyframes capBreathe { 50% { opacity: 0.45; } }
-@keyframes capDraw { to { stroke-dashoffset: 0; } }
 .capsule.pop { animation: capPop 420ms var(--spring); }
 @keyframes capPop { 0% { transform: scale(0.92); } 60% { transform: scale(1.04); } 100% { transform: scale(1); } }
 
@@ -405,44 +390,6 @@ button {
 /* No PC to mirror: grey it out (the capsule already says why) */
 .app-layout:has(.capsule[data-state="offline"]) .pc-fig > svg { opacity: 0.35; filter: grayscale(1); }
 
-/* ---------- Finished banner: the in-app half of the finished notification ---------- */
-.run-banner {
-  position: fixed;
-  left: calc(var(--m) * 3);
-  right: calc(var(--m) * 3);
-  top: calc(env(safe-area-inset-top) + var(--m) * 2);
-  z-index: 80;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  padding: 12px 14px;
-  border: 0;
-  border-radius: 22px;
-  text-align: left;
-  background: rgba(250, 249, 246, 0.94);
-  backdrop-filter: blur(20px) saturate(1.8);
-  -webkit-backdrop-filter: blur(20px) saturate(1.8);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.18), inset 0 1px 0 #fff;
-  transform: translateY(calc(-100% - 40px));
-  transition: transform 600ms var(--spring);
-  max-width: 480px;
-  margin: 0 auto;
-}
-.run-banner.show { transform: none; }
-.run-banner-icon {
-  flex: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 11px;
-  background: var(--screen);
-  color: var(--ok);
-  display: grid;
-  place-items: center;
-}
-.run-banner-icon .i { width: 20px; height: 20px; stroke-width: 2.4; }
-.run-banner-text { min-width: 0; display: grid; gap: 1px; }
-.run-banner-title { font-size: calc(15 * var(--pt)); font-weight: 600; }
-.run-banner-sub { font-size: calc(13 * var(--pt)); color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ==================== TERMINAL: dark glass set into the body ==================== */
 .bezel {
