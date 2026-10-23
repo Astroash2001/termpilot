@@ -806,9 +806,7 @@ button {
   font-size: calc(13 * var(--pt));
   color: var(--ink-soft);
   line-height: 1.35;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* Wraps instead of cutting off: at large iPhone text sizes one line holds only a few words */
 }
 
 /* ==================== TEXT SIZE AND COPY ROW ==================== */
