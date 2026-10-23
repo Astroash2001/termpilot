@@ -150,7 +150,7 @@ TermPilot is a piece of premium hardware held in one hand: a warm porcelain body
 
 The screen is the truth and the body serves it. The dark glass takes all the space the column of controls leaves; the porcelain around it is quiet, near-white and warm, with depth carried by light and lips rather than lines. A black status capsule at the top is the instrument's readout: it breathes orange while a run is going, counts time in tabular mono, draws a green check when the run is done, and resizes with a spring as its label changes. When a run ends, a frosted banner drops in from the top and, if the phone is locked, a system notification takes its place.
 
-Density is phone-instrument density: a fixed full-height column (readout, screen, pinned pills, prompt row, key row), no page scroll, everything within thumb reach.
+Density is phone-instrument density: a fixed full-height column (readout, screen, text-size row, prompt row, key row), no page scroll, everything within thumb reach.
 
 **Key Characteristics:**
 - Warm porcelain body, dark glass screen, black readout capsule: three materials, nothing else.
@@ -170,7 +170,7 @@ A warm neutral body and a near-black screen, with signal orange as the only voic
 - **Porcelain** (`body`): the device body, sheets, overlay boxes. Also the browser theme color.
 - **Key Face** (`panel`): raised key tops, pills, command plates, inputs (sunk), icon tiles.
 - **Key Shadow Face** (`panel-low`): bottom of the key gradient and the pressed state of pills and close buttons.
-- **Lip** (`edge`): the 1-2px line under a raised key, and the dashed-feel outline of the add-pin pill.
+- **Lip** (`edge`): the 1-2px line under a raised key.
 - **Hairline** (`rule`): dividers between guide rows, zoom readout separators, badge outlines.
 - **Graphite Ink** (`ink`, 15.6:1 on porcelain): primary text and icons.
 - **Soft Graphite** (`ink-soft`, 5.6:1): metadata, descriptions, placeholders, section labels.
@@ -203,7 +203,7 @@ A warm neutral body and a near-black screen, with signal orange as the only voic
 - **Headline** (Sans 600, 26px, 1.15, -0.01em, balanced): overlay titles (unlock, reconnect).
 - **Title** (Sans 600, 20px, 1.25, -0.01em): the current prompt under the capsule (single line, ellipsized; 18px under 360px wide, 24px from 900px) and sheet titles. Guide row titles step down to 16px.
 - **Body** (Sans 400, 15px, 1.45): subtitles and descriptions; 14px/1.5 in guide rows, 13px in hints and banner subtext. Prompt input is 16px so iOS does not zoom.
-- **Key** (Mono 500, 13px): key row labels, snippet pills, command names (14px).
+- **Key** (Mono 500, 13px): key row labels, command names (14px).
 - **Label** (Mono 500, 11px, 0.1em-0.12em, uppercase): the run metadata line and command-sheet section headings; the wordmark uses 0.14em.
 
 ### Named Rules
@@ -213,7 +213,7 @@ A warm neutral body and a near-black screen, with signal orange as the only voic
 
 ## Layout
 
-A fixed, full-viewport column with no page scroll (`100dvh`, safe-area aware): header (capsule centered, then the prompt line), the bezel-framed screen taking all remaining height, with the desk PC in a bubble of the bezel hanging below its bottom-right corner over the end of the pinned-command row, a horizontally scrolling pinned-command row, the prompt row (mic, auto-growing textarea, Send), and the key row of equal-flex keys.
+A fixed, full-viewport column with no page scroll (`100dvh`, safe-area aware): header (capsule centered, then the prompt line), the bezel-framed screen taking all remaining height, with the desk PC in a bubble of the bezel hanging below its bottom-right corner over the end of the text-size row, the text-size row (zoom group and copy), the prompt row (mic, auto-growing textarea, Send), and the key row of equal-flex keys.
 
 Spacing runs on a 4px module (`--m`), used as multiples: 8px gutters at the screen edge, 12px for row padding and gaps, 16-20px inside sheets and overlays. Sheets are bottom sheets on phones (max 500px wide, grab handle) and become centered dialogs from 600px. From 600px horizontal padding widens; from 900px keys stop stretching (min 88px, arrows 64px), the capsule grows to 40px, and the prompt title to 24px. Short viewports (under 550px tall) drop the metadata line, collapse the grille, and shrink keys to 36px.
 
@@ -256,10 +256,9 @@ Tactile and certain: each looks like hardware you could press.
 ### Key Row
 Equal-flex rectangular keys, 46px, 13px radius, a top-to-bottom `panel` to `panel-low` gradient, the raised-key shadow, Mono 500 13px labels or 18px icons. ESC and ^C labels are `bad-text`. `/ CMD` is 1.6x wide, arrows 0.85x.
 
-### Chips (pinned commands)
-- **Style:** 36px `panel` pills, raised low plus a faint 2px cast, Mono 500 13px command text.
-- **Zoom group:** one pill split into A-, a tabular Mono percent readout between hairlines, and A+.
-- **Pin:** transparent with a 1.5px inner `edge` outline and a plus icon in `ink-soft`. **Guide:** transparent, no outline, help icon.
+### Text-size row
+- **Zoom group:** one 40px `panel` pill, raised low plus a faint 2px cast, split into A-, a tabular Mono percent readout between hairlines, and A+.
+- **Copy:** a matching round pill with the copy icon.
 - **State:** pressed fills `panel-low` and drops 1px.
 
 ### Inputs / Fields
@@ -293,7 +292,7 @@ The bezel (black, 26px radius, glass well shadow) holds the grille strip and the
 
 ### Don't:
 - **Don't** add a second accent hue, or use green and red for anything but done and offline/interrupt.
-- **Don't** draw borders around porcelain controls; separation is tone and shadow, with `rule` hairlines only between list rows and inset outlines only on ghost pills (Pin) and inline badges.
+- **Don't** draw borders around porcelain controls; separation is tone and shadow, with `rule` hairlines only between list rows and inset outlines only on inline badges.
 - **Don't** use hard offset or block shadows; depth here is lit from above and soft.
 - **Don't** set prose in Mono or keys and readouts in Sans.
 - **Don't** change the terminal's column count or let chrome reflow the grid; scale its font instead.

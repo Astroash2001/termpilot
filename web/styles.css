@@ -380,7 +380,7 @@ button {
 .pc-fig.muted .pc-mute { display: flex; }
 /* PC bubble: grows out of the bezel's bottom edge under the screen's bottom-right corner.
    The anchor has no height, so the terminal keeps every row; the bubble overlaps the end of
-   the pinned-command row, whose right padding lets its last pill scroll clear. */
+   the text-size row, whose right padding keeps its controls clear. */
 .pc-bubble-anchor { position: relative; height: 0; z-index: 3; }
 .pc-bubble {
   position: absolute;
@@ -864,16 +864,13 @@ button {
   text-overflow: ellipsis;
 }
 
-/* ==================== PINNED COMMANDS ROW ==================== */
+/* ==================== TEXT SIZE AND COPY ROW ==================== */
 .snippets-bar {
   display: flex;
   align-items: center;
   gap: calc(var(--m) * 2);
-  /* The row ends at the PC bubble: pills fade out just before it, and the wide right
-     padding lets the last one scroll clear of the fade */
+  /* Wide right padding keeps the controls clear of the PC bubble */
   padding: calc(var(--m) * 3) 124px calc(var(--m) * 2) calc(var(--m) * 3);
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 130px), transparent calc(100% - 112px));
-  mask-image: linear-gradient(to right, #000 calc(100% - 130px), transparent calc(100% - 112px));
   overflow-x: auto;
   white-space: nowrap;
   flex-shrink: 0;
@@ -937,18 +934,8 @@ button {
   line-height: 40px;
 }
 
-.snippet-pill.tool-pill { padding: 0 calc(var(--m) * 3); position: relative; margin-right: calc(var(--m) * 3); }
+.snippet-pill.tool-pill { padding: 0 calc(var(--m) * 3); }
 .snippet-pill.tool-pill .i { width: 18px; height: 18px; }
-.snippet-pill.tool-pill::after { content: ""; position: absolute; right: calc(var(--m) * -2.5); top: 8px; bottom: 8px; width: 1px; background: var(--edge); }
-
-.snippet-pill.add-snippet {
-  background: transparent;
-  box-shadow: inset 0 0 0 1.5px var(--edge);
-  color: var(--ink-soft);
-  font-family: var(--font-ui);
-  font-size: 14px;
-}
-.snippet-pill.add-snippet .i { width: 16px; height: 16px; }
 
 /* ==================== PROMPT ROW ==================== */
 .input-bar {
