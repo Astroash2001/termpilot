@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import json
 import hmac
@@ -122,6 +123,8 @@ class PairingVerifyRequest(BaseModel):
     code: str
     device_name: str = "Windows-PC"
 
+ALT_SCREEN_SWITCH = re.compile(r"\x1b\[\?(?:1049|1047|47)([hl])")
+
 class ConnectionManager:
     # Maximum bytes of terminal output to keep in the scrollback buffer
     MAX_BUFFER_BYTES = 100_000
@@ -132,6 +135,10 @@ class ConnectionManager:
         # Ring buffer of RAW terminal output for replay on client reconnect
         self._output_buffer: list[str] = []
         self._buffer_size: int = 0
+        # Full-screen apps (Claude Code, vim) switch to the alternate screen once, at start.
+        # That switch soon falls out of the ring buffer, so it is tracked here and replayed
+        # first; without it a reconnecting phone draws their frames on its normal screen.
+        self._alt_screen: bool = False
         self.pty_cols: int = None
         self.pty_rows: int = None
 
@@ -162,7 +169,7 @@ class ConnectionManager:
         # Replay buffered terminal output so the client sees full history
         if self._output_buffer:
             try:
-                replay = "".join(self._output_buffer)
+                replay = ("\x1b[?1049h" if self._alt_screen else "") + "".join(self._output_buffer)
                 await websocket.send_text(json.dumps({
                     "type": "RAW",
                     "data": replay
@@ -176,6 +183,9 @@ class ConnectionManager:
 
     def _buffer_output(self, data: str):
         """Append terminal output to the scrollback buffer, trimming old data if over cap."""
+        switches = ALT_SCREEN_SWITCH.findall(data)
+        if switches:
+            self._alt_screen = switches[-1] == "h"
         self._output_buffer.append(data)
         self._buffer_size += len(data)
         while self._buffer_size > self.MAX_BUFFER_BYTES and self._output_buffer:
