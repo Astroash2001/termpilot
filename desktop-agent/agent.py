@@ -17,6 +17,7 @@ import urllib.request
 import websockets
 import winpty
 from winpty import PtyProcess
+from acp_host import AcpHost
 
 # Ensure UTF-8 output encoding on Windows consoles so emojis and unicode symbols print cleanly.
 # newline="" disables the text layer's newline translation. Without it Python rewrites every
@@ -308,6 +309,18 @@ def pair_device(pairing_code: str, device_name: str = None):
         print(f"❌ Pairing failed: {e}\n")
         return False
 
+def child_env() -> dict:
+    """This process's environment for the shell and chat agents it starts."""
+    env = os.environ.copy()
+    # An agent started from inside a Claude Code session inherits that session's identity.
+    # A claude run in the PTY would then join it: transcript saving off, /resume stuck on it.
+    for name in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT", "CLAUDE_CODE_SESSION_ID",
+                 "CLAUDE_CODE_CHILD_SESSION", "CLAUDE_CODE_SESSION_ATTENDED", "CLAUDE_CODE_SSE_PORT",
+                 "CLAUDE_CODE_MESSAGING_SOCKET", "CLAUDE_CODE_MESSAGING_TOKEN", "CLAUDE_CODE_EXECPATH",
+                 "CLAUDE_PID", "CLAUDE_JOB_DIR", "CLAUDE_EFFORT"):
+        env.pop(name, None)
+    return env
+
 def start_pty_session():
     """Start a persistent PowerShell session using winpty."""
     global active_pty, pty_size
@@ -326,7 +339,7 @@ def start_pty_session():
 
     shell_bin = get_system_shell_cmd()
     cwd = os.path.expanduser("~")
-    env = os.environ.copy()
+    env = child_env()
     env["PYTHONIOENCODING"] = "utf-8"
     env["TERM"] = "xterm-256color"
     env["COLORTERM"] = "truecolor"
@@ -337,13 +350,6 @@ def start_pty_session():
     # or it leaves stale fragments. setdefault: a value the user set themselves still wins.
     env.setdefault("CLAUDE_CODE_NO_FLICKER", "1")
     env.setdefault("CLAUDE_CODE_ALT_SCREEN_FULL_REPAINT", "1")
-    # An agent started from inside a Claude Code session inherits that session's identity.
-    # A claude run in the PTY would then join it: transcript saving off, /resume stuck on it.
-    for name in ("CLAUDECODE", "CLAUDE_CODE_ENTRYPOINT", "CLAUDE_CODE_SESSION_ID",
-                 "CLAUDE_CODE_CHILD_SESSION", "CLAUDE_CODE_SESSION_ATTENDED", "CLAUDE_CODE_SSE_PORT",
-                 "CLAUDE_CODE_MESSAGING_SOCKET", "CLAUDE_CODE_MESSAGING_TOKEN", "CLAUDE_CODE_EXECPATH",
-                 "CLAUDE_PID", "CLAUDE_JOB_DIR", "CLAUDE_EFFORT"):
-        env.pop(name, None)
 
     # Detect natural terminal size from the host console
     ts = shutil.get_terminal_size(fallback=(100, 30))
@@ -552,6 +558,8 @@ async def start_agent():
         return
 
     print(f"Connecting Desktop Agent (ID: {device_id[:8]}...) to Relay Server...")
+    # Chat sessions outlive any one relay link, like the PTY
+    chats = AcpHost(send_to_relay, child_env)
 
     while True:
         try:
@@ -587,6 +595,9 @@ async def start_agent():
                         # Nobody left to read a phone-sized terminal: back to the window's size
                         phone_size = None
                         give_size_to("host")
+                    elif isinstance(msg_type, str) and msg_type.startswith("CHAT_"):
+                        # A task, so a slow agent start never holds up terminal input
+                        asyncio.get_running_loop().create_task(chats.handle(payload))
                                 
         except websockets.exceptions.ConnectionClosed as e:
             if e.code == 4001:

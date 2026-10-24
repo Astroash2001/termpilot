@@ -28,3 +28,6 @@ Thumbs.db
 .impeccable/mocks/
 .impeccable/questions/
 .impeccable/brief-body.md
+
+# ACP adapters, installed from desktop-agent/acp/package.json
+node_modules/

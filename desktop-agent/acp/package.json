@@ -1,0 +1,9 @@
+{
+  "name": "termpilot-acp-adapters",
+  "private": true,
+  "description": "ACP adapters that let TermPilot drive Claude Code and Codex as chats. Install with: npm ci --prefix desktop-agent/acp --ignore-scripts",
+  "dependencies": {
+    "@agentclientprotocol/claude-agent-acp": "0.89.0",
+    "@agentclientprotocol/codex-acp": "2.1.1"
+  }
+}

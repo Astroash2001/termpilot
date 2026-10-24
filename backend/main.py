@@ -443,8 +443,11 @@ async def websocket_client(websocket: WebSocket):
                 continue
             # Only relay known message types. Content is deliberately not logged:
             # keystrokes can include passwords.
-            if payload.get('type') not in ("INPUT", "RESIZE", "CHAT") \
-                    and not payload.get('command') and not payload.get('stdin'):
+            kind = payload.get('type')
+            if not (kind in ("INPUT", "RESIZE") or (isinstance(kind, str) and kind.startswith("CHAT_"))):
+                continue
+            # The agent's socket closes on messages over 1 MiB; one oversized paste must not cut it off
+            if len(data) > 512_000:
                 continue
 
             success = await manager.send_to_agent(payload)
