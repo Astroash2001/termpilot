@@ -276,6 +276,9 @@ The black readout centered at the top, 36px (40px from 900px), Sans 500 14px whi
 
 When a run ends there is no banner or notification; only the optional chime and a haptic.
 
+### Home and Chat Screens
+The phone opens to **Chats**: a 34pt title, the Terminal row first (dark glass icon), then one porcelain row per chat with a state dot (orange pulse = working, orange with a halo and orange meta text = needs you, red = stopped, grey = idle) and an orange **New chat** button at the thumb. The chat screen keeps the porcelain body: your messages in raised panel bubbles on the right, the agent's Markdown as plain prose, code and diffs on terminal glass. Tool steps are one-line panel cards (Mono kind label, Sans title, state dot); edits open to their diff. A permission question rings its card in orange, with the agent's own options as buttons: Allow in filled orange, Deny in red ink. Send turns into a black Stop while the agent works. The terminal screen stays laid out under both, so switching never resizes the PC's terminal; a round back key at its top left returns to Chats.
+
 ### Terminal Screen
 The bezel (black, 26px radius, glass well shadow) holds the grille strip and the xterm glass (`screen`, bottom corners 20px). The terminal is display-only; its column count is pinned to the PC's PTY and the font size scales, so nothing in the chrome may change its width.
 

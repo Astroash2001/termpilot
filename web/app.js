@@ -609,6 +609,8 @@ function sizeCapsule() {
 function setStamp(state, label) {
   const text = CAPSULE_LABELS[label] || label;
   if (runStamp.dataset.state === state && capLabel.textContent === text) return;
+  // The home and chat screens carry a small copy of the capsule
+  document.querySelectorAll(".conn-mirror").forEach((m) => { m.dataset.state = state; m.textContent = text; });
   runStamp.dataset.state = state;
   capLabel.textContent = text;
   sizeCapsule();
@@ -819,6 +821,9 @@ function connect() {
       setConnected(true);
       adaptFontSizeToPty();
       offerGuideOnce();
+      window.Chat?.onConnected();
+    } else if (typeof payload.type === "string" && payload.type.startsWith("CHAT_")) {
+      window.Chat?.onMessage(payload);
     } else if (payload.type === "RAW") {
       rawPending += payload.data;
       if (!rawFrame) rawFrame = requestAnimationFrame(flushRaw);

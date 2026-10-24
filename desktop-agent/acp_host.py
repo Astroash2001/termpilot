@@ -300,6 +300,8 @@ class AcpHost:
         if not s:
             return
         kind = update.get("sessionUpdate")
+        if kind == "usage_update":
+            return  # token counts after every step; the phone shows none of it
         if kind == "current_mode_update":
             s.mode = update.get("currentModeId")
             self.send({"type": "CHAT_MODE", "sid": s.sid, "modes": s.modes, "mode": s.mode})
@@ -402,16 +404,17 @@ class AcpHost:
     def send_sync(self, s, since):
         self.flush(s)
         events = [e for e in s.log if e[0] > since]
-        page, size = [], 0
+        # "first" tells the phone where a sync starts: from 0 it redraws the chat from scratch
+        page, size, first = [], 0, True
         for e in events:
             n = len(json.dumps(e))
             if page and size + n > SYNC_PAGE_BYTES:
-                self.send({"type": "CHAT_SYNC", "sid": s.sid, "events": page, "more": True})
-                page, size = [], 0
+                self.send({"type": "CHAT_SYNC", "sid": s.sid, "events": page, "since": since, "first": first, "more": True})
+                page, size, first = [], 0, False
             page.append(e)
             size += n
         pending = [{"rid": rid, "toolCall": p[3].get("toolCall"), "options": p[3].get("options")} for rid, p in s.pending.items()]
-        self.send({"type": "CHAT_SYNC", "sid": s.sid, "events": page, "more": False, "since": since,
+        self.send({"type": "CHAT_SYNC", "sid": s.sid, "events": page, "since": since, "first": first, "more": False,
                    "summary": s.summary(), "modes": s.modes, "mode": s.mode, "pending": pending})
 
     def reply_permission(self, adapter, rpc_id, outcome):

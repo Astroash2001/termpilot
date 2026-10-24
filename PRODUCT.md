@@ -12,7 +12,7 @@ One developer (the author), using their own phone while away from the desk. The 
 
 ## Product Purpose
 
-TermPilot mirrors a live PowerShell session from the user's Windows PC to their phone browser, so they can run, watch, and steer anything in it without walking back to the computer. Success: the user can glance at the phone, see whether it is connected to the PC and what the terminal shows, and answer it in a few taps or a spoken prompt.
+TermPilot is one phone app for every coding agent on the user's Windows PC, instead of a separate remote app per agent. Coding agents (Claude Code, Codex, Gemini CLI) run as chats driven over the Agent Client Protocol: replies, tool steps, diffs and permission questions, like each agent's own mobile app. Next to them it mirrors a live PowerShell session from the PC to the phone browser, so the user can run, watch, and steer anything else without walking back to the computer. Success: the user can glance at the phone, see whether it is connected to the PC and what the terminal shows, and answer it in a few taps or a spoken prompt.
 
 ## Positioning
 

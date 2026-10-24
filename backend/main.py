@@ -282,8 +282,9 @@ def serve_css():
     return Response(content=content, media_type="text/css", headers=NO_CACHE_HEADERS)
 
 @app.get("/app.js")
-def serve_js():
-    path = os.path.join(WEB_DIR, "app.js")
+@app.get("/chat.js")
+def serve_js(request: Request):
+    path = os.path.join(WEB_DIR, request.url.path.lstrip("/"))
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
     return Response(content=content, media_type="application/javascript", headers=NO_CACHE_HEADERS)

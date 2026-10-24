@@ -2,7 +2,16 @@
 
 > **Your PC's terminal, on your phone**
 
-TermPilot puts the live terminal of your Windows PC on your phone. Run anything you would run at the desk (shell commands, scripts, builds, servers, or coding agents such as Claude Code, Codex, Gemini CLI, Aider and Antigravity `agy`), watch the output, and steer it by typing, voice or a touch key row, from anywhere.
+TermPilot puts your Windows PC's coding agents and its live terminal on your phone. One app replaces each agent's own remote app: start Claude Code, Codex or Gemini CLI as a **chat** (replies, tool steps, diffs, Allow / Deny), or open the **terminal** to run anything you would run at the desk (shell commands, scripts, builds, servers, Aider, Antigravity `agy`), watch the output, and steer it by typing, voice or a touch key row, from anywhere.
+
+## 💬 Chats with coding agents
+
+The phone opens to a list of chats. **New chat** picks an agent and a folder on the PC; the agent then runs there in the background while you follow it on the phone, the way the agents' own mobile apps work.
+
+* The PC agent drives each coding agent through the [Agent Client Protocol](https://agentclientprotocol.com) (`desktop-agent/acp_host.py`), so every agent shows up the same way: Markdown replies, one line per tool step, diffs for edits, and permission questions answered with the agent's own options.
+* Modes that approve every tool without asking (`bypassPermissions`, `yolo`) are never offered on the phone.
+* Chats survive a dropped connection, a locked phone and a relay restart; after a PC agent restart they reopen with the agent's own history.
+* Setup, once: `npm ci --prefix desktop-agent/acp --ignore-scripts` installs the pinned Claude Code and Codex adapters. Gemini CLI speaks the protocol itself (`gemini --acp`). Each agent uses the login it already has on the PC.
 
 ---
 
@@ -107,6 +116,7 @@ graph TB
 
 ### 1. Prerequisites
 * Python 3.10+
+* Node.js and the agents you want to chat with (Claude Code, Codex, Gemini CLI), then `npm ci --prefix desktop-agent/acp --ignore-scripts`
 * (Optional) `ngrok` for public remote phone access over 5G/LTE
 
 ### 2. Start the Backend Relay
