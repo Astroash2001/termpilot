@@ -773,6 +773,25 @@ function colourise(chunk) {
   return out + highlightText(chunk.slice(last));
 }
 
+// Output arriving within one frame is parsed and painted once. A TUI frame comes in
+// several messages, and drawing each separately shows half-drawn screens.
+let rawPending = "", rawFrame = 0;
+function flushRaw() {
+  cancelAnimationFrame(rawFrame);
+  rawFrame = 0;
+  const chunk = rawPending;
+  rawPending = "";
+  if (!chunk) return;
+  pulsePcScreen();
+  noteAgentOutput(chunk);
+  // Completion is checked once the chunk is parsed, so the cursor line is current.
+  term.write(colourise(chunk), () => {
+    // Back at a bare shell prompt: whatever agent was running has exited
+    if (currentAgent && performance.now() - lastCommandTime > 1500 && terminalShowsPrompt()) setAgent(null);
+    checkRunComplete();
+  });
+}
+
 function connect() {
   const accessKey = getAccessKey();
   if (!accessKey) {
@@ -795,22 +814,17 @@ function connect() {
       fitPending = false;
       // The relay replays its saved output next. Written over what this phone already
       // shows, every reconnect (lock, app switch, network change) would add another copy.
+      rawPending = "";
       term.reset();
       setConnected(true);
       adaptFontSizeToPty();
       offerGuideOnce();
     } else if (payload.type === "RAW") {
-      // Native xterm.js ANSI rendering without forced scrolling interference.
-      // Completion is checked once the chunk is parsed, so the cursor line is current.
-      const chunk = payload.data;
-      pulsePcScreen();
-      noteAgentOutput(chunk);
-      term.write(colourise(chunk), () => {
-        // Back at a bare shell prompt: whatever agent was running has exited
-        if (currentAgent && performance.now() - lastCommandTime > 1500 && terminalShowsPrompt()) setAgent(null);
-        checkRunComplete();
-      });
+      rawPending += payload.data;
+      if (!rawFrame) rawFrame = requestAnimationFrame(flushRaw);
     } else if (payload.type === "PTY_SIZE") {
+      // Output sent before the resize must be drawn at the old size
+      flushRaw();
       ptyCols = payload.cols;
       ptyRows = payload.rows;
       fitPending = false;

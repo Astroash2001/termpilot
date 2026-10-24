@@ -397,6 +397,21 @@ def start_pty_session():
             sys.stdout.write(data)
             sys.stdout.flush()
 
+    # Claude and other TUIs emit a frame as many small reads. Sent one by one, the phone
+    # parses and paints each fragment; gathered for a few ms, it paints whole frames.
+    relay_queue = queue.Queue()
+
+    def send_batched():
+        while True:
+            data = relay_queue.get()
+            deadline = time.monotonic() + 0.012
+            while (left := deadline - time.monotonic()) > 0:
+                try:
+                    data += relay_queue.get(timeout=left)
+                except queue.Empty:
+                    break
+            send_to_relay({"type": "RAW", "data": data})
+
     def read_pty_output():
         """Continuously read raw PTY output and send to the browser."""
         while active_pty and active_pty.isalive():
@@ -408,7 +423,7 @@ def start_pty_session():
                     data = clean_pty_output(data)
                     if not data:
                         continue
-                    send_to_relay({"type": "RAW", "data": data})
+                    relay_queue.put(data)
                     echo_queue.put(data)
             except EOFError:
                 agent_print("📄 PTY EOF reached.")
@@ -425,6 +440,7 @@ def start_pty_session():
     align_console_origin()
 
     threading.Thread(target=echo_locally, daemon=True).start()
+    threading.Thread(target=send_batched, daemon=True).start()
     reader_thread = threading.Thread(target=read_pty_output, daemon=True)
     reader_thread.start()
 
