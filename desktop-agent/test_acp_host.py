@@ -50,6 +50,7 @@ async def main():
         f.write(FAKE_AGENT)
     acp_host.AGENTS = {"fake": {"name": "Fake", "entry": fake, "args": []}}
     acp_host.INDEX_FILE = os.path.join(work, "sessions.json")
+    acp_host.PC_SESSION_FILE = os.path.join(work, "pc-session.json")
     acp_host.shutil.which = lambda name: sys.executable  # run the fake with Python, not node
 
     sent = []

@@ -19,6 +19,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ACP_MODULES = os.path.join(HERE, "acp", "node_modules", "@agentclientprotocol")
 NPM_GLOBAL = os.path.join(os.environ.get("APPDATA", ""), "npm", "node_modules")
 INDEX_FILE = os.path.join(os.path.expanduser("~"), ".termpilot", "sessions.json")
+PC_SESSION_FILE = os.path.join(os.path.expanduser("~"), ".termpilot", "pc-session.json")
+# Agents `tp` can run in the PC terminal and hand to the phone: they take a session id from the
+# caller (--session-id) and resume it by id. Codex picks its own ids, so it is not here yet.
+HANDOFF_AGENTS = {"claude"}
 
 # Agent ids the phone may name. Entry scripts run through node directly: npm's .cmd shims go
 # through cmd.exe, which mangles arguments and breaks when PATH lacks System32.
@@ -126,20 +130,53 @@ class Session:
         self.state = "idle"    # idle | thinking | needs_you | error
         self.modes, self.mode = [], None
         self.updated = time.time()
+        # Started with `tp` in the PC terminal: "pc" while it runs there, "moving" while it
+        # closes for the phone, "phone" once the phone has it. None for chats begun on the phone.
+        self.owner = None
 
     def summary(self):
         return {"sid": self.sid, "agent": self.agent_id, "cwd": self.cwd, "title": self.title,
-                "state": self.state, "updated": self.updated, "live": self.adapter is not None}
+                "state": self.state, "updated": self.updated, "live": self.adapter is not None,
+                "owner": self.owner}
+
+
+def read_pc_session():
+    """What `tp` (tp.ps1) last wrote about the agent it runs in the PC terminal, or None."""
+    try:
+        with open(PC_SESSION_FILE, encoding="utf-8-sig") as f:  # PowerShell 5 writes a BOM
+            d = json.load(f)
+    except (OSError, ValueError):
+        return None
+    if not isinstance(d, dict) or d.get("agent") not in HANDOFF_AGENTS or not isinstance(d.get("sid"), str):
+        return None
+    return d
+
+
+def write_pc_owner(d, owner):
+    d = {**d, "owner": owner}
+    tmp = PC_SESSION_FILE + "." + uuid.uuid4().hex
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(d, f)
+    os.replace(tmp, PC_SESSION_FILE)
+    return d
 
 
 class AcpHost:
-    def __init__(self, send, make_env):
+    def __init__(self, send, make_env, pty_write=None):
         self.send = send            # thread-safe send to the relay (agent.send_to_relay)
         self.make_env = make_env    # environment for child processes, inherited session vars removed
+        self.pty_write = pty_write  # types into the PC terminal, for handing a `tp` session over
         self.adapters = {}
         self.sessions = {}
         self.next_rid = 0
         self.load_index()
+        # The terminal that ran `tp` before is gone with the old PC agent
+        try:
+            os.remove(PC_SESSION_FILE)
+        except OSError:
+            pass
+        if pty_write:
+            asyncio.get_running_loop().create_task(self.watch_pc_session())
 
     # ── Phone messages ──────────────────────────────────────────────────────
 
@@ -165,6 +202,10 @@ class AcpHost:
                 await self.set_mode(sid, msg.get("modeId"))
             elif kind == "CHAT_CLOSE":
                 await self.close(sid)
+            elif kind == "CHAT_TAKEOVER":
+                await self.take_over(sid)
+            elif kind == "CHAT_GIVEBACK":
+                await self.give_back(sid)
         except ChatError as e:
             self.send({"type": "CHAT_ERROR", "sid": sid if isinstance(sid, str) else None, "msg": str(e)})
         except Exception as e:
@@ -208,6 +249,10 @@ class AcpHost:
 
     async def open_session(self, sid, since):
         s = self.session(sid)
+        if s.adapter is None and s.owner in ("pc", "moving"):
+            # The PC terminal holds it: loading it here too would put two writers on one session
+            self.send_sync(s, 0)
+            return
         if s.adapter is None:
             # Known from an earlier run of the PC agent: the agent replays the history itself
             adapter = await self.adapter_for(s.agent_id)
@@ -229,6 +274,8 @@ class AcpHost:
         s = self.session(sid)
         if not isinstance(text, str) or not text.strip() or len(text) > MAX_TEXT:
             raise ChatError("Message is empty or too long")
+        if s.owner in ("pc", "moving"):
+            raise ChatError("This chat is open in the PC terminal. Take it over first.")
         if s.adapter is None:
             await self.open_session(sid, 0)
         if s.state in ("thinking", "needs_you"):
@@ -293,6 +340,99 @@ class AcpHost:
         self.save_index()
         self.send_list()
 
+    # ── Handoff with the PC terminal ────────────────────────────────────────
+    # `tp claude` (tp.ps1) runs Claude in the PC terminal under a session id it picks and
+    # records it in PC_SESSION_FILE. The file's "owner" field is the handshake:
+    #   pc -> phone-wanted (we ask Claude to exit) -> phone (tp saw it exit; we load it over ACP)
+    #   phone -> pc-request (Enter pressed at the PC, or Give back here) -> pc (we let go; tp resumes)
+    # Each side writes only while the other waits, so the file never has two writers at once.
+
+    async def watch_pc_session(self):
+        while True:
+            await asyncio.sleep(1)
+            try:
+                await self.check_pc_session()
+            except Exception:
+                pass  # a half-written file reads again next second
+
+    async def check_pc_session(self):
+        d = read_pc_session()
+        changed = False
+        for s in self.sessions.values():
+            if s.owner and (not d or d["sid"] != s.sid):
+                # tp has ended: what remains is an ordinary chat the phone may reopen
+                s.owner = None
+                changed = True
+        if d:
+            s = self.sessions.get(d["sid"])
+            if not s:
+                s = Session(d["sid"], d["agent"], str(d.get("cwd", "")))
+                s.owner = "pc"
+                self.sessions[s.sid] = s
+                self.save_index()
+                changed = True
+            owner = d.get("owner")
+            if owner == "phone" and s.owner == "moving":
+                s.owner = "phone"
+                changed = True
+                try:
+                    await self.open_session(s.sid, 0)
+                except ChatError as e:
+                    self.send({"type": "CHAT_ERROR", "sid": s.sid, "msg": str(e)})
+            elif owner == "pc-request":
+                await self.release(s, d)
+                changed = True
+            elif owner == "pc" and s.owner not in ("pc", "moving"):
+                s.owner = "pc"
+                changed = True
+        if changed:
+            self.send_list()
+
+    async def take_over(self, sid):
+        s = self.session(sid)
+        d = read_pc_session()
+        if s.owner != "pc" or not d or d["sid"] != sid or d.get("owner") != "pc":
+            raise ChatError("This chat is not running in the PC terminal")
+        write_pc_owner(d, "phone-wanted")
+        s.owner = "moving"
+        self.send_list()
+        # Esc drops whatever is half-typed or running; /exit then closes Claude. If it is
+        # still open a few seconds later, Ctrl+C twice is Claude's other way out.
+        self.pty_write("\x1b")
+        await asyncio.sleep(0.4)
+        self.pty_write("/exit\r")
+        await asyncio.sleep(8)
+        d = read_pc_session()
+        if d and d["sid"] == sid and d.get("owner") == "phone-wanted":
+            self.pty_write("\x03")
+            await asyncio.sleep(0.6)
+            self.pty_write("\x03")
+
+    async def give_back(self, sid):
+        s = self.session(sid)
+        d = read_pc_session()
+        if s.owner != "phone" or not d or d["sid"] != sid:
+            raise ChatError("This chat did not come from the PC terminal")
+        await self.release(s, d)
+        self.pty_write("\r")  # tp is waiting for Enter at the PC
+        self.send_list()
+
+    async def release(self, s, d):
+        """Hand the session back to the PC terminal: stop using it here, then let tp resume it."""
+        if s.adapter:
+            await self.cancel(s.sid)
+            if s.adapter.capabilities.get("sessionCapabilities", {}).get("close") is not None:
+                try:
+                    await s.adapter.call("session/close", {"sessionId": s.sid})
+                except ChatError:
+                    pass
+            s.adapter = None
+        if s.state != "idle":
+            self.set_state(s, "idle")
+        s.owner = "pc"
+        write_pc_owner(d, "pc")
+        self.send_sync(s, s.seq)
+
     # ── Agent messages ──────────────────────────────────────────────────────
 
     def on_update(self, sid, update):
@@ -302,6 +442,10 @@ class AcpHost:
         kind = update.get("sessionUpdate")
         if kind == "usage_update":
             return  # token counts after every step; the phone shows none of it
+        if kind == "session_info_update" and isinstance(update.get("title"), str) and update["title"].strip():
+            s.title = " ".join(update["title"].split())[:80]
+            self.save_index()
+            self.send_list()
         if kind == "current_mode_update":
             s.mode = update.get("currentModeId")
             self.send({"type": "CHAT_MODE", "sid": s.sid, "modes": s.modes, "mode": s.mode})

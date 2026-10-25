@@ -1202,7 +1202,12 @@ body[data-view="chat"] #chat-view { display: flex; }
 .plan-row[data-status="completed"]::before { content: "●"; color: var(--ok-text); }
 
 .chat-compose { flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom); }
-.mode-chip { height: 30px; margin: 0 calc(var(--m) * 3) calc(var(--m) * 1); padding: 0 calc(var(--m) * 3); border: 0; border-radius: 99px; background: var(--panel); box-shadow: var(--raised-low); font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
+.compose-chips { display: flex; gap: calc(var(--m) * 2); padding: 0 calc(var(--m) * 3); }
+.handoff-bar { display: grid; gap: calc(var(--m) * 2.5); margin: 0 calc(var(--m) * 3) calc(var(--m) * 3); padding: calc(var(--m) * 3.5); background: var(--panel); border-radius: var(--radius); box-shadow: var(--raised-low); }
+.handoff-bar[hidden], #chat-input-bar[hidden] { display: none; }
+.handoff-text { font-size: calc(15 * var(--pt)); line-height: 1.4; }
+.mode-chip[hidden] { display: none; }
+.mode-chip { height: 30px; margin: 0 0 calc(var(--m) * 1); padding: 0 calc(var(--m) * 3); border: 0; border-radius: 99px; background: var(--panel); box-shadow: var(--raised-low); font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
 #chat-input { height: 48px; min-height: 48px; max-height: 140px; }
 .send-btn.stop { background: var(--ink); box-shadow: none; }
 

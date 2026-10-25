@@ -85,6 +85,7 @@
     if (s < 86400) return Math.floor(s / 3600) + "h";
     return Math.floor(s / 86400) + "d";
   }
+  const titleOf = (s) => s.title || (s.owner === "pc" ? "In the PC terminal" : "New chat");
   const folderName = (path) => (path || "").split(/[\\/]/).filter(Boolean).pop() || path;
 
   function renderHome() {
@@ -108,10 +109,11 @@
       text.className = "home-row-text";
       const title = document.createElement("span");
       title.className = "home-row-title";
-      title.textContent = s.title || "New chat";
+      title.textContent = titleOf(s);
       const meta = document.createElement("span");
       meta.className = "home-row-meta";
-      meta.textContent = [agents[s.agent] || s.agent, folderName(s.cwd), STATE_LABEL[s.state] || ago(s.updated)].filter(Boolean).join(" · ");
+      const where = s.owner === "pc" ? "In PC terminal" : s.owner === "moving" ? "Moving here…" : STATE_LABEL[s.state] || ago(s.updated);
+      meta.textContent = [agents[s.agent] || s.agent, folderName(s.cwd), where].filter(Boolean).join(" · ");
       text.append(title, meta);
       row.append(dot, text);
       row.addEventListener("click", () => go("#chat/" + encodeURIComponent(s.sid)));
@@ -199,7 +201,7 @@
     const s = summaryOf(c.sid) || {};
     $("chat-agent").textContent = agents[s.agent] || s.agent || "Chat";
     $("chat-status").textContent = STATE_LABEL[c.state] || folderName(s.cwd) || "";
-    $("chat-title").textContent = s.title || "New chat";
+    $("chat-title").textContent = titleOf(s);
     $("chat-view").dataset.state = c.state;
     const busy = c.state === "thinking" || c.state === "needs_you";
     chatSend.classList.toggle("stop", busy);
@@ -208,6 +210,17 @@
     const mode = c.modes.find((m) => m.id === c.mode);
     modeChip.hidden = c.modes.length < 2;
     modeChip.textContent = mode ? mode.name : "Mode";
+    // A `tp` session: the PC terminal holds it until the phone takes it over
+    const owner = s.owner;
+    const onPc = owner === "pc" || owner === "moving";
+    $("handoff-bar").hidden = !onPc;
+    $("chat-input-bar").hidden = onPc;
+    $("handoff-actions").hidden = owner !== "pc";
+    $("handoff-text").textContent = owner === "moving"
+      ? "Closing it on the PC and moving it here…"
+      : `${agents[s.agent] || "The agent"} is running in the PC terminal. Watch it there, or take it over to continue here as a chat.`;
+    $("btn-giveback").hidden = owner !== "phone";
+    if (onPc) modeChip.hidden = true;
   }
 
   function nearBottom() {
@@ -512,6 +525,13 @@
       growInput();
       triggerHaptic(10);
     }
+  });
+  $("btn-watch").addEventListener("click", () => go("#terminal"));
+  $("btn-takeover").addEventListener("click", () => {
+    if (current && send({ type: "CHAT_TAKEOVER", sid: current })) triggerHaptic(15);
+  });
+  $("btn-giveback").addEventListener("click", () => {
+    if (current && send({ type: "CHAT_GIVEBACK", sid: current })) showToast("Back in the PC terminal");
   });
   modeChip.addEventListener("click", () => {
     const c = current && chatFor(current);

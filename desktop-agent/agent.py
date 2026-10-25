@@ -360,6 +360,11 @@ def start_pty_session():
             "-NoExit",
             "-Command",
             (
+                # Dot-sourced outside the block below, so `tp` stays defined in the session. Read
+                # as text: a Restricted execution policy would refuse to run the .ps1 file itself.
+                ". ([ScriptBlock]::Create([IO.File]::ReadAllText('"
+                + os.path.join(os.path.dirname(os.path.abspath(__file__)), "tp.ps1").replace("'", "''")
+                + "'))); "
                 "& { "
                 "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; "
                 "[Console]::InputEncoding = [System.Text.Encoding]::UTF8; "
@@ -559,7 +564,7 @@ async def start_agent():
 
     print(f"Connecting Desktop Agent (ID: {device_id[:8]}...) to Relay Server...")
     # Chat sessions outlive any one relay link, like the PTY
-    chats = AcpHost(send_to_relay, child_env)
+    chats = AcpHost(send_to_relay, child_env, safe_pty_write)
 
     while True:
         try:
