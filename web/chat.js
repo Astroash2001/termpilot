@@ -134,6 +134,14 @@
   function closeNewChat() {
     newModal.style.display = "none";
   }
+  // ── Home guide (the i button) ───────────────────────────────────────────
+  const guideModal = $("home-guide-modal");
+  const showGuide = (on) => { triggerHaptic(15); guideModal.style.display = on ? "flex" : "none"; };
+  $("btn-home-guide").addEventListener("click", () => showGuide(true));
+  $("home-guide-close").addEventListener("click", () => showGuide(false));
+  $("home-guide-ok").addEventListener("click", () => showGuide(false));
+  guideModal.addEventListener("click", (e) => { if (e.target === guideModal) showGuide(false); });
+
   $("btn-new-chat").addEventListener("click", openNewChat);
   $("new-chat-close").addEventListener("click", closeNewChat);
   newModal.addEventListener("click", (e) => { if (e.target === newModal) closeNewChat(); });

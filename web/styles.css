@@ -1087,6 +1087,8 @@ body[data-view="chat"] #chat-view { display: flex; }
 .view-bar { display: flex; align-items: center; justify-content: space-between; min-height: 36px; }
 .view-bar .wordmark { font-size: 12px; }
 .view-title { font-size: calc(34 * var(--pt)); font-weight: 600; letter-spacing: -0.02em; margin-top: calc(var(--m) * 3); }
+.view-title-row { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--m) * 3); margin-top: calc(var(--m) * 3); }
+.view-title-row .view-title { margin-top: 0; }
 .view-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 0 calc(var(--m) * 4) calc(var(--m) * 4); overscroll-behavior: contain; }
 .view-foot { flex-shrink: 0; padding: calc(var(--m) * 3) calc(var(--m) * 4) max(calc(var(--m) * 3), env(safe-area-inset-bottom)); }
 
