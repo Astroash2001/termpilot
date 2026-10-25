@@ -1106,6 +1106,7 @@ body[data-view="chat"] #chat-view { display: flex; }
 }
 .home-row:active { background: var(--panel-low); }
 .terminal-row { margin-bottom: calc(var(--m) * 5); }
+.home-row[hidden] { display: none; }
 .row-icon { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 10px; background: var(--screen); color: var(--screen-text); }
 .row-icon .i { width: 18px; height: 18px; }
 .home-row .chevron { color: var(--ink-soft); }

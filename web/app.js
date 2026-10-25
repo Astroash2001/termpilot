@@ -821,7 +821,7 @@ function connect() {
       setConnected(true);
       adaptFontSizeToPty();
       offerGuideOnce();
-      window.Chat?.onConnected();
+      window.Chat?.onConnected(payload);
     } else if (typeof payload.type === "string" && payload.type.startsWith("CHAT_")) {
       window.Chat?.onMessage(payload);
     } else if (payload.type === "RAW") {

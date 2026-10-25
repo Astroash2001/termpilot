@@ -19,6 +19,9 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 import uvicorn
 import qrcode
+from py_vapid import Vapid, b64urlencode
+from pywebpush import webpush, WebPushException
+from cryptography.hazmat.primitives import serialization
 
 # Emoji status lines crash startup with UnicodeEncodeError when stdout is redirected
 # (Windows then falls back to cp1252). Force UTF-8 and never fail on a character.
@@ -55,6 +58,7 @@ app = FastAPI(title="TermPilot Relay Backend", lifespan=lifespan)
 WEB_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web")
 DEVICES_FILE = os.path.join(os.path.dirname(__file__), "devices.json")
 AUTH_FILE = os.path.join(os.path.dirname(__file__), "auth.json")
+PUSH_FILE = os.path.join(os.path.dirname(__file__), "push.json")
 
 pairing_codes = {}
 registered_devices = {}
@@ -123,6 +127,73 @@ class PairingVerifyRequest(BaseModel):
     code: str
     device_name: str = "Windows-PC"
 
+# ── Alerts (Web Push) ──────────────────────────────────────────────────────
+# The relay signs pushes with its own VAPID key and sends them through the phone browser's
+# push service (Google, Apple, Mozilla). The payload is end-to-end encrypted to the phone.
+# VAPID contact claim. Apple requires one, and py_vapid accepts only mailto: or a bare https origin
+PUSH_SUB = "https://github.com"
+MAX_PUSH_SUBSCRIPTIONS = 10
+
+def load_push() -> dict:
+    """VAPID key pair and the phones' push subscriptions. The private key lets anyone send
+    alerts as this relay, so it lives only in push.json (gitignored)."""
+    if os.path.exists(PUSH_FILE):
+        try:
+            with open(PUSH_FILE, "r") as f:
+                d = json.load(f)
+            if d.get("private_key") and d.get("public_key"):
+                d.setdefault("subscriptions", [])
+                return d
+        except Exception as e:
+            print(f"Error reading push.json, generating a new alert key: {e}")
+    v = Vapid()
+    v.generate_keys()
+    raw = v.public_key.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
+    d = {"private_key": v.private_pem().decode(), "public_key": b64urlencode(raw), "subscriptions": []}
+    save_push(d)
+    return d
+
+def save_push(d: dict):
+    with open(PUSH_FILE, "w") as f:
+        json.dump(d, f, indent=4)
+
+PUSH = load_push()
+PUSH_VAPID = Vapid.from_pem(PUSH["private_key"].encode())
+
+def valid_subscription(sub) -> bool:
+    """A PushSubscription.toJSON() from the phone. The relay POSTs to its endpoint, so only https."""
+    if not isinstance(sub, dict):
+        return False
+    endpoint, keys = sub.get("endpoint"), sub.get("keys")
+    return (isinstance(endpoint, str) and endpoint.startswith("https://") and len(endpoint) < 2000
+            and isinstance(keys, dict)
+            and all(isinstance(keys.get(k), str) and 0 < len(keys[k]) < 200 for k in ("p256dh", "auth")))
+
+def add_subscription(sub: dict):
+    subs = [s for s in PUSH["subscriptions"] if s["endpoint"] != sub["endpoint"]]
+    subs.append({"endpoint": sub["endpoint"], "keys": {"p256dh": sub["keys"]["p256dh"], "auth": sub["keys"]["auth"]}})
+    PUSH["subscriptions"] = subs[-MAX_PUSH_SUBSCRIPTIONS:]
+    save_push(PUSH)
+
+def send_push(subs: list, alert: dict) -> list:
+    """Blocking: posts one alert to every subscription. Returns the endpoints the push service
+    says are gone (the phone unsubscribed or cleared site data)."""
+    gone = []
+    data = json.dumps(alert)
+    for sub in subs:
+        try:
+            # webpush fills aud/exp into the claims dict, so each push service gets a fresh one
+            webpush(sub, data, vapid_private_key=PUSH_VAPID, vapid_claims={"sub": PUSH_SUB},
+                    ttl=3600, timeout=10, headers={"Urgency": "high"})
+        except WebPushException as e:
+            if e.response is not None and e.response.status_code in (404, 410):
+                gone.append(sub["endpoint"])
+            else:
+                print(f"⚠️ Alert not sent: {printable(e, 200)}")
+        except Exception as e:
+            print(f"⚠️ Alert not sent: {printable(e, 200)}")
+    return gone
+
 ALT_SCREEN_SWITCH = re.compile(r"\x1b\[\?(?:1049|1047|47)([hl])")
 
 class ConnectionManager:
@@ -141,6 +212,11 @@ class ConnectionManager:
         self._alt_screen: bool = False
         self.pty_cols: int = None
         self.pty_rows: int = None
+        # Phones showing TermPilot right now; alerts go out only when there are none
+        self.visible: set = set()
+        # From the agent's chat messages: what an alert says and when one is due
+        self.chat_names: dict = {}   # sid -> (agent name, chat title)
+        self.chat_states: dict = {}  # sid -> last CHAT_STATE
 
     async def connect_agent(self, websocket: WebSocket):
         # Caller has already accepted and authenticated the socket
@@ -180,6 +256,42 @@ class ConnectionManager:
     def disconnect_client(self, websocket: WebSocket):
         if websocket in self.client_ws:
             self.client_ws.remove(websocket)
+        self.visible.discard(websocket)
+
+    def alert_for(self, message: dict):
+        """The alert a chat message from the agent calls for, or None: an agent asks to run a
+        tool, finishes a turn, or stops on an error."""
+        kind, sid = message.get("type"), message.get("sid")
+        if kind == "CHAT_SESSIONS":
+            agents = message.get("agents") or {}
+            for s in message.get("sessions") or []:
+                if isinstance(s, dict) and isinstance(s.get("sid"), str):
+                    self.chat_names[s["sid"]] = (agents.get(s.get("agent"), "Agent"), s.get("title") or "")
+            return None
+        if not isinstance(sid, str):
+            return None
+        agent, title = self.chat_names.get(sid, ("Agent", ""))
+        alert = {"tag": sid, "url": f"/#chat/{sid}"}
+        if kind == "CHAT_PERMISSION":
+            tool = message.get("toolCall") or {}
+            return {**alert, "title": f"{agent} needs your OK", "body": str(tool.get("title") or title)[:200]}
+        if kind == "CHAT_STATE":
+            state, before = message.get("state"), self.chat_states.get(sid)
+            self.chat_states[sid] = state
+            if state == "idle" and before in ("thinking", "needs_you"):
+                return {**alert, "title": f"{agent} is done", "body": title[:200]}
+            if state == "error" and before != "error":
+                return {**alert, "title": f"{agent} stopped", "body": str(message.get("reason") or title)[:200]}
+        return None
+
+    async def maybe_alert(self, message: dict):
+        alert = self.alert_for(message)
+        if not alert or self.visible or not PUSH["subscriptions"]:
+            return
+        gone = await asyncio.to_thread(send_push, list(PUSH["subscriptions"]), alert)
+        if gone:
+            PUSH["subscriptions"] = [s for s in PUSH["subscriptions"] if s["endpoint"] not in gone]
+            save_push(PUSH)
 
     def _buffer_output(self, data: str):
         """Append terminal output to the scrollback buffer, trimming old data if over cap."""
@@ -283,11 +395,18 @@ def serve_css():
 
 @app.get("/app.js")
 @app.get("/chat.js")
+@app.get("/sw.js")
 def serve_js(request: Request):
     path = os.path.join(WEB_DIR, request.url.path.lstrip("/"))
     with open(path, "r", encoding="utf-8") as f:
         content = f.read()
     return Response(content=content, media_type="application/javascript", headers=NO_CACHE_HEADERS)
+
+@app.get("/manifest.json")
+def serve_manifest():
+    with open(os.path.join(WEB_DIR, "manifest.json"), "r", encoding="utf-8") as f:
+        content = f.read()
+    return Response(content=content, media_type="application/manifest+json", headers=NO_CACHE_HEADERS)
 
 FONTS_DIR = os.path.join(WEB_DIR, "fonts")
 
@@ -407,6 +526,7 @@ async def websocket_agent(websocket: WebSocket):
                 continue
             if isinstance(payload, dict):
                 await manager.broadcast_to_clients(payload)
+                asyncio.create_task(manager.maybe_alert(payload))
     except WebSocketDisconnect:
         pass
     finally:
@@ -431,7 +551,7 @@ async def websocket_client(websocket: WebSocket):
             pass
         return
 
-    await websocket.send_text(json.dumps({"type": "AUTH_OK"}))
+    await websocket.send_text(json.dumps({"type": "AUTH_OK", "push_key": PUSH["public_key"]}))
     await manager.connect_client(websocket)
     try:
         while True:
@@ -445,6 +565,14 @@ async def websocket_client(websocket: WebSocket):
             # Only relay known message types. Content is deliberately not logged:
             # keystrokes can include passwords.
             kind = payload.get('type')
+            # Relay-only messages: alert subscription and whether this phone shows TermPilot
+            if kind == "PUSH_SUBSCRIBE":
+                if valid_subscription(payload.get("sub")):
+                    add_subscription(payload["sub"])
+                continue
+            if kind == "VISIBLE":
+                (manager.visible.add if payload.get("visible") else manager.visible.discard)(websocket)
+                continue
             if not (kind in ("INPUT", "RESIZE") or (isinstance(kind, str) and kind.startswith("CHAT_"))):
                 continue
             # The agent's socket closes on messages over 1 MiB; one oversized paste must not cut it off

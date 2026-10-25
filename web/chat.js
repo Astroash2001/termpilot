@@ -627,9 +627,59 @@
     }
   }
 
-  function onConnected() {
+  // ── Alerts: push notifications while TermPilot is closed or the phone is locked ──
+  // The relay sends one when an agent needs an answer, finishes, or stops, but only while
+  // no phone has TermPilot on screen (VISIBLE).
+  const alertsRow = $("alerts-row");
+  const canPush = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+  // iPhone offers push only to sites opened from the Home Screen
+  const needsHomeScreen = !canPush && /iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone;
+  const swReady = canPush ? navigator.serviceWorker.register("/sw.js").then(() => navigator.serviceWorker.ready) : null;
+  let pushKey = null;
+
+  function renderAlerts() {
+    alertsRow.hidden = !(needsHomeScreen || (canPush && pushKey && Notification.permission === "default"));
+    if (needsHomeScreen) $("alerts-sub").textContent = "On iPhone, add TermPilot to your Home Screen first";
+  }
+
+  const keyBytes = (b64) => Uint8Array.from(atob(b64.replace(/-/g, "+").replace(/_/g, "/")), (ch) => ch.charCodeAt(0));
+
+  async function subscribe() {
+    const reg = await swReady;
+    let sub = await reg.pushManager.getSubscription();
+    // A new relay key (push.json deleted) makes the old subscription useless
+    if (sub && localStorage.getItem("termpilot_push_key") !== pushKey) { await sub.unsubscribe(); sub = null; }
+    if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: keyBytes(pushKey) });
+    localStorage.setItem("termpilot_push_key", pushKey);
+    send({ type: "PUSH_SUBSCRIBE", sub: sub.toJSON() }, true);
+  }
+
+  alertsRow.addEventListener("click", async () => {
+    if (needsHomeScreen) return showToast("Tap Share, then Add to Home Screen, and open TermPilot from there");
+    try {
+      if (await Notification.requestPermission() === "granted") { await subscribe(); showToast("Alerts on"); }
+      else showToast("Alerts are blocked in this browser's site settings");
+    } catch (e) {
+      showToast("Could not turn on alerts: " + e.message);
+    }
+    renderAlerts();
+  });
+
+  const reportVisible = () => send({ type: "VISIBLE", visible: document.visibilityState === "visible" }, true);
+  document.addEventListener("visibilitychange", reportVisible);
+  // A tapped alert asks the already open page to show its chat
+  navigator.serviceWorker?.addEventListener("message", (e) => {
+    if (e.data?.type === "OPEN") location.hash = new URL(e.data.url).hash;
+  });
+
+  function onConnected(auth) {
     send({ type: "CHAT_LIST" });
     if (current) send({ type: "CHAT_OPEN", sid: current, since: chatFor(current).seq });
+    reportVisible();
+    pushKey = auth?.push_key || null;
+    renderAlerts();
+    // Re-sent on every connect: the relay may have lost it, or the browser rotated it
+    if (pushKey && canPush && Notification.permission === "granted") subscribe().catch(() => {});
   }
 
   window.Chat = { onMessage, onConnected };

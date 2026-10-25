@@ -12,6 +12,7 @@ The phone opens to a list of chats. **New chat** picks an agent and a folder on 
 * Modes that approve every tool without asking (`bypassPermissions`, `yolo`) are never offered on the phone.
 * Chats survive a dropped connection, a locked phone and a relay restart; after a PC agent restart they reopen with the agent's own history.
 * **Handoff between PC and phone** (like Happy): in the TermPilot terminal type `tp claude` instead of `claude`. Claude runs there as usual and appears in the phone's chat list as *In PC terminal*. **Take over** on the phone closes it on the PC and continues the same session as a chat, with its history; press Enter in the PC terminal (or **Give back to PC** on the phone) and it resumes there with everything said on the phone. Claude Code only for now: Codex picks its own session ids.
+* **Alerts**: tap *Turn on alerts* on the home screen and the phone gets a notification when an agent needs your OK, finishes, or stops, while TermPilot is closed or the phone is locked. Tapping it opens that chat. The relay signs alerts with its own key (`backend/push.json`, gitignored) and sends them end-to-end encrypted through the browser's push service. On iPhone, add TermPilot to the Home Screen first (iOS 16.4+).
 * Setup, once: `npm ci --prefix desktop-agent/acp --ignore-scripts` installs the pinned Claude Code and Codex adapters. Gemini CLI speaks the protocol itself (`gemini --acp`). Each agent uses the login it already has on the PC.
 
 ---

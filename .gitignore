@@ -31,3 +31,6 @@ Thumbs.db
 
 # ACP adapters, installed from desktop-agent/acp/package.json
 node_modules/
+
+# Alert signing key and phone push subscriptions
+push.json

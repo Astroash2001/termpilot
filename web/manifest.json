@@ -1,0 +1,9 @@
+{
+  "name": "TermPilot",
+  "short_name": "TermPilot",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ecebe7",
+  "theme_color": "#ecebe7",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

@@ -12,8 +12,9 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=24">
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
+  <link rel="manifest" href="/manifest.json">
   <link rel="preload" href="/fonts/plex-sans.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=69">
+  <link rel="stylesheet" href="styles.css?v=70">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -286,6 +287,10 @@
         <span class="home-row-text"><span class="home-row-title">Terminal</span><span id="terminal-card-sub" class="home-row-meta">PowerShell on your PC</span></span>
         <svg class="i chevron"><use href="#i-right"/></svg>
       </button>
+      <button id="alerts-row" class="home-row terminal-row" hidden>
+        <span class="row-icon"><svg class="i"><use href="#i-bell"/></svg></span>
+        <span class="home-row-text"><span class="home-row-title">Turn on alerts</span><span id="alerts-sub" class="home-row-meta">Know when an agent needs your OK or is done</span></span>
+      </button>
       <div id="chat-sessions" class="home-sessions"></div>
     </div>
     <div class="view-foot">
@@ -342,10 +347,10 @@
     </div>
   </div>
 
-  <script src="app.js?v=69"></script>
+  <script src="app.js?v=70"></script>
   <!-- Agent replies are Markdown; DOMPurify strips anything executable before it is shown -->
   <script src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js" integrity="sha384-2vpGtuKqJvFlwJqYnf/wUMuzUfhUnYBt9oay0e2yaFcq0Dh6/aEbQ8YAOeKGzlYo" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js" integrity="sha384-a7SzOxErzJ3ZpQz0zJ32d67dSitNzPcbfybc/ykU9KJhMgZkwqfSxlhhdJRS+XGL" crossorigin="anonymous"></script>
-  <script src="chat.js?v=69"></script>
+  <script src="chat.js?v=70"></script>
 </body>
 </html>
