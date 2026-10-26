@@ -515,6 +515,11 @@
     chatInput.style.height = Math.min(Math.max(chatInput.scrollHeight, 48), 140) + "px";
   }
   chatInput.addEventListener("input", growInput);
+  // Same dictation as the terminal's mic (app.js), speaking into this composer instead
+  $("chat-mic").addEventListener("click", (e) => {
+    e.preventDefault();
+    toggleListening(chatInput, e.currentTarget, growInput);
+  });
   chatInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey && !e.isComposing) {
       e.preventDefault();

@@ -1197,6 +1197,10 @@ new ResizeObserver(() => {
 let recognition = null;
 let isListening = false;
 let voiceBasePrompt = "";
+// Where speech goes: the terminal prompt box, or a chat's composer (chat.js passes its own)
+let voiceInput = mobileInput;
+let voiceBtn = btnMic;
+let voiceGrow = () => autoGrowInput();
 
 const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
 
@@ -1209,9 +1213,9 @@ if (SpeechRecognitionAPI) {
   recognition.onstart = () => {
     isListening = true;
     // Capture current prompt text so new speech appends seamlessly without erasing prior input
-    voiceBasePrompt = (mobileInput.value || "").trim();
-    btnMic.classList.add("listening");
-    btnMic.title = "Listening... tap to stop";
+    voiceBasePrompt = (voiceInput.value || "").trim();
+    voiceBtn.classList.add("listening");
+    voiceBtn.title = "Listening... tap to stop";
   };
 
   recognition.onresult = (event) => {
@@ -1221,11 +1225,11 @@ if (SpeechRecognitionAPI) {
     }
     if (transcript) {
       const cleanTranscript = transcript.trim();
-      mobileInput.value = voiceBasePrompt ? `${voiceBasePrompt} ${cleanTranscript}` : cleanTranscript;
-      autoGrowInput();
+      voiceInput.value = voiceBasePrompt ? `${voiceBasePrompt} ${cleanTranscript}` : cleanTranscript;
+      voiceGrow();
       // Auto-scroll to the end so newest spoken words are always visible
-      mobileInput.scrollTop = mobileInput.scrollHeight;
-      mobileInput.selectionStart = mobileInput.selectionEnd = mobileInput.value.length;
+      voiceInput.scrollTop = voiceInput.scrollHeight;
+      voiceInput.selectionStart = voiceInput.selectionEnd = voiceInput.value.length;
     }
   };
 
@@ -1241,11 +1245,11 @@ if (SpeechRecognitionAPI) {
 
 function stopListening() {
   isListening = false;
-  btnMic.classList.remove("listening");
-  btnMic.title = "Voice Input";
+  voiceBtn.classList.remove("listening");
+  voiceBtn.title = "Voice input";
 }
 
-function toggleListening() {
+function toggleListening(input = mobileInput, button = btnMic, grow = () => autoGrowInput()) {
   if (!SpeechRecognitionAPI) {
     showToast("Voice input needs Chrome or Safari");
     return;
@@ -1254,6 +1258,9 @@ function toggleListening() {
     recognition.stop();
     stopListening();
   } else {
+    voiceInput = input;
+    voiceBtn = button;
+    voiceGrow = grow;
     try {
       recognition.start();
     } catch (e) {
