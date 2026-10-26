@@ -36,7 +36,7 @@ The phone opens to a list of chats. **New chat** picks an agent and a folder on 
 graph TB
     subgraph S1["[STEP 1] 🌐 Relay Server Startup & Tunneling (backend/)"]
         direction TB
-        HTTPRoutes["📡 HTTP REST Endpoints<br/>• /api/pairing/create (6-Digit OTP)<br/>• /api/pairing/verify (Device Auth)<br/>• Static Web Assets Server"]
+        HTTPRoutes["📡 HTTP REST Endpoints<br/>• Pairing codes over the phone WebSocket (6-Digit OTP)<br/>• /api/pairing/verify (Device Auth)<br/>• Static Web Assets Server"]
         Tunnel["🚇 ngrok Tunnel Engine<br/>• Auto-Provisioned HTTPS Public URL<br/>• Secure Encrypted 5G/LTE Tunnel"]
         WSManager["⚡ Connection & Buffer Manager<br/>• /ws/client (Client WebSockets)<br/>• /ws/agent (Authenticated Agent WS)<br/>• 100KB Scrollback History Ring Buffer<br/>• PTY Dimension Caching & Relay"]
         DeviceStore[("💾 devices.json<br/>Registered Device Store")]

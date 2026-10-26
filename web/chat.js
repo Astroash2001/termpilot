@@ -300,7 +300,9 @@
     dirtyText.clear();
     if (current) keepBottom(chatFor(current), wasNear);
   }
-  const PURIFY = { FORBID_TAGS: ["img", "style", "form", "input", "button", "iframe", "svg", "math"], FORBID_ATTR: ["style"] };
+  // class and id are forbidden too: with them a reply could wear the page's own classes (a
+  // full-screen .overlay copy of the lock screen) or hijack getElementById for real controls.
+  const PURIFY = { FORBID_TAGS: ["img", "style", "form", "input", "button", "iframe", "svg", "math"], FORBID_ATTR: ["style", "class", "id"] };
   if (window.DOMPurify) {
     DOMPurify.addHook("afterSanitizeAttributes", (node) => {
       if (node.tagName === "A") { node.setAttribute("target", "_blank"); node.setAttribute("rel", "noopener noreferrer"); }

@@ -1,6 +1,8 @@
 """Self-check for the agent/relay handshake. Run: venv\\Scripts\\python.exe test_relay_auth.py"""
 import asyncio
 import json
+import os
+import tempfile
 
 import agent
 
@@ -41,7 +43,57 @@ async def main():
     odd.outbox = [json.dumps({"type": "INPUT", "data": "whoami\r"})]
     assert not await agent.prove_identities(odd, "dev-1", SECRET)
     assert odd.inbox == []
+
+    check_pairing()
     print("relay auth: all checks passed")
+
+
+class FakeResponse:
+    def __init__(self, body):
+        self.body = json.dumps(body).encode()
+
+    def read(self):
+        return self.body
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        return False
+
+
+def check_pairing():
+    """Pairing saves credentials only from the relay that holds the key in this user's profile."""
+    key_dir = tempfile.mkdtemp()
+    relay_key = "k" * 64
+    with open(os.path.join(key_dir, "relay.key"), "w") as f:
+        f.write(relay_key)
+    agent.RELAY_KEY_FILE = os.path.join(key_dir, "relay.key")
+    saved = []
+    agent.save_config = saved.append  # never touch the real config.json
+
+    def relay_answering(honest):
+        def urlopen(req):
+            nonce = json.loads(req.data)["nonce"]
+            assert len(nonce) >= 32
+            key = relay_key.encode() if honest else b"squatter guess"
+            return FakeResponse({"device_id": "d1", "secret_key": "s1", "proof": agent.pairing_proof(key, nonce, "d1", "s1")})
+        return urlopen
+
+    agent.urllib.request.urlopen = relay_answering(honest=True)
+    assert agent.pair_device("123456", "PC") and saved[-1]["secret_key"] == "s1"
+
+    # A squatter on port 8000 can't prove the key, so nothing it hands back is saved
+    saved.clear()
+    agent.urllib.request.urlopen = relay_answering(honest=False)
+    assert not agent.pair_device("123456", "PC") and saved == []
+
+    # No relay key yet (the relay never ran as this user): refuse before sending anything
+    def must_not_send(req):
+        raise AssertionError("pairing request sent without a relay key")
+    agent.urllib.request.urlopen = must_not_send
+    agent.RELAY_KEY_FILE = os.path.join(key_dir, "missing.key")
+    assert not agent.pair_device("123456", "PC") and saved == []
 
 
 asyncio.run(main())

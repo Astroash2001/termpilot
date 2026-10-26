@@ -9,7 +9,9 @@ import asyncio
 import uuid
 import subprocess
 import time
-import urllib.request
+import queue
+import threading
+import urllib.parse
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
@@ -85,6 +87,31 @@ def load_or_create_access_key(rotate: bool = False) -> str:
 
 ACCESS_KEY = load_or_create_access_key()
 
+# Shared with the desktop agent through the user's profile, which other Windows accounts can't
+# read. At pairing the relay MACs the agent's nonce with it, so the agent can tell this relay
+# from a process another account parked on port 8000 while the relay was down.
+RELAY_KEY_FILE = os.path.join(os.path.expanduser("~"), ".termpilot", "relay.key")
+
+def load_or_create_relay_key() -> bytes:
+    try:
+        with open(RELAY_KEY_FILE, "r") as f:
+            key = f.read().strip()
+        if len(key) >= 64:
+            return key.encode()
+    except OSError:
+        pass
+    os.makedirs(os.path.dirname(RELAY_KEY_FILE), exist_ok=True)
+    key = secrets.token_hex(32)
+    with open(RELAY_KEY_FILE, "w") as f:
+        f.write(key)
+    return key.encode()
+
+RELAY_KEY = load_or_create_relay_key()
+
+def pairing_proof(nonce: str, device_id: str, secret_key: str) -> str:
+    """Must match desktop-agent/agent.py."""
+    return hmac.new(RELAY_KEY, f"pair:{nonce}:{device_id}:{secret_key}".encode(), hashlib.sha256).hexdigest()
+
 def is_valid_access_key(key) -> bool:
     return isinstance(key, str) and hmac.compare_digest(key.encode(), ACCESS_KEY.encode())
 
@@ -126,6 +153,7 @@ def save_registered_devices():
 class PairingVerifyRequest(BaseModel):
     code: str
     device_name: str = "Windows-PC"
+    nonce: str = ""  # the agent's fresh challenge, answered with pairing_proof
 
 # ── Alerts (Web Push) ──────────────────────────────────────────────────────
 # The relay signs pushes with its own VAPID key and sends them through the phone browser's
@@ -331,26 +359,54 @@ def start_ngrok_tunnel():
     print("\n🚀 Starting ngrok tunnel automatically...")
     try:
         ngrok_process = subprocess.Popen(
-            # Explicit IPv4 loopback: the server only listens on 127.0.0.1 by default
-            ["ngrok", "http", "127.0.0.1:8000", "--host-header=rewrite"],
+            # Explicit IPv4 loopback: the server only listens on 127.0.0.1 by default.
+            # --inspect=false: ngrok's inspector on port 4040 would keep every request, headers
+            # included, where any local account can read it.
+            # The URL is read from this child's own log, never from whatever answers on 4040:
+            # another account could squat that port and hand back its own site for the QR code.
+            ["ngrok", "http", "127.0.0.1:8000", "--host-header=rewrite", "--inspect=false",
+             "--log=stdout", "--log-format=json"],
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.DEVNULL
         )
-        time.sleep(2.5)
-        
-        req = urllib.request.Request("http://127.0.0.1:4040/api/tunnels")
-        with urllib.request.urlopen(req) as res:
-            data = json.loads(res.read().decode('utf-8'))
-            tunnels = data.get("tunnels", [])
-            for t in tunnels:
-                if t.get("proto") == "https":
-                    public_url = t.get("public_url")
-                    print("="*65)
-                    print(f"📱 PUBLIC PHONE URL: {public_url}")
-                    print("="*65 + "\n")
-                    return public_url
+        found = queue.Queue()
+
+        def read_log():
+            # Keeps draining after the URL, or ngrok would block on a full pipe
+            for line in ngrok_process.stdout:
+                url = tunnel_url_from_log(line)
+                if url:
+                    found.put(url)
+
+        threading.Thread(target=read_log, daemon=True).start()
+        try:
+            public_url = found.get(timeout=20)
+        except queue.Empty:
+            print("⚠️ ngrok did not report an https ngrok tunnel; only the local link is shown.")
+            return None
+        print("="*65)
+        print(f"📱 PUBLIC PHONE URL: {public_url}")
+        print("="*65 + "\n")
+        return public_url
     except Exception as e:
         print(f"⚠️ Could not auto-start ngrok tunnel: {e}")
+
+NGROK_HOST_SUFFIXES = (".ngrok-free.app", ".ngrok-free.dev", ".ngrok.app", ".ngrok.dev", ".ngrok.io")
+
+def tunnel_url_from_log(line) -> str:
+    """The public URL in one of our ngrok child's JSON log lines, or None. The access key is
+    appended to it for the QR code, so only https on an ngrok host passes."""
+    try:
+        record = json.loads(line)
+    except ValueError:
+        return None
+    if not isinstance(record, dict) or record.get("msg") != "started tunnel" or not isinstance(record.get("url"), str):
+        return None
+    parts = urllib.parse.urlsplit(record["url"])
+    host = (parts.hostname or "").lower()
+    if parts.scheme != "https" or parts.port or parts.username or not host.endswith(NGROK_HOST_SUFFIXES):
+        return None
+    return f"https://{host}"
 
 # Browser hardening for every HTTP response. DENY framing so another site can't overlay
 # the UI and trick taps into shell commands. 'unsafe-inline' scripts are still needed
@@ -427,12 +483,9 @@ def serve_favicon():
         content = f.read()
     return Response(content=content, media_type="image/svg+xml", headers=NO_CACHE_HEADERS)
 
-# 1. Generate 6-Digit Pairing Code (only an authenticated phone may ask)
-@app.post("/api/pairing/create")
-def create_pairing_code(request: Request):
-    auth = request.headers.get("authorization", "")
-    if not is_valid_access_key(auth.removeprefix("Bearer ").strip()):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+# 1. Generate 6-Digit Pairing Code. Only an authenticated phone may ask, and it asks on the
+# WebSocket (AUTH with purpose "pair"): an HTTP request would carry the access key in a header.
+def new_pairing_code() -> dict:
     now = datetime.now(timezone.utc)
     for stale in [c for c, info in pairing_codes.items() if info["used"] or now > info["expires_at"]]:
         del pairing_codes[stale]
@@ -440,7 +493,7 @@ def create_pairing_code(request: Request):
     expires = now + timedelta(minutes=10)
     pairing_codes[code] = {"expires_at": expires, "used": False}
     print(f"🔑 Generated 6-Digit Pairing Code: {code}")
-    return {"code": code, "expires_at": expires.isoformat()}
+    return {"type": "PAIR_CODE", "code": code, "expires_at": expires.isoformat()}
 
 # 2. Verify 6-Digit Pairing Code (Called by Desktop Agent)
 @app.post("/api/pairing/verify")
@@ -461,6 +514,8 @@ def verify_pairing(req: PairingVerifyRequest, request: Request):
         raise HTTPException(status_code=400, detail="Pairing code already used")
     if datetime.now(timezone.utc) > code_info["expires_at"]:
         raise HTTPException(status_code=400, detail="Pairing code expired")
+    if len(req.nonce) < 32 or len(req.nonce) > 128:
+        raise HTTPException(status_code=400, detail="Update the desktop agent, then pair again")
 
     device_id = str(uuid.uuid4())
     secret_key = str(uuid.uuid4())
@@ -476,7 +531,8 @@ def verify_pairing(req: PairingVerifyRequest, request: Request):
     return {
         "status": "SUCCESS",
         "device_id": device_id,
-        "secret_key": secret_key
+        "secret_key": secret_key,
+        "proof": pairing_proof(req.nonce, device_id, secret_key)
     }
 
 # 3. Authenticated Agent WebSocket Endpoint
@@ -551,6 +607,10 @@ async def websocket_client(websocket: WebSocket):
             pass
         return
 
+    if first.get("purpose") == "pair":
+        await websocket.send_text(json.dumps(new_pairing_code()))
+        await websocket.close()
+        return
     await websocket.send_text(json.dumps({"type": "AUTH_OK", "push_key": PUSH["public_key"]}))
     await manager.connect_client(websocket)
     try:

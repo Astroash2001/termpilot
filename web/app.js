@@ -1577,23 +1577,28 @@ function offerGuideOnce() {
 
 // ── Pairing ─────────────────────────────────────────────────────────────
 
-btnPair.addEventListener("click", async () => {
-  try {
-    btnPair.innerText = "Generating...";
-    const res = await fetch("/api/pairing/create", {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${getAccessKey()}` }
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+// Asked for on a WebSocket of its own, never over HTTP: ngrok and proxies log HTTP headers,
+// and the access key would be one of them.
+btnPair.addEventListener("click", () => {
+  btnPair.innerText = "Generating...";
+  let got = false;
+  const pairWs = new WebSocket(WS_URL);
+  pairWs.onopen = () => pairWs.send(JSON.stringify({ type: "AUTH", key: getAccessKey(), purpose: "pair" }));
+  pairWs.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type !== "PAIR_CODE") return;
+    got = true;
+    pairWs.close();
     pairingCodeBox.innerText = data.code;
     pairingCmdHint.innerText = `python agent.py --pair ${data.code} "Phone"`;
     pairingDisplay.style.display = "block";
     btnPair.style.display = "none";
-  } catch (err) {
+  };
+  pairWs.onclose = () => {
+    if (got) return;
     showToast("Could not make a pairing code. Is the server running?");
     btnPair.innerText = "Generate pairing code";
-  }
+  };
 });
 
 // Ensure column calculation updates once custom monospace fonts finish rendering

@@ -196,6 +196,15 @@ def device_mac(secret_key: str, role: str, nonce: str) -> str:
     """Proof of the device secret over the other side's fresh nonce. Must match backend/main.py."""
     return hmac.new(secret_key.encode(), f"{role}:{nonce}".encode(), hashlib.sha256).hexdigest()
 
+# Written by the relay into this user's profile, which other Windows accounts can't read. At
+# pairing the relay proves it holds it, so a process another account parked on port 8000 can't
+# hand the agent credentials of its own choosing.
+RELAY_KEY_FILE = os.path.join(os.path.expanduser("~"), ".termpilot", "relay.key")
+
+def pairing_proof(relay_key: bytes, nonce: str, device_id: str, secret_key: str) -> str:
+    """Must match backend/main.py."""
+    return hmac.new(relay_key, f"pair:{nonce}:{device_id}:{secret_key}".encode(), hashlib.sha256).hexdigest()
+
 async def prove_identities(ws, device_id: str, secret_key: str) -> bool:
     """Handshake with the relay. The secret never crosses the socket: the agent MACs the
     relay's nonce, and the relay must MAC the agent's nonce back before any INPUT is
@@ -290,13 +299,24 @@ def pair_device(pairing_code: str, device_name: str = None):
         device_name = platform.node() or "Windows-PC"
     
     print(f"\n🔑 Attempting pairing using code '{pairing_code}' for device '{device_name}'...")
+    try:
+        with open(RELAY_KEY_FILE, "r") as f:
+            relay_key = f.read().strip().encode()
+    except OSError:
+        print("❌ Start the relay first (python main.py in backend), then pair again.\n")
+        return False
     url = f"{BACKEND_HTTP_URL}/api/pairing/verify"
-    payload = json.dumps({"code": pairing_code, "device_name": device_name}).encode('utf-8')
-    
+    nonce = secrets.token_hex(16)
+    payload = json.dumps({"code": pairing_code, "device_name": device_name, "nonce": nonce}).encode('utf-8')
+
     req = urllib.request.Request(url, data=payload, headers={'Content-Type': 'application/json'})
     try:
         with urllib.request.urlopen(req) as response:
             res_data = json.loads(response.read().decode('utf-8'))
+            proof = pairing_proof(relay_key, nonce, str(res_data.get("device_id")), str(res_data.get("secret_key")))
+            if not hmac.compare_digest(str(res_data.get("proof", "")), proof):
+                print("❌ The program on port 8000 is not your TermPilot relay. Nothing was saved.\n")
+                return False
             config = {
                 "device_id": res_data["device_id"],
                 "secret_key": res_data["secret_key"],

@@ -1149,6 +1149,8 @@ body[data-view="chat"] #chat-view { display: flex; }
   box-shadow: var(--raised-low);
   white-space: pre-wrap;
 }
+/* Agent replies can't paint outside their bubble, whatever markup gets through */
+.msg-agent { contain: paint; }
 .msg-agent > * + * { margin-top: 0.6em; }
 .msg-agent h1, .msg-agent h2, .msg-agent h3, .msg-agent h4 { font-size: calc(17 * var(--pt)); font-weight: 600; }
 .msg-agent ul, .msg-agent ol { padding-left: 1.4em; }
