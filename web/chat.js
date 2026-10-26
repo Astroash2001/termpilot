@@ -85,7 +85,7 @@
     if (s < 86400) return Math.floor(s / 3600) + "h";
     return Math.floor(s / 86400) + "d";
   }
-  const titleOf = (s) => s.title || (s.owner === "pc" ? "In the PC terminal" : "New chat");
+  const titleOf = (s) => s.title || (s.owner === "pc" ? (s.window ? "Open on the laptop" : "In the PC terminal") : "New chat");
   const folderName = (path) => (path || "").split(/[\\/]/).filter(Boolean).pop() || path;
 
   function renderHome() {
@@ -112,7 +112,7 @@
       title.textContent = titleOf(s);
       const meta = document.createElement("span");
       meta.className = "home-row-meta";
-      const where = s.owner === "pc" ? "In PC terminal" : s.owner === "moving" ? "Moving here…" : STATE_LABEL[s.state] || ago(s.updated);
+      const where = s.owner === "pc" ? (s.window ? "On laptop" : "In PC terminal") : s.owner === "moving" ? "Moving here…" : STATE_LABEL[s.state] || ago(s.updated);
       meta.textContent = [agents[s.agent] || s.agent, folderName(s.cwd), where].filter(Boolean).join(" · ");
       text.append(title, meta);
       row.append(dot, text);
@@ -218,15 +218,18 @@
     const mode = c.modes.find((m) => m.id === c.mode);
     modeChip.hidden = c.modes.length < 2;
     modeChip.textContent = mode ? mode.name : "Mode";
-    // A `tp` session: the PC terminal holds it until the phone takes it over
+    // A `tp` session or a laptop window: the PC holds it until the phone takes it over
     const owner = s.owner;
     const onPc = owner === "pc" || owner === "moving";
     $("handoff-bar").hidden = !onPc;
     $("chat-input-bar").hidden = onPc;
     $("handoff-actions").hidden = owner !== "pc";
+    $("btn-watch").hidden = !!s.window; // a laptop window is not the terminal the phone can show
     $("handoff-text").textContent = owner === "moving"
       ? "Closing it on the PC and moving it here…"
-      : `${agents[s.agent] || "The agent"} is running in the PC terminal. Watch it there, or take it over to continue here as a chat.`;
+      : s.window
+        ? `${agents[s.agent] || "The agent"} is open in a window on your laptop. Take it over to continue here; Give back reopens it in that window.`
+        : `${agents[s.agent] || "The agent"} is running in the PC terminal. Watch it there, or take it over to continue here as a chat.`;
     $("btn-giveback").hidden = owner !== "phone";
     if (onPc) modeChip.hidden = true;
   }

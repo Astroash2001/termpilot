@@ -14,7 +14,7 @@
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
   <link rel="manifest" href="/manifest.json">
   <link rel="preload" href="/fonts/plex-sans.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=74">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -356,7 +356,7 @@
     </header>
     <div id="chat-scroll" class="chat-scroll"><div id="chat-items"></div></div>
     <div class="chat-compose">
-      <!-- A `tp` session: running in the PC terminal until the phone takes it over -->
+      <!-- A `tp` session, or a plain `claude` in a laptop window: running on the PC until the phone takes it over -->
       <div id="handoff-bar" class="handoff-bar" hidden>
         <p id="handoff-text" class="handoff-text"></p>
         <div id="handoff-actions" class="ask-options">
@@ -394,10 +394,10 @@
     </div>
   </div>
 
-  <script src="app.js?v=73"></script>
+  <script src="app.js?v=74"></script>
   <!-- Agent replies are Markdown; DOMPurify strips anything executable before it is shown -->
   <script src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js" integrity="sha384-2vpGtuKqJvFlwJqYnf/wUMuzUfhUnYBt9oay0e2yaFcq0Dh6/aEbQ8YAOeKGzlYo" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js" integrity="sha384-a7SzOxErzJ3ZpQz0zJ32d67dSitNzPcbfybc/ykU9KJhMgZkwqfSxlhhdJRS+XGL" crossorigin="anonymous"></script>
-  <script src="chat.js?v=73"></script>
+  <script src="chat.js?v=74"></script>
 </body>
 </html>
