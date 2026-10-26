@@ -139,6 +139,13 @@ python agent.py
 ### 4. Open on Mobile
 Navigate to the local or ngrok HTTPS URL on your phone's browser, tap the **`💡 FEATURES`** button to view available shortcuts, and start coding on the go!
 
+### Everyday start
+After setup, open two PowerShell windows and run one line in each, relay first. Close both windows to stop TermPilot. Nothing starts with Windows.
+```powershell
+cd C:\Users\avina\termpilot\backend; .\venv\Scripts\python.exe main.py
+cd C:\Users\avina\termpilot\desktop-agent; .\venv\Scripts\python.exe agent.py
+```
+
 ---
 
 ## 📄 License
