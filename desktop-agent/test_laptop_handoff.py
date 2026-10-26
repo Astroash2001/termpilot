@@ -60,6 +60,7 @@ async def main():
         console_keys.type_into(ours.old, "Reply with just the word ok\r")
         await wait_for(lambda: acp_host.read_laptop_sessions().get(sid, {}).get("status") == "busy", "claude to start the reply", 30)
         await wait_for(lambda: acp_host.read_laptop_sessions().get(sid, {}).get("status") == "idle", "claude to finish the reply", 120)
+        await wait_for(lambda: s.title == "Reply with just the word ok", "the first message to become the chat title", 10)
 
         sent.clear()
         await host.handle({"type": "CHAT_PROMPT", "sid": sid, "text": "hi"})

@@ -186,6 +186,33 @@ def read_laptop_sessions():
     return found
 
 
+def transcript(sid):
+    """Claude's saved transcript for a session, or None before its first message."""
+    found = glob.glob(os.path.join(os.path.expanduser("~"), ".claude", "projects", "*", sid + ".jsonl"))
+    return found[0] if found else None
+
+
+def first_prompt(sid):
+    """The first thing the user typed in a Claude session, as a chat title, or ""."""
+    path = transcript(sid)
+    try:
+        with open(path or "", encoding="utf-8") as f:
+            for line in f:
+                d = json.loads(line)
+                if d.get("type") != "user" or d.get("isMeta") or d.get("isSidechain"):
+                    continue
+                content = (d.get("message") or {}).get("content")
+                texts = [content] if isinstance(content, str) else [
+                    c.get("text", "") for c in content or [] if isinstance(c, dict) and c.get("type") == "text"]
+                for text in texts:
+                    # Skip slash-command echoes (<command-name>…), interruptions and resumed-session summaries
+                    if text.strip() and not text.lstrip().startswith(("<", "[Request interrupted", "This session is being continued")):
+                        return " ".join(text.split())[:80]
+    except (OSError, ValueError):
+        pass
+    return ""
+
+
 def write_pc_owner(d, owner):
     d = {**d, "owner": owner}
     tmp = PC_SESSION_FILE + "." + uuid.uuid4().hex
@@ -387,6 +414,13 @@ class AcpHost:
             try:
                 await self.check_pc_session()
                 await self.check_laptop_sessions()
+                # Sessions begun at the PC have no title until Claude saves their first message
+                untitled = [s for s in self.sessions.values() if s.owner == "pc" and not s.title and s.agent_id == "claude"]
+                for s in untitled:
+                    s.title = await asyncio.to_thread(first_prompt, s.sid)
+                if any(s.title for s in untitled):
+                    self.save_index()
+                    self.send_list()
             except Exception:
                 pass  # a half-written file reads again next second
 
@@ -464,7 +498,7 @@ class AcpHost:
         if rec["status"] != "idle":
             raise ChatError("Claude is busy on the laptop. Take it over when it finishes.")
         # Claude saves a session only after its first message; an empty one cannot be reopened anywhere
-        if not glob.glob(os.path.join(os.path.expanduser("~"), ".claude", "projects", "*", s.sid + ".jsonl")):
+        if not transcript(s.sid):
             raise ChatError("Nothing to move yet. Send Claude a message on the laptop first.")
         s.owner = "moving"
         self.send_list()
