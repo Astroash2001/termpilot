@@ -848,6 +848,9 @@ async def websocket_client(websocket: WebSocket):
                 continue
             if kind == "VISIBLE":
                 (manager.visible.add if payload.get("visible") else manager.visible.discard)(websocket)
+                if payload.get("visible"):
+                    # Back on screen: a page left open learns of an updated web app without reconnecting
+                    await websocket.send_text(json.dumps({"type": "VERSION", "version": web_version()}))
                 continue
             if not (kind in ("INPUT", "RESIZE") or (isinstance(kind, str) and kind.startswith("CHAT_"))):
                 continue
@@ -880,4 +883,6 @@ if __name__ == "__main__":
         sys.exit(0)
     # Loopback only by default: remote access goes through the HTTPS ngrok tunnel.
     # Set TERMPILOT_HOST=0.0.0.0 to allow plain-HTTP LAN access (key travels unencrypted).
-    uvicorn.run("main:app", host=os.environ.get("TERMPILOT_HOST", "127.0.0.1"), port=8000, reload=True)
+    uvicorn.run("main:app", host=os.environ.get("TERMPILOT_HOST", "127.0.0.1"), port=8000, reload=True,
+                # Open phone sockets otherwise hold an auto-reload forever: the old server never exits
+                timeout_graceful_shutdown=3)

@@ -153,6 +153,8 @@ async def run(port):
     key = await phone.wait("DEVICE_KEY")
     ok = await phone.wait("AUTH_OK")
     assert ok["version"] == relay.web_version(), "AUTH_OK carries the web app version for the reload banner"
+    await phone.send({"type": "VISIBLE", "visible": True})
+    assert (await phone.wait("VERSION"))["version"] == ok["version"], "back on screen, the page checks the version again"
     reuse = await Phone.connect(base, {"type": "AUTH", "enroll": code})
     await asyncio.sleep(0.3)
     assert reuse.ws.close_code == 4001, "an enrollment code works only once"
@@ -179,17 +181,17 @@ async def run(port):
     assert status == 403, "an upload needs a ticket from an authenticated phone"
     await phone.send({"type": "UPLOAD_TICKET", "rid": "1"})
     ticket = (await phone.wait("UPLOAD_TICKET"))["ticket"]
-    status, body, _ = http(http_base + "/api/upload", b"meeting notes", {"X-Upload-Ticket": ticket, "X-File-Name": "..%2F..%2Fnotes.txt"})
+    status, body, _ = http(http_base + "/api/upload", b"meeting notes", {"X-Upload-Ticket": ticket, "X-File-Name": "..%2F..%2Fnotes.csv"})
     assert status == 200, body
     upload = json.loads(body)
-    assert upload["name"] == "notes.txt", "the name cannot climb out of the staging folder"
+    assert upload["name"] == "notes.csv", "the name cannot climb out of the staging folder"
     status, _, _ = http(http_base + "/api/upload", b"again", {"X-Upload-Ticket": ticket, "X-File-Name": "b.txt"})
     assert status == 403, "a ticket works once"
     await phone.send({"type": "CHAT_PROMPT", "sid": sid, "text": "read this", "files": [upload["id"], "gone" * 5]})
     await phone.wait("CHAT_ERROR", lambda m: "Attach it again" in m["msg"])
     assert os.path.isdir(os.path.join(HOME, ".termpilot", "uploads", upload["id"])), "one missing file never moves the others"
     await phone.send({"type": "CHAT_PROMPT", "sid": sid, "text": "read this", "files": [upload["id"]]})
-    placed = os.path.join(project, ".termpilot", "uploads", "notes.txt")
+    placed = os.path.join(project, ".termpilot", "uploads", "notes.csv")
     reply = await phone.wait("CHAT_EVENT", lambda m: any("echo:" in json.dumps(e) for e in m["events"]))
     assert placed in json.dumps(reply).replace("\\\\", "\\"), "the agent is told where the file is on the PC"
     assert open(placed).read() == "meeting notes"
@@ -199,6 +201,8 @@ async def run(port):
     await phone.send({"type": "CHAT_FILES", "sid": sid})
     names = [f["path"] for f in (await phone.wait("CHAT_FILES"))["files"]]
     assert "chart.png" in names and not any("node_modules" in n for n in names), names
+    assert os.path.join(".termpilot", "uploads", "notes.csv") in names, "files sent from the phone show too"
+    assert not any(n.endswith(".gitignore") for n in names)
     for bad_path in ("..\\outside.png", "node_modules\\hidden.png", os.path.join(HOME, "x.png")):
         await phone.send({"type": "CHAT_FILE", "sid": sid, "path": bad_path})
         await phone.wait("CHAT_ERROR")

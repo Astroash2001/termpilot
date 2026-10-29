@@ -37,7 +37,10 @@ def file_type(name) -> str:
 
 
 def hidden(name) -> bool:
-    """Never listed or served: dot and $ names, __pycache__ and the like, dependency folders."""
+    """Never listed or served: dot and $ names, __pycache__ and the like, dependency folders.
+    .termpilot is the exception: files sent from the phone live there and show in Files."""
+    if name == ".termpilot":
+        return False
     return name[:1] in ".$" or name.startswith("__") or name in ("node_modules", "venv")
 
 

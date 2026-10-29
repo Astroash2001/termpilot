@@ -812,6 +812,10 @@ function flushRaw() {
 
 // The web app this page was loaded with; a different one on reconnect means the PC was updated
 let webVersion = null;
+function checkVersion(version) {
+  if (webVersion && version && version !== webVersion) document.getElementById("update-banner").hidden = false;
+  webVersion = webVersion || version;
+}
 
 function connect() {
   const device = getDevice();
@@ -833,8 +837,7 @@ function connect() {
       store(DEVICE_STORAGE, JSON.stringify({ id: payload.id, key: payload.key }));
       store(ENROLL_STORAGE, "");
     } else if (payload.type === "AUTH_OK") {
-      if (webVersion && payload.version && payload.version !== webVersion) document.getElementById("update-banner").hidden = false;
-      webVersion = webVersion || payload.version;
+      checkVersion(payload.version);
       wsAuthed = true;
       // A new link: the old size may be stale and the PC may have the terminal back.
       // Phone fit starts once the relay says what size the PTY is now.
@@ -853,6 +856,8 @@ function connect() {
     } else if (payload.type === "RAW") {
       rawPending += payload.data;
       if (!rawFrame) rawFrame = requestAnimationFrame(flushRaw);
+    } else if (payload.type === "VERSION") {
+      checkVersion(payload.version);
     } else if (payload.type === "AGENT_ONLINE") {
       if (capLabel.textContent === CAPSULE_LABELS["NO PC"]) setStamp("ready", "READY");
       window.Chat?.onMessage(payload);
