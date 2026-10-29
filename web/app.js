@@ -217,6 +217,7 @@ paintZoomReadout();
 // to the phone. The agent hands the size back to the PC as soon as someone types there and
 // back to the phone on its next input (tmux's "latest client" rule).
 const FIT_FONT = 12; // px at 100% zoom: about 50 columns on a 390px-wide phone
+let ws = null;
 let wsAuthed = false;
 let fitCols = 0, fitRows = 0; // the size this phone last asked for
 let fitPending = false; // asked, and the PC hasn't answered with a PTY_SIZE yet
