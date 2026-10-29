@@ -56,13 +56,15 @@ def check_pairing():
         assert not any(getattr(r, "path", "") == "/api/pairing/create" for r in main.app.routes)
 
         # F3: the phone asks on the WebSocket, and only with the right key
-        ws = FakeSocket({"type": "AUTH", "key": main.ACCESS_KEY, "purpose": "pair"})
+        main.save_phones = lambda: None  # never touch the real phones.json
+        phone, key = main.add_phone("Test phone")
+        ws = FakeSocket({"type": "AUTH", "device": phone, "key": key, "purpose": "pair"})
         asyncio.run(main.websocket_client(ws))
         assert len(ws.sent) == 1 and ws.sent[0]["type"] == "PAIR_CODE" and ws.closed == 1000
         code = ws.sent[0]["code"]
         assert code in main.pairing_codes and ws not in main.manager.client_ws
 
-        stranger = FakeSocket({"type": "AUTH", "key": "wrong", "purpose": "pair"})
+        stranger = FakeSocket({"type": "AUTH", "device": phone, "key": "wrong", "purpose": "pair"})
         asyncio.run(main.websocket_client(stranger))
         assert stranger.sent == [] and stranger.closed == 4001
 
@@ -85,7 +87,19 @@ def check_pairing():
             del main.registered_devices[device_id]
 
 
+def check_file_names():
+    """Upload names from the phone: no path, no device names, odd characters replaced."""
+    assert main.safe_file_name("../../etc/passwd") == "passwd"
+    assert main.safe_file_name(r"C:\Windows\win.ini") == "win.ini"
+    assert main.safe_file_name("nul.txt") == "_nul.txt" and main.safe_file_name("COM1") == "_COM1"
+    assert main.safe_file_name("photo<1>|?.jpg") == "photo_1___.jpg"
+    assert main.safe_file_name("résumé 2026.pdf") == "résumé 2026.pdf"
+    assert main.safe_file_name("...") == "file" and main.safe_file_name(None) == "file"
+    assert len(main.safe_file_name("a" * 300 + ".png")) == 104
+
+
 BEFORE = set(main.registered_devices)
 check_tunnel_url()
 check_pairing()
+check_file_names()
 print("security: all checks pass")

@@ -14,6 +14,7 @@
   const modeChip = $("chat-mode");
 
   let agents = {};          // id -> display name, only those installed on the PC
+  let problems = {};        // id -> why that agent cannot start a chat now ("" when ready)
   let sessions = [];        // summaries from CHAT_SESSIONS
   let current = null;       // sid of the open chat
   let startingNew = false;  // waiting for CHAT_CREATED from our own New chat
@@ -154,15 +155,21 @@
       box.textContent = "No chat-ready agents on this PC yet. Install the adapters with: npm ci --prefix desktop-agent/acp";
       return;
     }
-    box.replaceChildren(...ids.map((id) => {
+    const options = ids.map((id) => {
       const b = document.createElement("button");
       b.className = "agent-option";
       b.textContent = agents[id];
       b.setAttribute("aria-pressed", String(id === pickedAgent));
+      if (problems[id]) b.setAttribute("aria-disabled", "true");
       b.addEventListener("click", () => { pickedAgent = id; renderAgentChoice(); });
       return b;
-    }));
-    $("btn-start-chat").disabled = !pickedAgent || !dirPath;
+    });
+    // A picked agent that cannot run says why, instead of failing after Start
+    const problem = document.createElement("p");
+    problem.className = "agent-problem";
+    problem.textContent = problems[pickedAgent] || "";
+    box.replaceChildren(...options, ...(problem.textContent ? [problem] : []));
+    $("btn-start-chat").disabled = !pickedAgent || !dirPath || !!problems[pickedAgent];
   }
 
   function renderDirs(msg) {
@@ -173,7 +180,7 @@
     msg.dirs.forEach((name) => rows.push(dirRow(name, msg.path.replace(/[\\/]$/, "") + "\\" + name)));
     $("dir-list").replaceChildren(...rows);
     $("dir-list").scrollTop = 0;
-    $("btn-start-chat").disabled = !pickedAgent || !dirPath;
+    $("btn-start-chat").disabled = !pickedAgent || !dirPath || !!problems[pickedAgent];
   }
   function dirRow(label, path, up = false) {
     const b = document.createElement("button");
@@ -196,6 +203,7 @@
   // ── One chat ────────────────────────────────────────────────────────────
 
   function openChat(sid) {
+    if (current !== sid) clearAttachments();
     current = sid;
     const c = chatFor(sid);
     chatItems.replaceChildren(c.el);
@@ -536,14 +544,180 @@
       send({ type: "CHAT_CANCEL", sid: current });
       return;
     }
-    const text = chatInput.value.trim();
+    if (attached.some((a) => !a.id)) return showToast("Wait for the upload to finish");
+    const text = chatInput.value.trim() || (attached.length ? "See the attached files." : "");
     if (!text) return;
-    if (send({ type: "CHAT_PROMPT", sid: current, text })) {
+    if (send({ type: "CHAT_PROMPT", sid: current, text, files: attached.map((a) => a.id) })) {
       chatInput.value = "";
+      clearAttachments();
       growInput();
       triggerHaptic(10);
     }
   });
+
+  // ── Attachments: staged on the PC now, moved into the chat's folder when the message goes ──
+  const attached = [];  // {name, id}; id is set once the upload is done
+  const ticketWaits = new Map();
+  let nextTicket = 0;
+
+  // A one-use upload ticket, asked for over the authenticated socket
+  function uploadTicket() {
+    return new Promise((resolve, reject) => {
+      const rid = String(++nextTicket);
+      ticketWaits.set(rid, resolve);
+      if (!send({ type: "UPLOAD_TICKET", rid }, true)) { ticketWaits.delete(rid); return reject(new Error("Not connected to your PC")); }
+      setTimeout(() => { if (ticketWaits.delete(rid)) reject(new Error("The PC did not answer")); }, 10000);
+    });
+  }
+  async function upload(file) {
+    if (file.size > 100 * 1024 * 1024) throw new Error(`${file.name} is over 100 MB`);
+    const res = await fetch("/api/upload", {
+      method: "POST", body: file,
+      headers: { "X-Upload-Ticket": await uploadTicket(), "X-File-Name": encodeURIComponent(file.name), "Content-Type": "application/octet-stream" },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || "Upload failed");
+    return data;
+  }
+  function renderTray() {
+    const tray = $("attach-tray");
+    tray.hidden = !attached.length;
+    tray.replaceChildren(...attached.map((a) => {
+      const chip = document.createElement("span");
+      chip.className = "attach-chip";
+      if (!a.id) chip.dataset.busy = "";
+      const name = document.createElement("span");
+      name.textContent = a.id ? a.name : a.name + " ↑";
+      const x = document.createElement("button");
+      x.textContent = "×";
+      x.setAttribute("aria-label", "Remove " + a.name);
+      x.addEventListener("click", () => { attached.splice(attached.indexOf(a), 1); renderTray(); });
+      chip.append(name, x);
+      return chip;
+    }));
+  }
+  function clearAttachments() {
+    attached.length = 0;
+    renderTray();
+  }
+  $("chat-attach").addEventListener("click", () => $("attach-input").click());
+  $("attach-input").addEventListener("change", (e) => {
+    [...e.target.files].slice(0, 10 - attached.length).forEach((file) => {
+      const a = { name: file.name, id: null };
+      attached.push(a);
+      upload(file).then((d) => { a.id = d.id; a.name = d.name; renderTray(); })
+        .catch((err) => { const i = attached.indexOf(a); if (i >= 0) attached.splice(i, 1); renderTray(); showToast(err.message); });
+    });
+    e.target.value = "";
+    renderTray();
+  });
+
+  // ── List sheet: files in the chat's folder, past sessions, devices ──────
+  const listModal = $("list-modal");
+  const listBody = $("list-body");
+  const listPreview = $("list-preview");
+  let listKind = null;
+
+  function openList(kind, title, msg) {
+    if (!send(msg)) return;
+    listKind = kind;
+    $("list-title").textContent = title;
+    listPreview.hidden = true;
+    listPreview.replaceChildren();
+    listBody.replaceChildren(listNote("Loading…"));
+    listModal.style.display = "flex";
+  }
+  function closeList() {
+    listModal.style.display = "none";
+    listKind = null;
+    listPreview.replaceChildren();  // stops a playing video
+  }
+  $("list-close").addEventListener("click", closeList);
+  listModal.addEventListener("click", (e) => { if (e.target === listModal) closeList(); });
+  function listNote(text) {
+    const p = document.createElement("p");
+    p.className = "home-empty";
+    p.textContent = text;
+    return p;
+  }
+  function listRow(title, sub, onClick, action) {
+    const row = document.createElement(onClick ? "button" : "div");
+    row.className = "list-row";
+    const text = document.createElement("span");
+    text.className = "list-row-text";
+    const b = document.createElement("b");
+    b.textContent = title;
+    const small = document.createElement("small");
+    small.textContent = sub;
+    text.append(b, small);
+    row.append(text);
+    if (action) row.append(action);
+    if (onClick) row.addEventListener("click", onClick);
+    return row;
+  }
+  const size = (n) => n < 1024 ? n + " B" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
+
+  $("btn-files").addEventListener("click", () => {
+    const s = current && summaryOf(current);
+    if (s) openList("files", "Files in " + folderName(s.cwd), { type: "CHAT_FILES", sid: current });
+  });
+  function renderFiles(list) {
+    listBody.replaceChildren(...(list.length ? list.map((f) => listRow(f.path, [f.kind, size(f.size), ago(f.modified)].join(" · "),
+      () => send({ type: "CHAT_FILE", sid: current, path: f.path }))) : [listNote("No images, videos, PDFs or documents in this folder yet.")]));
+  }
+  function showFile(msg) {
+    const ext = (msg.path.split(".").pop() || "").toLowerCase();
+    const kind = ["png", "jpg", "jpeg", "gif", "webp", "svg"].includes(ext) ? "img"
+      : ["mp4", "mov", "webm", "m4v"].includes(ext) ? "video" : ["mp3", "wav", "m4a"].includes(ext) ? "audio" : null;
+    const parts = [];
+    if (kind) {
+      const media = document.createElement(kind);
+      media.src = msg.url;
+      if (kind !== "img") { media.controls = true; media.playsInline = true; }
+      else media.alt = msg.path;
+      parts.push(media);
+    }
+    const actions = document.createElement("div");
+    actions.className = "ask-options";
+    const link = (label, href, download) => {
+      const a = document.createElement("a");
+      a.className = "ask-btn";
+      a.textContent = label;
+      a.href = href;
+      if (download) a.download = folderName(msg.path); else { a.target = "_blank"; a.rel = "noopener"; }
+      return a;
+    };
+    actions.append(link("Open", msg.url), link("Download", msg.url + "?download=1", true));
+    parts.push(actions);
+    listPreview.replaceChildren(...parts);
+    listPreview.hidden = false;
+  }
+
+  $("btn-history").addEventListener("click", () => openList("history", "Past sessions", { type: "CHAT_HISTORY" }));
+  function renderHistory(items) {
+    listBody.replaceChildren(...(items.length ? items.map((h) => listRow(h.title, [agents[h.agent] || h.agent, folderName(h.cwd), ago(h.updated)].join(" · "), () => {
+      if (!send({ type: "CHAT_RESUME", agent: h.agent, sid: h.sid })) return;
+      startingNew = true;
+      closeList();
+      showToast("Opening…");
+    })) : [listNote("No other Claude Code or Codex sessions on this PC.")]));
+  }
+
+  $("btn-devices").addEventListener("click", () => openList("devices", "Devices", { type: "DEVICES" }));
+  function renderDevices(devices) {
+    listBody.replaceChildren(...devices.map((d) => {
+      // Two taps, so a stray one never locks a phone out
+      const remove = document.createElement("button");
+      remove.className = "ask-btn reject_once";
+      remove.textContent = "Remove";
+      remove.addEventListener("click", () => {
+        if (remove.dataset.armed) return send({ type: "DEVICE_REVOKE", id: d.id });
+        remove.dataset.armed = "1";
+        remove.textContent = d.current ? "Remove this phone?" : "Tap to confirm";
+      });
+      return listRow(d.name, d.current ? "This phone" : ago(d.seen) === "now" ? "Used just now" : "Last used " + ago(d.seen) + " ago", null, remove);
+    }));
+  }
   $("btn-watch").addEventListener("click", () => go("#terminal"));
   $("btn-takeover").addEventListener("click", () => {
     if (current && send({ type: "CHAT_TAKEOVER", sid: current })) triggerHaptic(15);
@@ -576,6 +750,7 @@
     switch (msg.type) {
       case "CHAT_SESSIONS":
         agents = msg.agents || {};
+        problems = msg.problems || {};
         sessions = msg.sessions || [];
         sessions.forEach((s) => { const k = chats.get(s.sid); if (k) k.state = s.state; });
         if (document.body.dataset.view === "home") renderHome();
@@ -632,6 +807,29 @@
         c.mode = msg.mode;
         if (c.sid === current) renderHeader(c);
         break;
+      case "AGENT_ONLINE":
+        // The PC agent restarted: reload the list and whatever chat is open
+        send({ type: "CHAT_LIST" }, true);
+        if (current) send({ type: "CHAT_OPEN", sid: current, since: chatFor(current).seq }, true);
+        break;
+      case "UPLOAD_TICKET": {
+        const resolve = ticketWaits.get(msg.rid);
+        ticketWaits.delete(msg.rid);
+        if (resolve) resolve(msg.ticket);
+        break;
+      }
+      case "CHAT_FILES":
+        if (listKind === "files" && msg.sid === current) renderFiles(msg.files || []);
+        break;
+      case "CHAT_FILE_URL":
+        if (listKind === "files" && msg.sid === current) showFile(msg);
+        break;
+      case "CHAT_HISTORY":
+        if (listKind === "history") renderHistory(msg.items || []);
+        break;
+      case "DEVICES":
+        if (listKind === "devices") renderDevices(msg.devices || []);
+        break;
       case "CHAT_ERROR":
         if (c && c.sid === current) {
           const err = document.createElement("div");
@@ -640,7 +838,7 @@
           c.el.append(err);
           keepBottom(c, true);
         } else showToast(msg.msg);
-        if (startingNew && !c) startingNew = false;
+        if (startingNew && (!c || c.sid !== current)) startingNew = false;
         break;
     }
   }

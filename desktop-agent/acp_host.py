@@ -13,12 +13,15 @@ import glob
 import json
 import os
 import re
+import secrets
 import shutil
 import subprocess
 import time
 import uuid
 
 import console_keys
+import files
+import history
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ACP_MODULES = os.path.join(HERE, "acp", "node_modules", "@agentclientprotocol")
@@ -254,7 +257,7 @@ class AcpHost:
             elif kind == "CHAT_OPEN":
                 await self.open_session(sid, msg.get("since"))
             elif kind == "CHAT_PROMPT":
-                await self.prompt(sid, msg.get("text"))
+                await self.prompt(sid, msg.get("text"), msg.get("files"))
             elif kind == "CHAT_ANSWER":
                 self.answer(sid, msg.get("rid"), msg.get("optionId"))
             elif kind == "CHAT_CANCEL":
@@ -267,6 +270,16 @@ class AcpHost:
                 await self.take_over(sid)
             elif kind == "CHAT_GIVEBACK":
                 await self.give_back(sid)
+            elif kind == "CHAT_FILES":
+                s = self.session(sid)
+                found = await asyncio.to_thread(files.list_artifacts, s.cwd)
+                self.send({"type": "CHAT_FILES", "sid": s.sid, "files": found})
+            elif kind == "CHAT_FILE":
+                self.grant_file(sid, msg.get("path"))
+            elif kind == "CHAT_HISTORY":
+                await self.send_history()
+            elif kind == "CHAT_RESUME":
+                await self.resume(msg.get("agent"), sid)
         except ChatError as e:
             self.send({"type": "CHAT_ERROR", "sid": sid if isinstance(sid, str) else None, "msg": str(e)})
         except Exception as e:
@@ -281,7 +294,9 @@ class AcpHost:
 
     def send_list(self):
         sessions = sorted((s.summary() for s in self.sessions.values()), key=lambda s: -s["updated"])
-        self.send({"type": "CHAT_SESSIONS", "agents": installed_agents(), "sessions": sessions})
+        agents = installed_agents()
+        self.send({"type": "CHAT_SESSIONS", "agents": agents, "sessions": sessions,
+                   "problems": {aid: history.agent_problem(aid) for aid in agents}})
 
     def send_dirs(self, path):
         real = allowed_dir(path)
@@ -331,10 +346,12 @@ class AcpHost:
             since = 0
         self.send_sync(s, since if isinstance(since, int) and since >= 0 else 0)
 
-    async def prompt(self, sid, text):
+    async def prompt(self, sid, text, attached=None):
         s = self.session(sid)
         if not isinstance(text, str) or not text.strip() or len(text) > MAX_TEXT:
             raise ChatError("Message is empty or too long")
+        if attached is not None and (not isinstance(attached, list) or len(attached) > 10):
+            raise ChatError("Attach up to 10 files")
         if s.owner in ("pc", "moving"):
             raise ChatError("This chat is open in the PC terminal. Take it over first.")
         if s.adapter is None:
@@ -343,6 +360,12 @@ class AcpHost:
             raise ChatError("Wait for the current reply, or stop it first")
         if not s.title:
             s.title = " ".join(text.split())[:80]
+        if attached:
+            # Moved into the project only now, once nothing above can refuse the message
+            placed = await asyncio.to_thread(files.place, attached, s.cwd)
+            if len(placed) != len(attached):
+                raise ChatError("An attached file is gone from the PC. Attach it again.")
+            text += files.attachment_note(placed)
         # The agent does not echo the prompt back, so the chat log records it here
         self.on_update(s.sid, {"sessionUpdate": "user_message_chunk", "content": {"type": "text", "text": text}})
         self.set_state(s, "thinking")
@@ -399,6 +422,44 @@ class AcpHost:
                 pass
         del self.sessions[s.sid]
         self.save_index()
+        self.send_list()
+
+    def grant_file(self, sid, path):
+        """Lets the phone fetch one file from the chat's folder: the relay serves it under a
+        random token for 10 minutes. The phone never names a path the relay opens by itself."""
+        s = self.session(sid)
+        real = files.resolve_inside(s.cwd, path)
+        if not real:
+            raise ChatError("That file is not available")
+        self.send({"type": "FILE_GRANT", "sid": s.sid, "token": secrets.token_urlsafe(24), "file": real,
+                   "path": path, "mime": files.file_type(real)})
+
+    async def send_history(self):
+        found = await asyncio.to_thread(history.past_sessions, installed_agents(), first_prompt)
+        self.send({"type": "CHAT_HISTORY", "items": [h for h in found if h["sid"] not in self.sessions]})
+
+    async def resume(self, agent_id, sid):
+        """Reopens a past session found by send_history as a chat on the phone."""
+        if sid in self.sessions:
+            self.send({"type": "CHAT_CREATED", "sid": sid})
+            return
+        if agent_id not in installed_agents():
+            raise ChatError("That agent is not installed on this PC")
+        found = await asyncio.to_thread(history.past_sessions, installed_agents(), first_prompt)
+        h = next((h for h in found if h["sid"] == sid and h["agent"] == agent_id), None)
+        if not h:
+            raise ChatError("That session is gone from the PC")
+        if sid in await asyncio.to_thread(read_laptop_sessions):
+            raise ChatError("That session is open on the laptop. It is in your chat list as On laptop.")
+        s = Session(sid, agent_id, allowed_dir(h["cwd"]), h["title"])
+        self.sessions[sid] = s
+        try:
+            await self.open_session(sid, 0)
+        except ChatError:
+            del self.sessions[sid]
+            raise
+        self.save_index()
+        self.send({"type": "CHAT_CREATED", "sid": sid})
         self.send_list()
 
     # ── Handoff with the PC terminal ────────────────────────────────────────

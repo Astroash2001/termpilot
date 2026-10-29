@@ -7,7 +7,9 @@ import hashlib
 import secrets
 import asyncio
 import uuid
+import shutil
 import subprocess
+import unicodedata
 import time
 import queue
 import threading
@@ -15,12 +17,13 @@ import urllib.parse
 from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, Response
+from fastapi.responses import FileResponse, HTMLResponse, Response
 from starlette.requests import HTTPConnection
 from pydantic import BaseModel
 from contextlib import asynccontextmanager
 import uvicorn
 import qrcode
+import qrcode.image.svg
 from py_vapid import Vapid, b64urlencode
 from pywebpush import webpush, WebPushException
 from cryptography.hazmat.primitives import serialization
@@ -38,11 +41,12 @@ async def lifespan(app: FastAPI):
     # Startup
     load_registered_devices()
     # TERMPILOT_NGROK=0 skips the tunnel (local testing)
-    public_url = start_ngrok_tunnel() if os.environ.get("TERMPILOT_NGROK", "1") != "0" else None
-    # The key rides in the URL fragment, which browsers never send to the server or ngrok.
-    phone_url = f"{(public_url or 'http://localhost:8000')}/#key={ACCESS_KEY}"
+    global PUBLIC_URL
+    PUBLIC_URL = start_ngrok_tunnel() if os.environ.get("TERMPILOT_NGROK", "1") != "0" else None
+    phone_url = enroll_link()
     print("=" * 65)
-    print("🔐 Scan this QR code with your phone (it contains your access key - keep it private):")
+    print("🔐 Scan this QR code with a phone to add it (one use, 10 minutes; keep it private).")
+    print("   For another phone later, open http://localhost:8000/enroll on this PC.")
     qr = qrcode.QRCode(border=2)
     qr.add_data(phone_url)
     # invert=True draws dark modules as spaces, so the code scans on a dark terminal
@@ -59,33 +63,84 @@ app = FastAPI(title="TermPilot Relay Backend", lifespan=lifespan)
 
 WEB_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "web")
 DEVICES_FILE = os.path.join(os.path.dirname(__file__), "devices.json")
-AUTH_FILE = os.path.join(os.path.dirname(__file__), "auth.json")
+PHONES_FILE = os.path.join(os.path.dirname(__file__), "phones.json")
 PUSH_FILE = os.path.join(os.path.dirname(__file__), "push.json")
 
 pairing_codes = {}
 registered_devices = {}
 ngrok_process = None
+PUBLIC_URL = None
 # Wrong pairing codes since the last success; at the limit every open code is voided
 failed_pair_attempts = 0
 MAX_FAILED_PAIR_ATTEMPTS = 5
 
-def load_or_create_access_key(rotate: bool = False) -> str:
-    """The phone's credential. Whoever holds it can drive this PC's shell, so it is long and
-    random and lives only in auth.json (gitignored) and the phone's localStorage."""
-    if not rotate and os.path.exists(AUTH_FILE):
-        try:
-            with open(AUTH_FILE, "r") as f:
-                key = json.load(f).get("access_key")
-            if key:
-                return key
-        except Exception as e:
-            print(f"Error reading auth.json, generating a new access key: {e}")
-    key = secrets.token_urlsafe(32)
-    with open(AUTH_FILE, "w") as f:
-        json.dump({"access_key": key}, f, indent=4)
-    return key
+# ── Phones ─────────────────────────────────────────────────────────────
+# Every phone gets its own random key, stored here only as a hash, so one phone can be removed
+# without touching the others. A phone joins with a one-time enrollment code that only this PC
+# shows (the startup QR code, or /enroll opened on this PC), so a stolen phone cannot add more.
+PHONE_IDLE_SECONDS = 30 * 86400   # a phone unused this long must enroll again
+ENROLL_SECONDS = 600
+enroll_codes = {}  # code -> expiry; single use
 
-ACCESS_KEY = load_or_create_access_key()
+def load_phones() -> dict:
+    try:
+        with open(PHONES_FILE, "r") as f:
+            d = json.load(f)
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+PHONES = load_phones()
+
+def save_phones():
+    tmp = PHONES_FILE + "." + uuid.uuid4().hex
+    with open(tmp, "w") as f:
+        json.dump(PHONES, f, indent=4)
+    os.replace(tmp, PHONES_FILE)
+
+def new_enroll_code() -> str:
+    now = time.time()
+    for stale in [c for c, expires in enroll_codes.items() if expires < now]:
+        del enroll_codes[stale]
+    code = secrets.token_urlsafe(16)
+    enroll_codes[code] = now + ENROLL_SECONDS
+    return code
+
+def enroll_link() -> str:
+    # The code rides in the URL fragment, which browsers never send to the server or ngrok
+    return f"{PUBLIC_URL or 'http://localhost:8000'}/#enroll={new_enroll_code()}"
+
+def use_enroll_code(code) -> bool:
+    expires = enroll_codes.pop(code, None) if isinstance(code, str) else None
+    return expires is not None and expires > time.time()
+
+def key_hash(key: str) -> str:
+    return hashlib.sha256(key.encode()).hexdigest()
+
+def add_phone(name) -> tuple:
+    key, phone_id, now = secrets.token_urlsafe(32), uuid.uuid4().hex, time.time()
+    PHONES[phone_id] = {"hash": key_hash(key), "name": printable(name or "Phone", 40) or "Phone", "created": now, "seen": now}
+    save_phones()
+    return phone_id, key
+
+def check_phone(phone_id, key) -> bool:
+    p = PHONES.get(phone_id) if isinstance(phone_id, str) else None
+    if not isinstance(p, dict) or not isinstance(key, str):
+        return False
+    if time.time() - p.get("seen", 0) > PHONE_IDLE_SECONDS:
+        del PHONES[phone_id]
+        save_phones()
+        return False
+    if not hmac.compare_digest(p.get("hash", ""), key_hash(key)):
+        return False
+    p["seen"] = time.time()
+    save_phones()
+    return True
+
+def phones_message(current: str) -> dict:
+    rows = [{"id": pid, "name": p.get("name", "Phone"), "created": p.get("created"), "seen": p.get("seen"), "current": pid == current}
+            for pid, p in PHONES.items()]
+    return {"type": "DEVICES", "devices": sorted(rows, key=lambda r: -(r["seen"] or 0))}
 
 # Shared with the desktop agent through the user's profile, which other Windows accounts can't
 # read. At pairing the relay MACs the agent's nonce with it, so the agent can tell this relay
@@ -111,9 +166,6 @@ RELAY_KEY = load_or_create_relay_key()
 def pairing_proof(nonce: str, device_id: str, secret_key: str) -> str:
     """Must match desktop-agent/agent.py."""
     return hmac.new(RELAY_KEY, f"pair:{nonce}:{device_id}:{secret_key}".encode(), hashlib.sha256).hexdigest()
-
-def is_valid_access_key(key) -> bool:
-    return isinstance(key, str) and hmac.compare_digest(key.encode(), ACCESS_KEY.encode())
 
 def device_mac(secret_key: str, role: str, nonce: str) -> str:
     """Proof of a device secret over the other side's fresh nonce. Must match desktop-agent/agent.py."""
@@ -197,9 +249,10 @@ def valid_subscription(sub) -> bool:
             and isinstance(keys, dict)
             and all(isinstance(keys.get(k), str) and 0 < len(keys[k]) < 200 for k in ("p256dh", "auth")))
 
-def add_subscription(sub: dict):
+def add_subscription(sub: dict, phone_id: str):
     subs = [s for s in PUSH["subscriptions"] if s["endpoint"] != sub["endpoint"]]
-    subs.append({"endpoint": sub["endpoint"], "keys": {"p256dh": sub["keys"]["p256dh"], "auth": sub["keys"]["auth"]}})
+    # The phone it belongs to: removing that phone stops its alerts too
+    subs.append({"endpoint": sub["endpoint"], "keys": {"p256dh": sub["keys"]["p256dh"], "auth": sub["keys"]["auth"]}, "phone": phone_id})
     PUSH["subscriptions"] = subs[-MAX_PUSH_SUBSCRIPTIONS:]
     save_push(PUSH)
 
@@ -211,7 +264,7 @@ def send_push(subs: list, alert: dict) -> list:
     for sub in subs:
         try:
             # webpush fills aud/exp into the claims dict, so each push service gets a fresh one
-            webpush(sub, data, vapid_private_key=PUSH_VAPID, vapid_claims={"sub": PUSH_SUB},
+            webpush({"endpoint": sub["endpoint"], "keys": sub["keys"]}, data, vapid_private_key=PUSH_VAPID, vapid_claims={"sub": PUSH_SUB},
                     ttl=3600, timeout=10, headers={"Urgency": "high"})
         except WebPushException as e:
             if e.response is not None and e.response.status_code in (404, 410):
@@ -242,6 +295,7 @@ class ConnectionManager:
         self.pty_rows: int = None
         # Phones showing TermPilot right now; alerts go out only when there are none
         self.visible: set = set()
+        self.phone_of: dict = {}  # client socket -> phone id, to cut off a removed phone
         # From the agent's chat messages: what an alert says and when one is due
         self.chat_names: dict = {}   # sid -> (agent name, chat title)
         self.chat_states: dict = {}  # sid -> last CHAT_STATE
@@ -250,6 +304,8 @@ class ConnectionManager:
         # Caller has already accepted and authenticated the socket
         self.agent_ws = websocket
         print("🟢 Authenticated Desktop Agent Connected!")
+        # Phones already connected still show "PC offline" and an empty chat list until told
+        await self.broadcast_to_clients({"type": "AGENT_ONLINE"})
 
     def disconnect_agent(self, websocket: WebSocket):
         # A reconnecting agent may already own the slot; only clear our own
@@ -285,6 +341,7 @@ class ConnectionManager:
         if websocket in self.client_ws:
             self.client_ws.remove(websocket)
         self.visible.discard(websocket)
+        self.phone_of.pop(websocket, None)
 
     def alert_for(self, message: dict):
         """The alert a chat message from the agent calls for, or None: an agent asks to run a
@@ -483,6 +540,124 @@ def serve_favicon():
         content = f.read()
     return Response(content=content, media_type="image/svg+xml", headers=NO_CACHE_HEADERS)
 
+def web_version() -> str:
+    """A hash of the web app's files. An open page compares it on every reconnect and offers
+    a reload when the PC serves a newer app."""
+    h = hashlib.sha1()
+    for name in sorted(os.listdir(WEB_DIR)):
+        path = os.path.join(WEB_DIR, name)
+        if os.path.isfile(path):
+            with open(path, "rb") as f:
+                h.update(name.encode() + b"\0" + f.read())
+    return h.hexdigest()[:12]
+
+@app.get("/enroll")
+def enroll_page(request: Request):
+    """A QR code that adds one more phone. Only for a browser on this PC: the Host check stops a
+    web page from reading it through a DNS name pointed at 127.0.0.1."""
+    if not is_direct_local(request) or request.headers.get("host") not in ("localhost:8000", "127.0.0.1:8000"):
+        raise HTTPException(status_code=403, detail="Open this on the PC that runs TermPilot")
+    link = enroll_link()
+    svg = qrcode.make(link, image_factory=qrcode.image.svg.SvgPathImage, border=2).to_string(encoding="unicode")
+    page = ("<!doctype html><meta charset=utf-8><meta name=viewport content='width=device-width'><title>Add a phone</title>"
+            "<body style='font-family:system-ui;max-width:420px;margin:40px auto;padding:0 16px;text-align:center'>"
+            "<h1>Add a phone to TermPilot</h1><p>Scan this with the phone's camera within 10 minutes. It works once.</p>"
+            f"<div style='width:280px;margin:auto'>{svg}</div><p>Reload this page for another phone.</p></body>")
+    return HTMLResponse(page, headers=NO_CACHE_HEADERS)
+
+# ── Files between the phone and a chat's folder (see desktop-agent/files.py) ──
+# Uploads: the phone takes a one-use ticket over its authenticated socket, then POSTs the bytes
+# here. They are staged where the PC agent moves them into the project when the message is sent.
+STAGE_DIR = os.path.join(os.path.expanduser("~"), ".termpilot", "uploads")  # must match desktop-agent/files.py
+MAX_UPLOAD_BYTES = 100 * 1024 * 1024
+upload_tickets = {}  # ticket -> expiry
+# Downloads: the PC agent grants one file under a random token for 10 minutes (FILE_GRANT)
+file_grants = {}     # token -> {"file", "mime", "expires"}
+# Names Windows keeps for devices: a file called nul.txt cannot be created
+WINDOWS_DEVICES = {"CON", "PRN", "AUX", "NUL"} | {f"{port}{n}" for port in ("COM", "LPT") for n in range(10)}
+
+def safe_file_name(name) -> str:
+    """The phone's file name, safe to create here: last path part only, letters, digits and a
+    few marks kept, at most about 120 characters with the extension kept, never a device name."""
+    last = unicodedata.normalize("NFC", str(name or "")).replace("\\", "/").split("/")[-1]
+    stem, ext = os.path.splitext("".join(c if c.isalnum() or c in " ._-()" else "_" for c in last).strip(" ."))
+    if stem.split(".")[0].upper() in WINDOWS_DEVICES:
+        stem = "_" + stem
+    return (stem[:100] + ext[:20]) or "file"
+
+def new_upload_ticket() -> str:
+    now = time.time()
+    for stale in [t for t, expires in upload_tickets.items() if expires < now]:
+        del upload_tickets[stale]
+    ticket = secrets.token_urlsafe(24)
+    upload_tickets[ticket] = now + 120
+    return ticket
+
+def sweep_uploads():
+    """Staged files never sent with a message go after a day."""
+    try:
+        names = os.listdir(STAGE_DIR)
+    except OSError:
+        return
+    for name in names:
+        path = os.path.join(STAGE_DIR, name)
+        try:
+            if time.time() - os.path.getmtime(path) > 86400:
+                shutil.rmtree(path, ignore_errors=True)
+        except OSError:
+            pass
+
+@app.post("/api/upload")
+async def upload(request: Request):
+    # Ticket and name ride in headers, so neither lands in an access log line
+    expires = upload_tickets.pop(request.headers.get("x-upload-ticket", ""), None)
+    if not expires or expires < time.time():
+        raise HTTPException(status_code=403, detail="Upload not allowed. Try again.")
+    if int(request.headers.get("content-length") or 0) > MAX_UPLOAD_BYTES:
+        raise HTTPException(status_code=413, detail="Files can be up to 100 MB")
+    sweep_uploads()
+    upload_id = secrets.token_urlsafe(18)
+    folder = os.path.join(STAGE_DIR, upload_id)
+    os.makedirs(folder)
+    path = os.path.join(folder, safe_file_name(urllib.parse.unquote(request.headers.get("x-file-name", ""))))
+    size = 0
+    try:
+        with open(path, "wb") as f:
+            async for chunk in request.stream():
+                size += len(chunk)
+                if size > MAX_UPLOAD_BYTES:
+                    raise HTTPException(status_code=413, detail="Files can be up to 100 MB")
+                f.write(chunk)
+        if not size:
+            raise HTTPException(status_code=400, detail="That file is empty")
+    except BaseException:
+        shutil.rmtree(folder, ignore_errors=True)
+        raise
+    return {"id": upload_id, "name": os.path.basename(path), "size": size}
+
+def grant_file(msg: dict):
+    """A FILE_GRANT from the PC agent, turned into the link the phone gets, or None."""
+    token, path = msg.get("token"), msg.get("file")
+    if not (isinstance(token, str) and len(token) >= 32 and isinstance(path, str) and os.path.isfile(path)):
+        return None
+    now = time.time()
+    for stale in [t for t, g in file_grants.items() if g["expires"] < now]:
+        del file_grants[stale]
+    file_grants[token] = {"file": path, "mime": str(msg.get("mime") or "application/octet-stream"), "expires": now + 600}
+    return {"type": "CHAT_FILE_URL", "sid": msg.get("sid"), "path": msg.get("path"), "url": f"/api/file/{token}"}
+
+@app.get("/api/file/{token}")
+def serve_file(token: str, download: int = 0):
+    g = file_grants.get(token)
+    if not g or g["expires"] < time.time() or not os.path.isfile(g["file"]):
+        raise HTTPException(status_code=404)
+    headers = {"Cache-Control": "private, no-store"}
+    if g["mime"] == "image/svg+xml":
+        headers["Content-Security-Policy"] = "default-src 'none'; style-src 'unsafe-inline'; sandbox"  # shown, never run
+    # FileResponse answers Range requests, so a phone can seek in a video
+    return FileResponse(g["file"], media_type=g["mime"], filename=os.path.basename(g["file"]), headers=headers,
+                        content_disposition_type="attachment" if download else "inline")
+
 # 1. Generate 6-Digit Pairing Code. Only an authenticated phone may ask, and it asks on the
 # WebSocket (AUTH with purpose "pair"): an HTTP request would carry the access key in a header.
 def new_pairing_code() -> dict:
@@ -581,12 +756,32 @@ async def websocket_agent(websocket: WebSocket):
             except ValueError:
                 continue
             if isinstance(payload, dict):
+                if payload.get("type") == "FILE_GRANT":
+                    payload = grant_file(payload)
+                    if not payload:
+                        continue
                 await manager.broadcast_to_clients(payload)
                 asyncio.create_task(manager.maybe_alert(payload))
     except WebSocketDisconnect:
         pass
     finally:
         manager.disconnect_agent(websocket)
+
+async def remove_phone(phone_id):
+    """Forgets a phone: its key stops working, its open sockets close and its alerts stop."""
+    if not isinstance(phone_id, str) or PHONES.pop(phone_id, None) is None:
+        return
+    save_phones()
+    # Untagged ones predate per-phone keys and may be this phone's; live phones re-subscribe on connect
+    PUSH["subscriptions"] = [s for s in PUSH["subscriptions"] if s.get("phone") not in (phone_id, None)]
+    save_push(PUSH)
+    for ws, owner in list(manager.phone_of.items()):
+        if owner == phone_id:
+            try:
+                await ws.close(code=4001, reason="Removed")
+            except Exception:
+                pass
+    print("🚫 Removed a phone")
 
 # 4. Mobile / Web Client Connection Endpoint
 @app.websocket("/ws/client")
@@ -599,8 +794,16 @@ async def websocket_client(websocket: WebSocket):
         first = json.loads(await asyncio.wait_for(websocket.receive_text(), timeout=10))
     except Exception:
         first = None
-    if not isinstance(first, dict) or first.get("type") != "AUTH" or not is_valid_access_key(first.get("key")):
-        print("⛔ Rejected phone connection with a missing or wrong access key")
+    phone = None
+    if isinstance(first, dict) and first.get("type") == "AUTH":
+        if use_enroll_code(first.get("enroll")):
+            phone, key = add_phone(first.get("name"))
+            print(f"📱 Added phone '{PHONES[phone]['name']}'")
+            await websocket.send_text(json.dumps({"type": "DEVICE_KEY", "id": phone, "key": key}))
+        elif check_phone(first.get("device"), first.get("key")):
+            phone = first["device"]
+    if not phone:
+        print("⛔ Rejected phone connection with a missing, wrong or removed key")
         try:
             await websocket.close(code=4001, reason="Unauthorized")
         except Exception:
@@ -611,7 +814,8 @@ async def websocket_client(websocket: WebSocket):
         await websocket.send_text(json.dumps(new_pairing_code()))
         await websocket.close()
         return
-    await websocket.send_text(json.dumps({"type": "AUTH_OK", "push_key": PUSH["public_key"]}))
+    await websocket.send_text(json.dumps({"type": "AUTH_OK", "push_key": PUSH["public_key"], "version": web_version()}))
+    manager.phone_of[websocket] = phone
     await manager.connect_client(websocket)
     try:
         while True:
@@ -628,7 +832,19 @@ async def websocket_client(websocket: WebSocket):
             # Relay-only messages: alert subscription and whether this phone shows TermPilot
             if kind == "PUSH_SUBSCRIBE":
                 if valid_subscription(payload.get("sub")):
-                    add_subscription(payload["sub"])
+                    add_subscription(payload["sub"], phone)
+                continue
+            if kind == "UPLOAD_TICKET":
+                await websocket.send_text(json.dumps({"type": "UPLOAD_TICKET", "rid": payload.get("rid"), "ticket": new_upload_ticket()}))
+                continue
+            if kind == "DEVICES":
+                await websocket.send_text(json.dumps(phones_message(phone)))
+                continue
+            if kind == "DEVICE_REVOKE":
+                await remove_phone(payload.get("id"))
+                if payload.get("id") == phone:
+                    break  # this phone removed itself: its socket is closed now
+                await websocket.send_text(json.dumps(phones_message(phone)))
                 continue
             if kind == "VISIBLE":
                 (manager.visible.add if payload.get("visible") else manager.visible.discard)(websocket)
@@ -657,9 +873,10 @@ async def websocket_client(websocket: WebSocket):
                 pass
 
 if __name__ == "__main__":
-    if "--rotate-key" in sys.argv:
-        load_or_create_access_key(rotate=True)
-        print("🔁 New access key saved to auth.json. Restart the server and open the new link on your phone.")
+    if "--remove-all-phones" in sys.argv:
+        PHONES.clear()
+        save_phones()
+        print("🚫 Every phone removed. Restart the server and scan the new QR code.")
         sys.exit(0)
     # Loopback only by default: remote access goes through the HTTPS ngrok tunnel.
     # Set TERMPILOT_HOST=0.0.0.0 to allow plain-HTTP LAN access (key travels unencrypted).

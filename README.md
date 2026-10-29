@@ -14,6 +14,10 @@ The phone opens to a list of chats. **New chat** picks an agent and a folder on 
 * **Handoff between PC and phone** (like Happy): in the TermPilot terminal type `tp claude` instead of `claude`. Claude runs there as usual and appears in the phone's chat list as *In PC terminal*. **Take over** on the phone closes it on the PC and continues the same session as a chat, with its history; press Enter in the PC terminal (or **Give back to PC** on the phone) and it resumes there with everything said on the phone. Claude Code only for now: Codex picks its own session ids.
 * **Any Claude window on the laptop**: a plain `claude` already running in any window (Windows Terminal, VS Code, PowerShell) shows in the chat list as *On laptop*. Once Claude is idle and the session has at least one message, **Take over** types `/exit` into that window and continues the session on the phone; **Give back to PC** types `claude --resume <id>` into the same window, so Claude comes back where it was. TermPilot finds these sessions through Claude Code's own records in `~/.claude/sessions`.
 * **Alerts**: tap *Turn on alerts* on the home screen and the phone gets a notification when an agent needs your OK, finishes, or stops, while TermPilot is closed or the phone is locked. Tapping it opens that chat. The relay signs alerts with its own key (`backend/push.json`, gitignored) and sends them end-to-end encrypted through the browser's push service. On iPhone, add TermPilot to the Home Screen first (iOS 16.4+).
+* **Attach files**: the 📎 button in a chat sends files (up to 100 MB each, 10 per message) from the phone. They are saved in `<project>/.termpilot/uploads` (a `.gitignore` inside `.termpilot` keeps them out of any repo), and the message tells the agent their full paths.
+* **Files**: the file button in a chat's header lists the newest images, videos, audio, PDFs and documents in that chat's folder, with a preview, Open and Download. Files are served only from inside that folder, never from hidden folders or `node_modules`, through a random link that works for 10 minutes.
+* **Past sessions**: on the home screen, lists your recent Claude Code and Codex sessions on the PC (from `~/.claude/projects` and `~/.codex/sessions`), including ones never started from TermPilot. Tap one to reopen it as a chat, with its history.
+* **Agent health**: New chat shows why an agent cannot start (Node.js missing, not signed in, `GEMINI_API_KEY` not set) instead of failing after you tap Start. Only files and environment variables are checked; nothing is started.
 * Setup, once: `npm ci --prefix desktop-agent/acp --ignore-scripts` installs the pinned Claude Code and Codex adapters. Gemini CLI speaks the protocol itself (`gemini --acp`). Each agent uses the login it already has on the PC.
 
 ---
@@ -137,8 +141,21 @@ python agent.py
 ```
 *(If pairing for the first time, run `python agent.py --pair <6-digit-code>` shown on your phone screen).*
 
-### 4. Open on Mobile
-Navigate to the local or ngrok HTTPS URL on your phone's browser, tap the **`💡 FEATURES`** button to view available shortcuts, and start coding on the go!
+### 4. Add your phone
+Scan the QR code the relay prints with the phone's camera. The code works once, for 10 minutes. For another phone later, open `http://localhost:8000/enroll` on the PC and scan that one.
+
+## 🔒 Phones and security
+Anyone who can reach TermPilot can run code on your PC, so every phone has its own key.
+* **Each phone has its own key.** The relay stores only a SHA-256 hash of it, in `backend/phones.json` (gitignored). A phone not used for 30 days must be added again.
+* **Only the PC can add a phone.** The one-time code comes from the PC's screen (startup QR code or `/enroll`, which answers only to a browser on the PC itself). A stolen phone cannot add more phones.
+* **Remove a phone** under **Devices** on the home screen. Its connection closes at once, its key stops working and its alerts stop. To remove every phone: `python main.py --remove-all-phones`.
+* **Updates**: when the PC serves a newer web app, an open page shows *TermPilot was updated on the PC* with a Reload button.
+
+### Check
+```powershell
+backendenv\Scripts\python.exe test_integration.py
+```
+Runs the phone, relay, PC agent and a fake ACP agent over real sockets in a throwaway home folder: adding and removing phones, attachments, the Files sheet, past sessions and agent health.
 
 ### Everyday start
 After setup, open two PowerShell windows and run one line in each, relay first. Close both windows to stop TermPilot. Nothing starts with Windows.

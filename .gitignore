@@ -34,3 +34,6 @@ node_modules/
 
 # Alert signing key and phone push subscriptions
 push.json
+
+# Phone keys (hashed) for the relay
+phones.json

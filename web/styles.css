@@ -250,10 +250,7 @@ button {
 /* ==================== APP LAYOUT ==================== */
 .app-layout {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  height: 100dvh;
+  inset: 0;  /* no fixed height, same reason as .view */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1058,9 +1055,9 @@ button {
 .view {
   display: none;
   position: fixed;
+  /* inset alone tracks the real window. A fixed height (100dvh) is briefly taller than the
+     window while Android opens the app, which puts the foot under the navigation bar. */
   inset: 0;
-  height: 100%;
-  height: 100dvh;
   z-index: 20;
   flex-direction: column;
   background: var(--body);
@@ -1218,6 +1215,27 @@ body[data-view="chat"] #chat-view { display: flex; }
 
 /* ---------- New chat sheet ---------- */
 .new-chat-sheet { height: 78vh; }
+/* Attachments waiting to go with the next message */
+.attach-tray { display: flex; flex-wrap: wrap; gap: calc(var(--m) * 1.5); margin: 0 0 calc(var(--m) * 1.5); }
+.attach-tray[hidden] { display: none; }
+.attach-chip { display: inline-flex; align-items: center; gap: calc(var(--m) * 1); max-width: 100%; height: 30px; padding: 0 calc(var(--m) * 1) 0 calc(var(--m) * 3); border-radius: 99px; background: var(--panel); box-shadow: var(--raised-low); font-family: var(--font-mono); font-size: 12px; }
+.attach-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attach-chip button { width: 24px; height: 24px; border: 0; border-radius: 99px; background: none; color: var(--ink-soft); font-size: 16px; line-height: 1; }
+.attach-chip[data-busy] { opacity: 0.6; }
+/* Shared list sheet: Files, Past sessions, Devices */
+.list-row { display: flex; align-items: center; gap: calc(var(--m) * 2); width: 100%; min-height: 52px; padding: calc(var(--m) * 1.5) calc(var(--m) * 3.5); border: 0; border-bottom: 1px solid var(--rule); background: none; color: var(--ink); text-align: left; }
+.list-row-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.list-row-text b { font-weight: 600; font-size: calc(15 * var(--pt)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-row-text small { color: var(--ink-soft); font-size: calc(13 * var(--pt)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.list-preview { display: grid; gap: calc(var(--m) * 2); justify-items: center; }
+.list-preview[hidden] { display: none; }
+.list-preview img, .list-preview video { max-width: 100%; max-height: 40vh; border-radius: 12px; }
+.list-preview audio { width: 100%; }
+.list-preview .ask-options { justify-content: center; }
+.agent-option[aria-disabled="true"] { opacity: 0.45; }
+.agent-problem { color: var(--signal-text); font-size: calc(13 * var(--pt)); line-height: 1.4; }
+.update-banner { position: fixed; left: 16px; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 60; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 10px 10px 16px; border-radius: 14px; background: var(--ink); color: #fff; font-size: calc(14 * var(--pt)); }
+.update-banner[hidden] { display: none; }
 .new-chat-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: calc(var(--m) * 2.5); padding: 0 calc(var(--m) * 5) calc(var(--m) * 5); }
 .field-label { margin-top: calc(var(--m) * 1.5); font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
 .agent-choice { display: flex; flex-wrap: wrap; gap: calc(var(--m) * 2); color: var(--ink-soft); font-size: calc(14 * var(--pt)); line-height: 1.4; }

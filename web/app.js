@@ -92,30 +92,46 @@ const btnCloseModal = document.getElementById("btn-close-modal");
 const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 const WS_URL = `${wsProtocol}//${window.location.host}/ws/client`;
 
-// ── Access Key ──────────────────────────────────────────────────────────
-// The server rejects any WebSocket that doesn't open with this key. It arrives once via
-// the link the server prints (#key=...; fragments never leave the browser) or by hand,
-// then lives in localStorage.
-const ACCESS_KEY_STORAGE = "termpilot_access_key";
+// ── Phone key ───────────────────────────────────────────────────────────
+// The relay rejects any WebSocket that doesn't open with this phone's own key. A phone gets
+// one by scanning the QR code the PC shows (#enroll=<one-time code>; fragments never leave the
+// browser). The relay keeps only a hash, and any phone can be removed under Devices.
+const DEVICE_STORAGE = "termpilot_device";
+const ENROLL_STORAGE = "termpilot_enroll";
 const authSection = document.getElementById("auth-section");
 const pairingSection = document.getElementById("pairing-section");
 const accessKeyInput = document.getElementById("access-key-input");
 
-function getAccessKey() {
-  try { return localStorage.getItem(ACCESS_KEY_STORAGE) || ""; } catch (e) { return ""; }
+function stored(name) {
+  try { return localStorage.getItem(name) || ""; } catch (e) { return ""; }
 }
-
-function setAccessKey(key) {
+function store(name, value) {
   try {
-    if (key) localStorage.setItem(ACCESS_KEY_STORAGE, key);
-    else localStorage.removeItem(ACCESS_KEY_STORAGE);
+    if (value) localStorage.setItem(name, value);
+    else localStorage.removeItem(name);
   } catch (e) {}
 }
+function getDevice() {
+  try { return JSON.parse(stored(DEVICE_STORAGE)) || null; } catch (e) { return null; }
+}
+// What the PC lists this phone as under Devices
+function deviceName() {
+  const ua = navigator.userAgent;
+  if (/iPhone/.test(ua)) return "iPhone";
+  if (/iPad/.test(ua)) return "iPad";
+  if (/Android/.test(ua)) return "Android phone";  // Chrome reports the model as "K"
+  return /Windows/.test(ua) ? "Windows browser" : /Mac/.test(ua) ? "Mac browser" : "Browser";
+}
+// A pasted link or a bare code
+function enrollCodeFrom(text) {
+  const m = String(text).match(/enroll=([\w-]+)/);
+  return m ? m[1] : /^[\w-]{16,}$/.test(text) ? text : "";
+}
 
-(function captureKeyFromLink() {
-  const m = window.location.hash.match(/[#&]key=([^&]+)/);
-  if (!m) return;
-  setAccessKey(decodeURIComponent(m[1]));
+(function captureCodeFromLink() {
+  const code = enrollCodeFrom(window.location.hash);
+  if (!code) return;
+  store(ENROLL_STORAGE, code);
   // Drop it from the address bar and history so it isn't shared by accident
   history.replaceState(null, "", window.location.pathname + window.location.search);
 })();
@@ -131,9 +147,9 @@ function showAccessKeyPrompt() {
 }
 
 document.getElementById("btn-access-key").addEventListener("click", () => {
-  const key = accessKeyInput.value.trim();
-  if (!key) return;
-  setAccessKey(key);
+  const code = enrollCodeFrom(accessKeyInput.value.trim());
+  if (!code) return showToast("Paste the link from the PC");
+  store(ENROLL_STORAGE, code);
   accessKeyInput.value = "";
   authSection.style.display = "none";
   pairingSection.style.display = "";
@@ -794,21 +810,31 @@ function flushRaw() {
   });
 }
 
+// The web app this page was loaded with; a different one on reconnect means the PC was updated
+let webVersion = null;
+
 function connect() {
-  const accessKey = getAccessKey();
-  if (!accessKey) {
+  const device = getDevice();
+  const enroll = stored(ENROLL_STORAGE);
+  if (!device && !enroll) {
     showAccessKeyPrompt();
     return;
   }
   ws = new WebSocket(WS_URL);
 
   ws.onopen = () => {
-    ws.send(JSON.stringify({ type: "AUTH", key: accessKey }));
+    // A fresh code wins: it is how a removed phone joins again
+    ws.send(JSON.stringify(enroll ? { type: "AUTH", enroll, name: deviceName() } : { type: "AUTH", device: device.id, key: device.key }));
   };
 
   ws.onmessage = (event) => {
     const payload = JSON.parse(event.data);
-    if (payload.type === "AUTH_OK") {
+    if (payload.type === "DEVICE_KEY") {
+      store(DEVICE_STORAGE, JSON.stringify({ id: payload.id, key: payload.key }));
+      store(ENROLL_STORAGE, "");
+    } else if (payload.type === "AUTH_OK") {
+      if (webVersion && payload.version && payload.version !== webVersion) document.getElementById("update-banner").hidden = false;
+      webVersion = webVersion || payload.version;
       wsAuthed = true;
       // A new link: the old size may be stale and the PC may have the terminal back.
       // Phone fit starts once the relay says what size the PTY is now.
@@ -822,11 +848,14 @@ function connect() {
       adaptFontSizeToPty();
       offerGuideOnce();
       window.Chat?.onConnected(payload);
-    } else if (typeof payload.type === "string" && payload.type.startsWith("CHAT_")) {
+    } else if (typeof payload.type === "string" && (payload.type.startsWith("CHAT_") || payload.type === "DEVICES" || payload.type === "UPLOAD_TICKET")) {
       window.Chat?.onMessage(payload);
     } else if (payload.type === "RAW") {
       rawPending += payload.data;
       if (!rawFrame) rawFrame = requestAnimationFrame(flushRaw);
+    } else if (payload.type === "AGENT_ONLINE") {
+      if (capLabel.textContent === CAPSULE_LABELS["NO PC"]) setStamp("ready", "READY");
+      window.Chat?.onMessage(payload);
     } else if (payload.type === "PTY_SIZE") {
       // Output sent before the resize must be drawn at the old size
       flushRaw();
@@ -847,8 +876,9 @@ function connect() {
   ws.onclose = (event) => {
     wsAuthed = false;
     if (event.code === 4001) {
-      // Wrong or rotated key: retrying with it would only fail again
-      setAccessKey("");
+      // Removed, expired or used code: retrying with it would only fail again
+      store(DEVICE_STORAGE, "");
+      store(ENROLL_STORAGE, "");
       showAccessKeyPrompt();
       return;
     }
@@ -1092,9 +1122,10 @@ function sendCommand() {
   // Fast commands are back at the prompt before the 3s guard ends; look once after it
   setTimeout(checkRunComplete, 3100);
 
-  // Send the sanitized typed text + carriage return to execute
-  const cleanText = sanitizeTerminalInput(text);
-  ws.send(JSON.stringify({ type: "INPUT", data: cleanText + "\r" }));
+  // Text first, then Enter on its own: Claude Code reads a fast burst of text as a paste,
+  // and an Enter inside it lands as a new line instead of sending
+  ws.send(JSON.stringify({ type: "INPUT", data: sanitizeTerminalInput(text) }));
+  setTimeout(() => { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: "INPUT", data: "\r" })); }, 300);
   mobileInput.value = "";
   mobileInput.style.height = "48px";
   mobileInput.focus();
@@ -1590,7 +1621,8 @@ btnPair.addEventListener("click", () => {
   btnPair.innerText = "Generating...";
   let got = false;
   const pairWs = new WebSocket(WS_URL);
-  pairWs.onopen = () => pairWs.send(JSON.stringify({ type: "AUTH", key: getAccessKey(), purpose: "pair" }));
+  const device = getDevice() || {};
+  pairWs.onopen = () => pairWs.send(JSON.stringify({ type: "AUTH", device: device.id, key: device.key, purpose: "pair" }));
   pairWs.onmessage = (event) => {
     const data = JSON.parse(event.data);
     if (data.type !== "PAIR_CODE") return;
