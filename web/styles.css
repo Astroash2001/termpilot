@@ -467,7 +467,7 @@ button {
   display: flex;
   flex-direction: column;
   margin: 0 calc(var(--m) * 2);
-  padding: 0 4px 4px;
+  padding: 0 calc(4px - var(--line-w)) 4px; /* border + padding stay 4px a side, so the terminal keeps its columns */
   border: var(--line-w) solid var(--ink);
   border-radius: var(--r-card);
   background: var(--paper);
@@ -1013,6 +1013,7 @@ button {
 
 /* Short viewports / landscape phones (< 550px tall) */
 @media (max-height: 550px) {
+  .hero { display: none !important; }
   .app-header { gap: var(--m); padding-bottom: var(--m); }
   .entry-meta { display: none; }
   .entry-prompt { font-size: 16px; }
@@ -1469,7 +1470,7 @@ button.list-row:active { background: var(--accent-wash); }
 [data-theme="hairline"] .snippet-pill { font-size: 15px; }
 [data-theme="hairline"] .feature-badge { font-family: var(--font-mono); font-size: 12px; font-weight: 400; background: none; box-shadow: inset 0 0 0 1px var(--rule); }
 [data-theme="hairline"] .feature-icon-box { border: 1px solid var(--rule); }
-[data-theme="hairline"] :is(.paper-input, .cmd-search-input, .cmd-input) { border-color: var(--edge); }
+[data-theme="hairline"] :is(.paper-input, .cmd-search-input, .cmd-input) { border-color: var(--ink-soft); }
 [data-theme="hairline"] .cmd-input { border-radius: 24px; padding-left: 16px; }
 [data-theme="hairline"] :is(.paper-input, .cmd-search-input) { border-radius: 99px; padding-left: 18px; }
 [data-theme="hairline"] .overlay { background: color-mix(in srgb, var(--ground) 90%, transparent); }
@@ -1484,7 +1485,7 @@ button.list-row:active { background: var(--accent-wash); }
 [data-theme="hairline"] .cmd-item.selected { background: var(--accent-wash); box-shadow: inset 2px 0 0 var(--ink); }
 
 /* The terminal: a plate with a hairline title bar over hairline's own dark screen */
-[data-theme="hairline"] .bezel { border-color: var(--edge); padding: 0 5px 5px; }
+[data-theme="hairline"] .bezel { border-color: var(--edge); padding-bottom: 5px; }
 [data-theme="hairline"] .grille {
   height: 22px;
   margin: 0;
@@ -1549,7 +1550,7 @@ button.list-row:active { background: var(--accent-wash); }
 [data-theme="hairline"] .msg-agent { line-height: 1.55; }
 [data-theme="hairline"] .chat-log { counter-reset: step; }
 [data-theme="hairline"] .tool { counter-increment: step; overflow: hidden; }
-[data-theme="hairline"] .tool-kind::before { content: counter(step, decimal-leading-zero) "  "; color: var(--edge); white-space: pre; }
+[data-theme="hairline"] .tool-kind::before { content: counter(step, decimal-leading-zero) "  "; color: var(--ink-soft); white-space: pre; }
 [data-theme="hairline"] .tool-status { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
 [data-theme="hairline"] .tool:is([data-status="pending"], [data-status="in_progress"]) .tool-status { background: none; border: 1px dashed var(--ink); animation: turn 2.4s linear infinite; }
 [data-theme="hairline"] .tool[data-status="failed"] .tool-status { background: none; border: 1px solid var(--bad); }
@@ -1572,6 +1573,7 @@ button.list-row:active { background: var(--accent-wash); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 1ms !important;
+    animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
