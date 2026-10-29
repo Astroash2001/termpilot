@@ -16,6 +16,7 @@ import re
 import secrets
 import shutil
 import subprocess
+import sys
 import time
 import uuid
 
@@ -42,6 +43,8 @@ AGENTS = {
     "claude": {"name": "Claude Code", "entry": os.path.join(ACP_MODULES, "claude-agent-acp", "dist", "index.js"), "args": []},
     "codex": {"name": "Codex", "entry": os.path.join(ACP_MODULES, "codex-acp", "dist", "index.js"), "args": []},
     "gemini": {"name": "Gemini CLI", "entry": os.path.join(NPM_GLOBAL, "@google", "gemini-cli", "bundle", "gemini.js"), "args": ["--acp"]},
+    # No ACP of its own: agy_acp.py translates, and needs agy itself on PATH
+    "agy": {"name": "Antigravity", "entry": os.path.join(HERE, "agy_acp.py"), "args": [], "needs": "agy"},
 }
 # Modes that approve every tool without asking. A phone that lost its key must not be one tap
 # away from them, so they are never offered.
@@ -58,7 +61,8 @@ class ChatError(Exception):
 
 
 def installed_agents() -> dict:
-    return {aid: a["name"] for aid, a in AGENTS.items() if os.path.exists(a["entry"])}
+    return {aid: a["name"] for aid, a in AGENTS.items()
+            if os.path.exists(a["entry"]) and (not a.get("needs") or shutil.which(a["needs"]))}
 
 
 def allowed_dir(path) -> str:
@@ -729,13 +733,13 @@ class AcpHost:
         adapter = self.adapters.get(agent_id)
         if adapter and adapter.proc.returncode is None:
             return adapter
-        node = shutil.which("node")
-        if not node:
-            raise ChatError("Node.js is not installed on this PC")
         a = AGENTS[agent_id]
+        runner = sys.executable if a["entry"].endswith(".py") else shutil.which("node")
+        if not runner:
+            raise ChatError("Node.js is not installed on this PC")
         # shortcut: adapters stay up until the PC agent exits (~100 MB each); stop idle ones if memory matters
         proc = await asyncio.create_subprocess_exec(
-            node, a["entry"], *a["args"], stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE,
+            runner, a["entry"], *a["args"], stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE, env=self.make_env(), cwd=os.path.expanduser("~"),
             limit=16 * 1024 * 1024)  # history replays and diffs exceed asyncio's 64 KB line default
         adapter = Adapter(self, agent_id, proc)

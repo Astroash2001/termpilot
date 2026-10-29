@@ -2,7 +2,7 @@
 
 > **Your PC's terminal, on your phone**
 
-TermPilot puts your Windows PC's coding agents and its live terminal on your phone. One app replaces each agent's own remote app: start Claude Code, Codex or Gemini CLI as a **chat** (replies, tool steps, diffs, Allow / Deny), or open the **terminal** to run anything you would run at the desk (shell commands, scripts, builds, servers, Aider, Antigravity `agy`), watch the output, and steer it by typing, voice or a touch key row, from anywhere.
+TermPilot puts your Windows PC's coding agents and its live terminal on your phone. One app replaces each agent's own remote app: start Claude Code, Codex, Gemini CLI or Antigravity as a **chat** (replies, tool steps, diffs, Allow / Deny), or open the **terminal** to run anything you would run at the desk (shell commands, scripts, builds, servers, Aider, Antigravity `agy`), watch the output, and steer it by typing, voice or a touch key row, from anywhere.
 
 ## 💬 Chats with coding agents
 
@@ -18,7 +18,8 @@ The phone opens to a list of chats. **New chat** picks an agent and a folder on 
 * **Files**: the file button in a chat's header lists the newest images, videos, audio, PDFs and documents in that chat's folder, with a preview, Open and Download. Files are served only from inside that folder, never from hidden folders (except `.termpilot`, so files you sent show too) or `node_modules`, through a random link that works for 10 minutes.
 * **Past sessions**: on the home screen, lists your recent Claude Code and Codex sessions on the PC (from `~/.claude/projects` and `~/.codex/sessions`), including ones never started from TermPilot. Tap one to reopen it as a chat, with its history.
 * **Agent health**: New chat shows why an agent cannot start (Node.js missing, not signed in, `GEMINI_API_KEY` not set) instead of failing after you tap Start. Only files and environment variables are checked; nothing is started.
-* Setup, once: `npm ci --prefix desktop-agent/acp --ignore-scripts` installs the pinned Claude Code and Codex adapters. Gemini CLI speaks the protocol itself (`gemini --acp`). Each agent uses the login it already has on the PC.
+* Setup, once: `npm ci --prefix desktop-agent/acp --ignore-scripts` installs the pinned Claude Code and Codex adapters. Gemini CLI speaks the protocol itself (`gemini --acp`); it needs `GEMINI_API_KEY`, since Google sign-in no longer works in Gemini CLI for personal accounts. Each agent uses the login it already has on the PC.
+* **Antigravity chats**: `agy` has no chat protocol, so `desktop-agent/agy_acp.py` runs `agy -p` for each message and turns its event stream into the chat. Antigravity cannot ask for your OK this way: it edits files in the chat's folder by itself and refuses shell commands, which the chat shows so you can run them in the terminal. A chat reopened after a PC agent restart continues the same conversation but starts with an empty screen.
 
 ---
 

@@ -84,6 +84,8 @@ def _env(*names):
 
 def agent_problem(agent_id) -> str:
     """Why this agent cannot run a chat right now, or "" if it looks ready."""
+    if agent_id == "agy":
+        return ""  # agy keeps its own login; a missing one shows as an error in the chat
     if not shutil.which("node"):
         return "Node.js is not installed"
     if agent_id == "claude":
@@ -104,5 +106,6 @@ def agent_problem(agent_id) -> str:
             return "" if _env("GOOGLE_API_KEY", "GOOGLE_CLOUD_PROJECT") else "Set to use Vertex AI, but GOOGLE_CLOUD_PROJECT is not set."
         if os.path.exists(os.path.join(HOME, ".gemini", "oauth_creds.json")):
             return ""
-        return "Not signed in. Run gemini on the PC and sign in with Google."
+        # Google sign-in no longer works in Gemini CLI for personal accounts
+        return "Not signed in. Set GEMINI_API_KEY on the PC (free key at aistudio.google.com)."
     return ""
