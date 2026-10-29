@@ -94,18 +94,4 @@ def agent_problem(agent_id) -> str:
     if agent_id == "codex":
         ok = os.path.exists(os.path.join(HOME, ".codex", "auth.json")) or _env("OPENAI_API_KEY", "CODEX_API_KEY")
         return "" if ok else "Not signed in. Run codex login on the PC."
-    if agent_id == "gemini":
-        try:
-            with open(os.path.join(HOME, ".gemini", "settings.json"), encoding="utf-8") as f:
-                auth = ((json.load(f).get("security") or {}).get("auth") or {}).get("selectedType")
-        except (OSError, ValueError, AttributeError):
-            auth = None
-        if auth == "gemini-api-key":
-            return "" if _env("GEMINI_API_KEY") else "Set to use an API key, but GEMINI_API_KEY is not set on the PC."
-        if auth == "vertex-ai":
-            return "" if _env("GOOGLE_API_KEY", "GOOGLE_CLOUD_PROJECT") else "Set to use Vertex AI, but GOOGLE_CLOUD_PROJECT is not set."
-        if os.path.exists(os.path.join(HOME, ".gemini", "oauth_creds.json")):
-            return ""
-        # Google sign-in no longer works in Gemini CLI for personal accounts
-        return "Not signed in. Set GEMINI_API_KEY on the PC (free key at aistudio.google.com)."
     return ""

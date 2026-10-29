@@ -1,5 +1,5 @@
 // TermPilot · Chats
-// Coding agents (Claude Code, Codex, Gemini CLI) drawn as a chat, the way their own phone apps
+// Coding agents (Claude Code, Codex, Antigravity) drawn as a chat, the way their own phone apps
 // do it: the PC agent runs them over the Agent Client Protocol and relays structured updates
 // (text, tool calls, diffs, permission questions) as CHAT_* messages. Loaded after app.js and
 // shares its socket and helpers: ws, wsAuthed, showToast, triggerHaptic, playCompletionChime.
@@ -265,7 +265,8 @@
       const role = kind === "user_message_chunk" ? "user" : kind === "agent_thought_chunk" ? "thought" : "agent";
       const text = u.content && u.content.type === "text" ? u.content.text : "";
       let el = c.el.lastElementChild;
-      if (!el || el.dataset.role !== role) {
+      // Each message from the phone is its own bubble, even when the agent never answered the last one
+      if (!el || el.dataset.role !== role || role === "user") {
         el = document.createElement("div");
         el.className = "msg msg-" + role;
         el.dataset.role = role;

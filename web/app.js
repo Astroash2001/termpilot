@@ -359,38 +359,6 @@ const AGENT_PROFILES = {
       ] },
     ],
   },
-  gemini: {
-    name: "Gemini CLI",
-    bins: ["gemini", "gemini-cli"],
-    banner: /Gemini CLI/i,
-    busy: /esc to cancel/i,
-    commands: [
-      { title: "Session", items: [
-        ["/clear", "Clear the screen and conversation"],
-        ["/compress", "Summarise the conversation to free context"],
-        ["/chat ", "Save, resume or list conversations"],
-        ["/restore", "Undo file changes from a tool call"],
-        ["/copy", "Copy the last answer"],
-        ["/stats", "Show token usage for this session"],
-        ["/quit", "Quit Gemini CLI"],
-      ] },
-      { title: "Project & tools", items: [
-        ["/init", "Create a GEMINI.md for this project"],
-        ["/memory ", "Show, add to or reload memory"],
-        ["/directory ", "Add or list workspace directories"],
-        ["/tools", "List available tools"],
-        ["/mcp", "List MCP servers and tools"],
-        ["/extensions", "List active extensions"],
-      ] },
-      { title: "Settings & help", items: [
-        ["/settings", "Open settings"],
-        ["/theme", "Change the theme"],
-        ["/auth", "Change how you sign in"],
-        ["/about", "Show version info"],
-        ["/help", "List all commands"],
-      ] },
-    ],
-  },
   aider: {
     name: "Aider",
     bins: ["aider", "aider-chat"],
@@ -576,7 +544,7 @@ function renderAgentCommands() {
     note.className = "cmd-empty";
     note.textContent = profile
       ? `${profile.name} is running. TermPilot doesn't know its commands, so type them in the box.`
-      : "Run any program in the terminal. Start a coding agent such as claude, codex, gemini, aider or agy and its commands show up here.";
+      : "Run any program in the terminal. Start a coding agent such as claude, codex, aider or agy and its commands show up here.";
     agentCommands.replaceChildren(note);
     return;
   }

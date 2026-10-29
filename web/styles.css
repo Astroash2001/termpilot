@@ -1132,6 +1132,8 @@ body[data-view="chat"] #chat-view { display: flex; }
 #chat-view[data-state="thinking"] #chat-status,
 #chat-view[data-state="needs_you"] #chat-status { color: var(--signal-text); }
 #chat-view[data-state="error"] #chat-status { color: var(--bad-text); }
+/* Some agents (Antigravity) are silent for 10-20 s before the first word: show they are on it */
+#chat-view[data-state="thinking"] #chat-items::after { content: "Working…"; display: block; padding: calc(var(--m) * 2) 0; color: var(--ink-soft); font-size: calc(14 * var(--pt)); animation: dotPulse 1.2s ease-in-out infinite; }
 
 .chat-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: calc(var(--m) * 1) calc(var(--m) * 4) calc(var(--m) * 4); overscroll-behavior: contain; }
 .chat-log { display: flex; flex-direction: column; gap: calc(var(--m) * 3); }

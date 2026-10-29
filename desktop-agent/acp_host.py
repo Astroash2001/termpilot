@@ -1,6 +1,6 @@
 """Coding agents as chat sessions, over the Agent Client Protocol (ACP).
 
-Each agent (Claude Code, Codex, Gemini CLI) runs headless as an ACP adapter: newline-delimited
+Each agent (Claude Code, Codex, Antigravity) runs headless as an ACP adapter: newline-delimited
 JSON-RPC 2.0 on stdio. One adapter process per agent type holds all of its sessions. The phone
 drives them with CHAT_* messages and gets back structured updates (text, tool calls, diffs,
 permission requests) to draw as a chat, the way the agents' own mobile apps do.
@@ -26,7 +26,6 @@ import history
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ACP_MODULES = os.path.join(HERE, "acp", "node_modules", "@agentclientprotocol")
-NPM_GLOBAL = os.path.join(os.environ.get("APPDATA", ""), "npm", "node_modules")
 INDEX_FILE = os.path.join(os.path.expanduser("~"), ".termpilot", "sessions.json")
 PC_SESSION_FILE = os.path.join(os.path.expanduser("~"), ".termpilot", "pc-session.json")
 # Agents `tp` can run in the PC terminal and hand to the phone: they take a session id from the
@@ -42,7 +41,6 @@ SESSION_ID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a
 AGENTS = {
     "claude": {"name": "Claude Code", "entry": os.path.join(ACP_MODULES, "claude-agent-acp", "dist", "index.js"), "args": []},
     "codex": {"name": "Codex", "entry": os.path.join(ACP_MODULES, "codex-acp", "dist", "index.js"), "args": []},
-    "gemini": {"name": "Gemini CLI", "entry": os.path.join(NPM_GLOBAL, "@google", "gemini-cli", "bundle", "gemini.js"), "args": ["--acp"]},
     # No ACP of its own: agy_acp.py translates, and needs agy itself on PATH
     "agy": {"name": "Antigravity", "entry": os.path.join(HERE, "agy_acp.py"), "args": [], "needs": "agy"},
 }

@@ -2,7 +2,7 @@
 
 > **Your PC's terminal, on your phone**
 
-TermPilot puts your Windows PC's coding agents and its live terminal on your phone. One app replaces each agent's own remote app: start Claude Code, Codex, Gemini CLI or Antigravity as a **chat** (replies, tool steps, diffs, Allow / Deny), or open the **terminal** to run anything you would run at the desk (shell commands, scripts, builds, servers, Aider, Antigravity `agy`), watch the output, and steer it by typing, voice or a touch key row, from anywhere.
+TermPilot puts your Windows PC's coding agents and its live terminal on your phone. One app replaces each agent's own remote app: start Claude Code, Codex or Antigravity as a **chat** (replies, tool steps, diffs, Allow / Deny), or open the **terminal** to run anything you would run at the desk (shell commands, scripts, builds, servers, Aider, Antigravity `agy`), watch the output, and steer it by typing, voice or a touch key row, from anywhere.
 
 ## 💬 Chats with coding agents
 
@@ -17,8 +17,8 @@ The phone opens to a list of chats. **New chat** picks an agent and a folder on 
 * **Attach files**: the 📎 button in a chat sends files (up to 100 MB each, 10 per message) from the phone. They are saved in `<project>/.termpilot/uploads` (a `.gitignore` inside `.termpilot` keeps them out of any repo), and the message tells the agent their full paths.
 * **Files**: the file button in a chat's header lists the newest images, videos, audio, PDFs and documents in that chat's folder, with a preview, Open and Download. Files are served only from inside that folder, never from hidden folders (except `.termpilot`, so files you sent show too) or `node_modules`, through a random link that works for 10 minutes.
 * **Past sessions**: on the home screen, lists your recent Claude Code and Codex sessions on the PC (from `~/.claude/projects` and `~/.codex/sessions`), including ones never started from TermPilot. Tap one to reopen it as a chat, with its history.
-* **Agent health**: New chat shows why an agent cannot start (Node.js missing, not signed in, `GEMINI_API_KEY` not set) instead of failing after you tap Start. Only files and environment variables are checked; nothing is started.
-* Setup, once: `npm ci --prefix desktop-agent/acp --ignore-scripts` installs the pinned Claude Code and Codex adapters. Gemini CLI speaks the protocol itself (`gemini --acp`); it needs `GEMINI_API_KEY`, since Google sign-in no longer works in Gemini CLI for personal accounts. Each agent uses the login it already has on the PC.
+* **Agent health**: New chat shows why an agent cannot start (Node.js missing, not signed in) instead of failing after you tap Start. Only files and environment variables are checked; nothing is started.
+* Setup, once: `npm ci --prefix desktop-agent/acp --ignore-scripts` installs the pinned Claude Code and Codex adapters. Each agent uses the login it already has on the PC.
 * **Antigravity chats**: `agy` has no chat protocol, so `desktop-agent/agy_acp.py` runs `agy -p` for each message and turns its event stream into the chat. Antigravity cannot ask for your OK this way: it edits files in the chat's folder by itself and refuses shell commands, which the chat shows so you can run them in the terminal. A chat reopened after a PC agent restart continues the same conversation but starts with an empty screen.
 
 ---
@@ -27,7 +27,7 @@ The phone opens to a list of chats. **New chat** picks an agent and a folder on 
 
 * **🎙️ Voice Dictation (Speech-to-Text)**: Live speech-to-text transcription with real-time text tracking.
 * **📱 100% Native Mobile Kinetic Scroll**: Hardware-accelerated GPU momentum scrolling with zero drag and boundary containment.
-* **⚡ Agent Slash Commands**: When a coding agent is running, `/` opens a searchable sheet of its commands (Claude Code, Codex, Gemini CLI, Aider, Antigravity).
+* **⚡ Agent Slash Commands**: When a coding agent is running, `/` opens a searchable sheet of its commands (Claude Code, Codex, Aider, Antigravity).
 * **📜 Smart Command History & Gestures**: Swipe left/right across the prompt box or tap `▲` / `▼` to cycle through recent prompts stored in `localStorage`.
 * **📋 Native Mobile Long-Press Text Selection**: Long-press on the terminal to select text with blue pins, magnifying loupe, and native Copy/Share menus or 1-tap quick copy.
 * **🔔 Task Completion Audio Alert**: Web Audio API synthesized melodic chime (`C5 -> G5`) automatically triggers when a long-running command finishes.
@@ -67,7 +67,7 @@ graph TB
     subgraph S4["[STEP 5] ⚡ Host System & Execution Environment"]
         direction TB
         Shell["🐚 Windows PowerShell (5.1 / 7+)<br/>Native Environment & PATH Tools"]
-        AgyCLI["🤖 Any CLI program<br/>• Scripts, builds, servers<br/>• Coding agents (Claude Code, Codex, Gemini CLI, Aider, agy)<br/>• Full-screen apps and in-place redraws"]
+        AgyCLI["🤖 Any CLI program<br/>• Scripts, builds, servers<br/>• Coding agents (Claude Code, Codex, Aider, agy)<br/>• Full-screen apps and in-place redraws"]
         DevTools["🛠️ Developer CLI Stack<br/>• Git, Python, Node.js, npm, compilers"]
     end
 
@@ -124,7 +124,7 @@ graph TB
 
 ### 1. Prerequisites
 * Python 3.10+
-* Node.js and the agents you want to chat with (Claude Code, Codex, Gemini CLI), then `npm ci --prefix desktop-agent/acp --ignore-scripts`
+* Node.js and the agents you want to chat with (Claude Code, Codex, Antigravity `agy`), then `npm ci --prefix desktop-agent/acp --ignore-scripts`
 * (Optional) `ngrok` for public remote phone access over 5G/LTE
 
 ### 2. Start the Backend Relay
