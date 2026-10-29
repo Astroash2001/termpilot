@@ -70,7 +70,10 @@
     } else {
       document.body.dataset.view = "home";
       current = null;
+      // Rows rise in only on arriving home, not on every state update that redraws them
+      homeSessions.classList.add("entering");
       renderHome();
+      setTimeout(() => homeSessions.classList.remove("entering"), 700);
     }
   }
   window.addEventListener("hashchange", route);
@@ -100,10 +103,11 @@
       homeSessions.replaceChildren(empty);
       return;
     }
-    homeSessions.replaceChildren(...sessions.map((s) => {
+    homeSessions.replaceChildren(...sessions.map((s, i) => {
       const row = document.createElement("button");
       row.className = "home-row";
       row.dataset.state = s.state;
+      row.style.setProperty("--i", i);
       const dot = document.createElement("span");
       dot.className = "state-dot";
       const text = document.createElement("span");
@@ -222,7 +226,6 @@
     const busy = c.state === "thinking" || c.state === "needs_you";
     chatSend.classList.toggle("stop", busy);
     chatSend.setAttribute("aria-label", busy ? "Stop" : "Send");
-    chatSend.querySelector("use").setAttribute("href", busy ? "#i-stop" : "#i-send");
     const mode = c.modes.find((m) => m.id === c.mode);
     modeChip.hidden = c.modes.length < 2;
     modeChip.textContent = mode ? mode.name : "Mode";

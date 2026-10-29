@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="orienteering">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#ecebe7">
+  <meta name="theme-color" content="#fbfaf5">
   <title>TermPilot</title>
   <meta name="description" content="Your PC's terminal on your phone: run anything, watch it, and steer it from anywhere.">
 
@@ -13,8 +13,9 @@
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
   <link rel="manifest" href="/manifest.json">
-  <link rel="preload" href="/fonts/plex-sans.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=74">
+  <!-- The saved look, before first paint (app.js owns switching) -->
+  <script>try { if (localStorage.getItem("termpilot_theme") === "hairline") document.documentElement.dataset.theme = "hairline"; } catch (e) {}</script>
+  <link rel="stylesheet" href="styles.css?v=76">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -125,7 +126,7 @@
           <div class="feature-icon-box"><span class="stamp mini" data-state="ready">ON</span></div>
           <div class="feature-info">
             <div class="feature-title">The status capsule</div>
-            <div class="feature-desc">The black capsule at the top says whether the phone reaches your PC's terminal: <span class="feature-badge">Connected</span>, <span class="feature-badge">Offline</span> or <span class="feature-badge">PC offline</span>. Below it is what you last sent.</div>
+            <div class="feature-desc">The capsule at the top says whether the phone reaches your PC's terminal: <span class="feature-badge">Connected</span>, <span class="feature-badge">Offline</span> or <span class="feature-badge">PC offline</span>. Below it is what you last sent.</div>
           </div>
         </div>
 
@@ -178,7 +179,7 @@
         </div>
 
         <button id="btn-got-it" class="btn-primary btn-got-it">Got it</button>
-        <p class="guide-credit">Desk PC drawing after iso-figure by Tolga Cohce and iso-glow by April Zhu (MIT).</p>
+        <p class="guide-credit">Desk PC drawing after iso-figure by Tolga Cohce and iso-glow by April Zhu; the Line look after hairline by Lucas Marques (all MIT).</p>
 
       </div>
     </div>
@@ -232,7 +233,7 @@
     <div class="pc-bubble-anchor">
       <div class="pc-bubble">
         <button id="btn-sound-toggle" class="pc-fig" title="Completion chime" aria-label="Completion chime" aria-pressed="true">
-          <svg id="pc-fig-art" aria-hidden="true"></svg>
+          <svg id="pc-fig-art" class="pc-art" aria-hidden="true"></svg>
           <span class="pc-mute" aria-hidden="true"><svg class="i"><use href="#i-bell-off"/></svg></span>
         </button>
       </div>
@@ -284,8 +285,18 @@
   <section id="home-view" class="view" aria-label="Chats">
     <header class="view-header">
       <div class="view-bar"><span class="wordmark">TermPilot</span><span class="stamp mini conn-mirror" data-state="offline">Offline</span></div>
+      <!-- Hairline: the desk PC as the hero, answering the finger -->
+      <div class="hero" aria-hidden="true">
+        <span class="hero-tag">fig. 1 · your pc</span>
+        <span class="hero-tag hero-read"></span>
+        <svg class="pc-art"></svg>
+      </div>
       <div class="view-title-row">
-        <h1 class="view-title">Chats</h1>
+        <h1 class="view-title"><span class="title-lead">Your </span><em>chats</em></h1>
+        <div class="theme-switch" role="group" aria-label="Look">
+          <button class="theme-pick" data-theme-pick="orienteering" aria-pressed="true">Map</button>
+          <button class="theme-pick" data-theme-pick="hairline" aria-pressed="false">Line</button>
+        </div>
         <button id="btn-home-guide" class="modal-close-btn" title="How to use TermPilot" aria-label="How to use TermPilot"><svg class="i"><use href="#i-info"/></svg></button>
       </div>
     </header>
@@ -388,7 +399,7 @@
         <input id="attach-input" type="file" multiple hidden>
         <button id="chat-mic" class="mic-btn" title="Voice input" aria-label="Voice input"><svg class="i"><use href="#i-mic"/></svg></button>
         <textarea id="chat-input" class="cmd-input" rows="1" placeholder="Message" aria-label="Message to the agent" autocomplete="off"></textarea>
-        <button id="chat-send" class="send-btn" aria-label="Send"><svg class="i"><use href="#i-send"/></svg></button>
+        <button id="chat-send" class="send-btn" aria-label="Send"><svg class="i ic-send"><use href="#i-send"/></svg><svg class="i ic-stop"><use href="#i-stop"/></svg></button>
       </div>
     </div>
   </section>
@@ -427,10 +438,10 @@
 
   <div id="update-banner" class="update-banner" role="status" hidden>TermPilot was updated on the PC<button class="ask-btn" onclick="location.reload()">Reload</button></div>
 
-  <script src="app.js?v=75"></script>
+  <script src="app.js?v=76"></script>
   <!-- Agent replies are Markdown; DOMPurify strips anything executable before it is shown -->
   <script src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js" integrity="sha384-2vpGtuKqJvFlwJqYnf/wUMuzUfhUnYBt9oay0e2yaFcq0Dh6/aEbQ8YAOeKGzlYo" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js" integrity="sha384-a7SzOxErzJ3ZpQz0zJ32d67dSitNzPcbfybc/ykU9KJhMgZkwqfSxlhhdJRS+XGL" crossorigin="anonymous"></script>
-  <script src="chat.js?v=75"></script>
+  <script src="chat.js?v=76"></script>
 </body>
 </html>
