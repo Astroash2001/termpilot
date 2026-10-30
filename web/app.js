@@ -17,29 +17,16 @@ function getSavedOrOptimalFontSize() {
   return 13;
 }
 
-// ── Looks ───────────────────────────────────────────────────────────────
-// Two looks, picked on the Chats home and remembered on this phone (the head script applies
-// the saved one before first paint). Both keep the terminal dark: agents print bright and
-// truecolor text that would vanish on paper. Dim text (brightBlack) holds >= 5.5:1.
-const THEMES = {
-  orienteering: { meta: "#fbfaf5", term: {
-    background: "#1d1a16", foreground: "#f3efe4", cursor: "#ff5cb8", cursorAccent: "#1d1a16",
-    selectionBackground: "rgba(196, 0, 122, 0.45)",
-    black: "#3a342c", red: "#ff7a63", green: "#a9cf78", yellow: "#f7c948", blue: "#7cb8ea",
-    magenta: "#ff6fc0", cyan: "#79d2c8", white: "#e3ddd0", brightBlack: "#a39a8b",
-    brightRed: "#ff9d8a", brightGreen: "#c2e29a", brightYellow: "#fbdc84", brightBlue: "#a6d0f5",
-    brightMagenta: "#ff9ad3", brightCyan: "#a3e4dc", brightWhite: "#ffffff",
-  } },
-  hairline: { meta: "#ffffff", term: {
-    background: "#08090a", foreground: "#d0d6e0", cursor: "#fafafa", cursorAccent: "#08090a",
-    selectionBackground: "rgba(208, 214, 224, 0.28)",
-    black: "#27272a", red: "#f2777a", green: "#86d39b", yellow: "#e8c97a", blue: "#8ab4f8",
-    magenta: "#c9a3f5", cyan: "#7fd4e0", white: "#c3c3c9", brightBlack: "#8a8c95",
-    brightRed: "#ff9a9c", brightGreen: "#a8e3b8", brightYellow: "#f3dca0", brightBlue: "#b0ccfb",
-    brightMagenta: "#dcc2f8", brightCyan: "#a8e4ec", brightWhite: "#fafafa",
-  } },
+// The terminal stays dark on the paper look: agents print bright and truecolor text that would
+// vanish on paper. Dim text (brightBlack) holds >= 5.5:1.
+const TERM_THEME = {
+  background: "#1d1a16", foreground: "#f3efe4", cursor: "#ff5cb8", cursorAccent: "#1d1a16",
+  selectionBackground: "rgba(196, 0, 122, 0.45)",
+  black: "#3a342c", red: "#ff7a63", green: "#a9cf78", yellow: "#f7c948", blue: "#7cb8ea",
+  magenta: "#ff6fc0", cyan: "#79d2c8", white: "#e3ddd0", brightBlack: "#a39a8b",
+  brightRed: "#ff9d8a", brightGreen: "#c2e29a", brightYellow: "#fbdc84", brightBlue: "#a6d0f5",
+  brightMagenta: "#ff9ad3", brightCyan: "#a3e4dc", brightWhite: "#ffffff",
 };
-const themeName = () => (THEMES[document.documentElement.dataset.theme] ? document.documentElement.dataset.theme : "orienteering");
 
 let currentFontSize = getSavedOrOptimalFontSize();
 
@@ -48,7 +35,7 @@ const term = new Terminal({
   cursorStyle: 'block',
   fontSize: currentFontSize,
   fontFamily: 'ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, "Roboto Mono", monospace',
-  theme: THEMES[themeName()].term,
+  theme: TERM_THEME,
   scrollback: 10000,
   allowProposedApi: true,
   disableStdin: true, // Display-only. All input via native <textarea>.
@@ -71,16 +58,6 @@ try {
 } catch (e) {
   console.warn("WebGL failed, using canvas renderer", e);
 }
-
-function setTheme(name) {
-  document.documentElement.dataset.theme = name;
-  document.querySelector('meta[name="theme-color"]').content = THEMES[name].meta;
-  term.options.theme = THEMES[name].term;
-  document.querySelectorAll("[data-theme-pick]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.themePick === name)));
-  try { localStorage.setItem("termpilot_theme", name); } catch (e) {}
-}
-setTheme(themeName());
-document.querySelectorAll("[data-theme-pick]").forEach((b) => b.addEventListener("click", () => setTheme(b.dataset.themePick)));
 
 // ── DOM Elements ────────────────────────────────────────────────────────
 
@@ -966,39 +943,13 @@ function drawPcFigure(svg) {
 
 const pcFigArt = document.getElementById("pc-fig-art");
 document.querySelectorAll(".pc-art").forEach(drawPcFigure);
-// The same desk PC, large on the Chats home (shown in the Hairline look)
-const pcHero = document.querySelector(".hero");
-
-// Hairline: the drawing answers the finger, after hairline's figures. Keys near it lift,
-// the nearest most; they settle back through CSS when the finger leaves.
-document.querySelectorAll(".pc-art").forEach((svg) => {
-  const keys = [...svg.querySelectorAll(".pc-key")];
-  let centres = null; // measured once per touch, before any key moves
-  const lift = (e) => {
-    if (themeName() !== "hairline") return;
-    centres ??= keys.map((k) => { const r = k.getBoundingClientRect(); return [r.x + r.width / 2, r.y + r.height / 2]; });
-    const reach = svg.getBoundingClientRect().width / 4;
-    keys.forEach((k, i) => {
-      const near = Math.max(0, 1 - Math.hypot(centres[i][0] - e.clientX, centres[i][1] - e.clientY) / reach);
-      k.style.translate = near ? `0 ${(-5 * near).toFixed(2)}px` : "";
-    });
-  };
-  svg.addEventListener("pointerdown", lift);
-  svg.addEventListener("pointermove", lift);
-  for (const t of ["pointerleave", "pointerup", "pointercancel"]) svg.addEventListener(t, () => {
-    centres = null;
-    keys.forEach((k) => (k.style.translate = ""));
-  });
-});
-
 let pcScreenTimer = null;
 // Output arrived: light the screen briefly; a steady stream keeps it lit
 function pulsePcScreen() {
   if (!btnSoundToggle) return;
   btnSoundToggle.classList.add("hot");
-  pcHero?.classList.add("hot");
   clearTimeout(pcScreenTimer);
-  pcScreenTimer = setTimeout(() => { btnSoundToggle.classList.remove("hot"); pcHero?.classList.remove("hot"); }, 180);
+  pcScreenTimer = setTimeout(() => btnSoundToggle.classList.remove("hot"), 180);
 }
 
 // Flash the key for the last character typed; keys the drawing lacks (digits, symbols) stay dark

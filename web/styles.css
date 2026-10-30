@@ -1,25 +1,18 @@
-/* TermPilot · two looks, switched on the Chats home (data-theme on <html>)
-
-   Map (orienteering): an orienteering map and its control-description sheet. White runnable
+/* TermPilot · Map: an orienteering map and its control-description sheet. White runnable
    paper, ink, yellow open land, olive thicket, brown contours, and course-overprint purple as
    the one accent: the active run, what needs you, the primary action. An agent run is a
    course: your prompt is the start triangle, each tool step a numbered control on a purple leg.
 
-   Line (hairline): line drawings on white, after hairline by Lucas Marques (MIT). Everything is
-   a 1px line, the grotesk carries one italic serif word, and the desk PC is the hero figure
-   that answers the finger.
-
-   Both: every pressable pops. A crisp outline and a hard offset shadow with no blur; pressed,
-   it travels into its shadow. Shared rules read tokens; each look then restyles its pieces. */
+   Every pressable pops: a crisp outline and a hard offset shadow with no blur; pressed, it
+   travels into its shadow. Tokens and pressables are global; the course marks and numbered
+   lists are scoped to [data-theme="orienteering"], set on <html>. */
 
 @font-face { font-family: "Barlow"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/barlow-400.woff2") format("woff2"); }
 @font-face { font-family: "Barlow"; font-weight: 600; font-style: normal; font-display: swap; src: url("/fonts/barlow-600.woff2") format("woff2"); }
 @font-face { font-family: "Barlow Condensed"; font-weight: 600; font-style: normal; font-display: swap; src: url("/fonts/barlow-condensed-600.woff2") format("woff2"); }
 @font-face { font-family: "Barlow Condensed"; font-weight: 700; font-style: normal; font-display: swap; src: url("/fonts/barlow-condensed-700.woff2") format("woff2"); }
-@font-face { font-family: "Instrument Serif"; font-weight: 400; font-style: italic; font-display: swap; src: url("/fonts/instrument-serif-italic.woff2") format("woff2"); }
 @font-face { font-family: "IBM Plex Mono"; font-weight: 400; font-style: normal; font-display: swap; src: url("/fonts/plex-mono-400.woff2") format("woff2"); }
 
-/* Map is the default look */
 :root {
   --ground: #fbfaf5;         /* runnable forest: white paper */
   --paper: #fbfaf5;          /* cards and sheets */
@@ -34,7 +27,6 @@
   --shine: #c4007a;          /* the shimmer's highlight */
   --open: #f7c948;           /* open land */
   --thicket: #9bbf6a;
-  --contour: #7a4b2a;
   --water: #1f5f9e;          /* links: 6.6:1 on paper */
   --ok: #4f7a23;
   --ok-text: #3f6417;        /* 6.9:1 on paper */
@@ -43,7 +35,6 @@
   --muted-mark: #8f8678;
   --screen: #1d1a16;         /* the terminal: the map at night */
   --screen-text: #f3efe4;
-  --screen-dim: #a39a8b;
   --font-ui: "Barlow", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-label: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
@@ -66,42 +57,6 @@
   /* One point of reading text. Reading text (help, menus, dialogs) is sized in --pt so it follows
      the phone's text-size setting; keys, the composer and the terminal keep fixed sizes. */
   --pt: 1px;
-}
-
-:root[data-theme="hairline"] {
-  --ground: #ffffff;
-  --paper: #ffffff;
-  --paper-low: #fafafa;
-  --ink: #232327;            /* 15.4:1 on white */
-  --ink-soft: #6f6f78;       /* 5.0:1 on white */
-  --rule: #e0e0e4;           /* hairline's lo stroke */
-  --edge: #a4a4ac;           /* hairline's silhouettes */
-  --accent: #232327;
-  --accent-ink: #ffffff;
-  --accent-text: #232327;
-  --accent-wash: #f4f4f5;
-  --shine: #232327;
-  --water: #232327;
-  --open: #f4f4f5;
-  --ok: #1d6b35;
-  --ok-text: #1d6b35;        /* 6.4:1 on white */
-  --bad: #c4302b;
-  --bad-text: #b02a26;       /* 6.0:1 on white */
-  --muted-mark: #a4a4ac;
-  --screen: #08090a;         /* hairline's own dark plate */
-  --screen-text: #d0d6e0;
-  --screen-dim: #8a8c95;
-  --font-ui: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  --font-label: var(--font-mono);
-  --font-accent: "Instrument Serif", "Iowan Old Style", Georgia, serif;
-  --line-w: 1px;
-  --pop: 3px;
-  --pop-lg: 3px;
-  --r-btn: 999px;
-  --r-key: 10px;
-  --r-card: 12px;
-  --r-sheet: 20px;
-  --contours: none;
 }
 
 /* iOS: the root takes the Dynamic Type body size (17px at the default setting) */
@@ -169,7 +124,7 @@ button {
 /* ==================== POPPING PRESSABLES ==================== */
 /* A crisp outline and a hard shadow; pressed (or chosen) it sits down into the shadow */
 :is(.btn-primary, .send-btn, .mic-btn, .tb-btn, .snippet-pill, .ask-btn, .agent-option, .mode-chip,
-    .modal-close-btn, .back-btn, .btn-select-action, .theme-pick) {
+    .modal-close-btn, .back-btn, .btn-select-action) {
   border: var(--line-w) solid var(--ink);
   background-color: var(--paper);
   color: var(--ink);
@@ -179,21 +134,21 @@ button {
 }
 :is(.btn-primary, .send-btn, .mic-btn, .ask-btn) { box-shadow: var(--pop-lg) var(--pop-lg) 0 var(--ink); }
 :is(.btn-primary, .send-btn, .mic-btn, .tb-btn, .snippet-pill, .ask-btn, .agent-option, .mode-chip,
-    .modal-close-btn, .back-btn, .btn-select-action, .theme-pick):active:not(:disabled),
-:is(.agent-option, .theme-pick)[aria-pressed="true"] {
+    .modal-close-btn, .back-btn, .btn-select-action):active:not(:disabled),
+.agent-option[aria-pressed="true"] {
   transform: translate(var(--pop), var(--pop));
   box-shadow: 0 0 0 var(--ink);
 }
 :is(.btn-primary, .send-btn, .mic-btn, .ask-btn):active:not(:disabled) { transform: translate(var(--pop-lg), var(--pop-lg)); }
 /* The one thing to press */
 :is(.btn-primary, .send-btn, .ask-btn.allow_once, .btn-select-action:first-child),
-:is(.agent-option, .theme-pick)[aria-pressed="true"] {
+.agent-option[aria-pressed="true"] {
   background-color: var(--accent);
   color: var(--accent-ink);
 }
 
 /* ==================== SMALL STATUS STAMP (overlay, guide, home) ==================== */
-/* Map: a legend entry, a swatch beside its name. Line: a hairline pill. */
+/* A legend entry: a swatch beside its name */
 .stamp {
   display: inline-flex;
   align-items: center;
@@ -344,7 +299,7 @@ button {
 }
 
 /* ---------- Status capsule ---------- */
-/* Map: a legend box; Line: a hairline pill. JS animates its width between labels. */
+/* A legend box. JS animates its width between labels. */
 .capsule {
   justify-self: center;
   height: 36px;
@@ -401,9 +356,9 @@ button {
   text-overflow: ellipsis;
 }
 
-/* ---------- The desk PC (chime toggle, and the Line look's hero) ---------- */
+/* ---------- The desk PC (chime toggle) ---------- */
 /* A key flashes as you type and the screen lights when output arrives. Muted: dimmed with a
-   bell-off badge. Map colours it like a map; Line draws it in hairlines. */
+   bell-off badge, coloured like a map. */
 .pc-fig {
   flex: none;
   position: relative;
@@ -416,10 +371,10 @@ button {
 .pc-art .pc-top { fill: var(--paper); }
 .pc-art .pc-front { fill: var(--open); }
 .pc-art .pc-side { fill: var(--thicket); }
-.pc-art .pc-key { fill: var(--paper); stroke: var(--ink-soft); transition: fill 280ms var(--ease-out), translate 420ms var(--ease-drawer); }
+.pc-art .pc-key { fill: var(--paper); stroke: var(--ink-soft); transition: fill 280ms var(--ease-out); }
 .pc-art .pc-key.hot { fill: var(--accent); stroke: var(--accent); transition: none; }
 .pc-art .pc-glass { fill: var(--screen); stroke: var(--ink); }
-.pc-art .pc-scr { fill: #5a5248; stroke: none; transition: fill 420ms var(--ease-out); }
+.pc-art .pc-scr { fill: #5a5248; stroke: none; transition: fill 280ms var(--ease-out); }
 .pc-fig.hot:not(.muted) .pc-scr { fill: #ff5cb8; transition: none; }
 .pc-fig.muted > svg { opacity: 0.5; }
 .pc-mute {
@@ -1013,7 +968,6 @@ button {
 
 /* Short viewports / landscape phones (< 550px tall) */
 @media (max-height: 550px) {
-  .hero { display: none !important; }
   .app-header { gap: var(--m); padding-bottom: var(--m); }
   .entry-meta { display: none; }
   .entry-prompt { font-size: 16px; }
@@ -1102,24 +1056,8 @@ body[data-view="chat"] #chat-view { display: flex; }
   line-height: 1;
   text-transform: uppercase;
 }
-.view-title em { font-style: normal; }
-.title-lead { display: none; }
 .view-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: calc(var(--m) * 4) calc(var(--m) * 4) calc(var(--m) * 4); overscroll-behavior: contain; }
 .view-foot { flex-shrink: 0; padding: calc(var(--m) * 3) calc(var(--m) * 5) max(calc(var(--m) * 4), env(safe-area-inset-bottom)) calc(var(--m) * 4); }
-.hero { display: none; }
-
-/* The look switch: two chips, the chosen one pressed in */
-.theme-switch { display: flex; gap: calc(var(--m) * 2); padding-right: var(--pop); }
-.theme-pick {
-  min-width: 52px;
-  height: 44px;
-  padding: 0 calc(var(--m) * 3);
-  border-radius: var(--r-btn);
-  font-family: var(--font-label);
-  font-size: 16px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
 
 /* ---------- Home ---------- */
 #home-view { background: var(--contours), var(--ground); }
@@ -1154,7 +1092,7 @@ body[data-view="chat"] #chat-view { display: flex; }
 /* Rows rise in on arriving home (chat.js sets .entering and each row's --i) */
 .entering .home-row { animation: rowIn 260ms var(--ease-out) calc(var(--i, 0) * 40ms) both; }
 
-/* Session state marks; JS draws an empty .state-dot, each look gives it a shape */
+/* Session state marks; JS draws an empty .state-dot, Map gives it a shape */
 .state-dot { position: relative; width: 24px; height: 24px; flex: none; border-radius: 50%; }
 
 /* ---------- Chat ---------- */
@@ -1184,7 +1122,7 @@ body[data-view="chat"] #chat-view { display: flex; }
 .msg-agent blockquote { padding-left: calc(var(--m) * 3); border-left: 2px solid var(--rule); color: var(--ink-soft); }
 .msg-agent table { display: block; overflow-x: auto; border-collapse: collapse; font-size: calc(14 * var(--pt)); }
 .msg-agent th, .msg-agent td { padding: 4px 8px; border: 1px solid var(--rule); text-align: left; }
-.msg-thought summary { color: var(--ink-soft); font-size: calc(14 * var(--pt)); cursor: pointer; }
+.msg-thought summary { padding-block: 12px; color: var(--ink-soft); font-size: calc(14 * var(--pt)); cursor: pointer; }
 .msg-thought p { margin-top: 4px; color: var(--ink-soft); font-size: calc(14 * var(--pt)); white-space: pre-wrap; }
 .msg-error { color: var(--bad-text); font-size: calc(14 * var(--pt)); }
 /* While the agent writes, its newest line is still settling into ink (after transitions.dev's
@@ -1252,7 +1190,9 @@ body[data-view="chat"] #chat-view { display: flex; }
 .handoff-bar[hidden], #chat-input-bar[hidden] { display: none; }
 .handoff-text { font-size: calc(15 * var(--pt)); line-height: 1.4; }
 .mode-chip[hidden] { display: none; }
-.mode-chip { height: 32px; margin: 0 0 calc(var(--m) * 2); padding: 0 calc(var(--m) * 3); border-radius: var(--r-btn); font-family: var(--font-label); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+/* Small chips keep their look; an invisible margin brings the touch area to 44px */
+:is(.mode-chip, .attach-chip button)::after { content: ""; position: absolute; inset: -6px; }
+.mode-chip { position: relative; height: 32px; margin: 0 0 calc(var(--m) * 2); padding: 0 calc(var(--m) * 3); border-radius: var(--r-btn); font-family: var(--font-label); font-size: 14px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 #chat-input { height: 48px; min-height: 48px; max-height: 140px; }
 
 /* ---------- New chat sheet ---------- */
@@ -1262,7 +1202,7 @@ body[data-view="chat"] #chat-view { display: flex; }
 .attach-tray[hidden] { display: none; }
 .attach-chip { display: inline-flex; align-items: center; gap: var(--m); max-width: 100%; height: 34px; padding: 0 1px 0 calc(var(--m) * 3); border: 1.5px solid var(--ink); border-radius: var(--r-btn); background: color-mix(in srgb, var(--open) 45%, var(--paper)); font-family: var(--font-mono); font-size: 12px; }
 .attach-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.attach-chip button { width: 32px; height: 32px; flex: none; border-radius: var(--r-btn); color: var(--ink-soft); font-size: 18px; line-height: 1; }
+.attach-chip button { position: relative; width: 32px; height: 32px; flex: none; border-radius: var(--r-btn); color: var(--ink-soft); font-size: 18px; line-height: 1; }
 .attach-chip[data-busy] { border-style: dashed; color: var(--ink-soft); }
 /* Shared list sheet: Files, Past sessions, Devices */
 .list-row { position: relative; display: flex; align-items: center; gap: calc(var(--m) * 3); width: 100%; min-height: 56px; padding: calc(var(--m) * 2) calc(var(--m) * 3.5); border-bottom: 1px solid var(--rule); color: var(--ink); text-align: left; }
@@ -1270,7 +1210,7 @@ button.list-row:active { background: var(--accent-wash); }
 .list-row-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
 .list-row-text b { font-weight: 600; font-size: calc(15 * var(--pt)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .list-row-text small { color: var(--ink-soft); font-size: calc(13 * var(--pt)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.list-row .ask-btn { flex: none; min-height: 40px; font-size: calc(15 * var(--pt)); }
+.list-row .ask-btn { flex: none; min-height: 44px; font-size: calc(15 * var(--pt)); }
 .list-preview { display: grid; gap: calc(var(--m) * 3); justify-items: center; }
 .list-preview[hidden] { display: none; }
 .list-preview img, .list-preview video { max-width: 100%; max-height: 40vh; border: var(--line-w) solid var(--ink); border-radius: var(--r-card); }
@@ -1302,7 +1242,7 @@ button.list-row:active { background: var(--accent-wash); }
 }
 @starting-style { .update-banner { opacity: 0; translate: 0 12px; } }
 .update-banner[hidden] { display: none; }
-.update-banner .ask-btn { flex: none; min-height: 40px; background-color: var(--accent); color: var(--accent-ink); }
+.update-banner .ask-btn { flex: none; min-height: 44px; background-color: var(--accent); color: var(--accent-ink); }
 .new-chat-body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: calc(var(--m) * 2.5); padding: 0 calc(var(--m) * 5) calc(var(--m) * 5); }
 .field-label { margin-top: calc(var(--m) * 1.5); font-family: var(--font-label); font-size: 13px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
 .agent-choice { display: flex; flex-wrap: wrap; gap: calc(var(--m) * 3); padding-right: var(--pop); color: var(--ink-soft); font-size: calc(14 * var(--pt)); line-height: 1.4; }
@@ -1419,8 +1359,8 @@ button.list-row:active { background: var(--accent-wash); }
 [data-theme="orienteering"] .msg-error { padding-top: 8px; padding-bottom: 8px; }
 /* The leg runs on, dashed, to the control the agent is heading for */
 [data-theme="orienteering"] #chat-view[data-state="thinking"] .chat-log::after {
-  margin-left: 15px;
-  padding: 12px 0 14px 29px;
+  margin-left: 16px; /* centres the dashed leg on the solid one (16px + half of 2.5px) */
+  padding: 12px 0 14px 27.5px;
   border-left: 2.5px dashed var(--accent);
 }
 /* Run over: the finish, a double circle */
@@ -1434,139 +1374,11 @@ button.list-row:active { background: var(--accent-wash); }
   background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cg fill='%23fbfaf5' stroke='%23c4007a' stroke-width='2.4'%3E%3Ccircle cx='17' cy='17' r='15'/%3E%3Ccircle cx='17' cy='17' r='9.5'/%3E%3C/g%3E%3C/svg%3E") 1px 6px / 32px no-repeat, linear-gradient(var(--accent), var(--accent)) 16px 0 / 2.5px 8px no-repeat;
 }
 
-/* ==================== LINE: HAIRLINE ==================== */
-/* Everything is a 1px line. Cards and sheets get light lines; what you press gets ink. */
-[data-theme="hairline"] .wordmark { font-family: var(--font-ui); font-weight: 600; letter-spacing: -0.01em; text-transform: none; }
-[data-theme="hairline"] :is(.stamp, .capsule) { border: 1px solid var(--rule); border-radius: 99px; font-family: var(--font-mono); font-weight: 400; letter-spacing: 0.02em; text-transform: none; }
-[data-theme="hairline"] .stamp { font-size: 11px; padding: 6px 10px; }
-[data-theme="hairline"] .stamp::before,
-[data-theme="hairline"] .cap-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); box-shadow: none; }
-[data-theme="hairline"] :is(.stamp[data-state="offline"]::before, .capsule[data-state="offline"] .cap-dot) { background: none; box-shadow: inset 0 0 0 1px var(--bad); }
-[data-theme="hairline"] :is(.stamp[data-state="locked"]::before, .capsule[data-state="locked"] .cap-dot) { background: none; box-shadow: inset 0 0 0 1px var(--edge); }
-[data-theme="hairline"] .capsule { height: 34px; padding: 0 14px; font-size: 12px; }
-[data-theme="hairline"] .feature-icon-box .stamp.mini { border: 0; }
-
-/* Headings: a neutral grotesk with one italic serif word */
-[data-theme="hairline"] :is(.view-title, .overlay-title, .modal-title, .chat-title) { font-family: var(--font-ui); font-weight: 500; letter-spacing: -0.02em; text-transform: none; }
-[data-theme="hairline"] .view-title { font-size: calc(34 * var(--pt)); line-height: 1.1; }
-[data-theme="hairline"] .view-title em { font-family: var(--font-accent); font-style: italic; font-weight: 400; font-size: 1.12em; letter-spacing: 0; }
-[data-theme="hairline"] .title-lead { display: inline; }
-[data-theme="hairline"] .overlay-title { font-size: calc(26 * var(--pt)); }
-[data-theme="hairline"] .modal-title { font-size: calc(19 * var(--pt)); font-weight: 600; }
-[data-theme="hairline"] .chat-title { font-size: calc(17 * var(--pt)); font-weight: 600; letter-spacing: -0.01em; }
-[data-theme="hairline"] :is(.entry-meta, .tool-kind, .tool-status, .field-label, .cmd-section-title, .plan-title, .zoom-readout) { font-family: var(--font-mono); font-size: 11px; font-weight: 400; letter-spacing: 0.02em; text-transform: none; }
-[data-theme="hairline"] .entry-meta .wordmark { font-family: var(--font-mono); font-size: 11px; font-weight: 400; color: var(--ink); }
-[data-theme="hairline"] .view-header { border-bottom: 1px solid var(--rule); }
-[data-theme="hairline"] .chat-compose { border-top-color: var(--rule); }
-
-/* Pressables: ink hairline, 3px ink shadow, pills; keys are rounded tiles */
-[data-theme="hairline"] :is(.btn-primary, .ask-btn, .theme-pick, .mode-chip, .tb-btn, .snippet-pill) { font-family: var(--font-ui); font-weight: 500; letter-spacing: 0; text-transform: none; }
-[data-theme="hairline"] .btn-primary { font-size: 17px; }
-[data-theme="hairline"] .ask-btn { font-size: calc(15 * var(--pt)); }
-[data-theme="hairline"] .theme-pick { font-size: 14px; min-width: 56px; }
-[data-theme="hairline"] .mode-chip { font-family: var(--font-mono); font-size: 12px; font-weight: 400; }
-[data-theme="hairline"] .tb-btn { font-family: var(--font-mono); font-size: 13px; }
-[data-theme="hairline"] .tb-btn.cmd-trigger { background-color: var(--paper); }
-[data-theme="hairline"] .snippet-pill { font-size: 15px; }
-[data-theme="hairline"] .feature-badge { font-family: var(--font-mono); font-size: 12px; font-weight: 400; background: none; box-shadow: inset 0 0 0 1px var(--rule); }
-[data-theme="hairline"] .feature-icon-box { border: 1px solid var(--rule); }
-[data-theme="hairline"] :is(.paper-input, .cmd-search-input, .cmd-input) { border-color: var(--ink-soft); }
-[data-theme="hairline"] .cmd-input { border-radius: 24px; padding-left: 16px; }
-[data-theme="hairline"] :is(.paper-input, .cmd-search-input) { border-radius: 99px; padding-left: 18px; }
-[data-theme="hairline"] .overlay { background: color-mix(in srgb, var(--ground) 90%, transparent); }
-[data-theme="hairline"] .overlay-box { border-color: var(--rule); box-shadow: none; }
-[data-theme="hairline"] .pairing-code { font-family: var(--font-mono); font-weight: 400; font-size: 40px; letter-spacing: 0.12em; }
-[data-theme="hairline"] .toast { box-shadow: none; font-weight: 500; }
-[data-theme="hairline"] .modal-sheet { border-color: var(--rule); }
-[data-theme="hairline"] .modal-header::before { height: 1px; background: var(--edge); }
-[data-theme="hairline"] .cmd-empty { border: 1px dashed var(--edge); }
-[data-theme="hairline"] .dir-list { border: 1px solid var(--rule); }
-[data-theme="hairline"] .cmd-item:active,
-[data-theme="hairline"] .cmd-item.selected { background: var(--accent-wash); box-shadow: inset 2px 0 0 var(--ink); }
-
-/* The terminal: a plate with a hairline title bar over hairline's own dark screen */
-[data-theme="hairline"] .bezel { border-color: var(--edge); padding-bottom: 5px; }
-[data-theme="hairline"] .grille {
-  height: 22px;
-  margin: 0;
-  background:
-    radial-gradient(circle, transparent 3px, var(--edge) 3px 4px, transparent 4.5px) 4px 50% / 12px 12px no-repeat,
-    radial-gradient(circle, transparent 3px, var(--edge) 3px 4px, transparent 4.5px) 18px 50% / 12px 12px no-repeat,
-    radial-gradient(circle, transparent 3px, var(--edge) 3px 4px, transparent 4.5px) 32px 50% / 12px 12px no-repeat;
-}
-[data-theme="hairline"] .pc-bubble { border-color: var(--edge); }
-
-/* The desk PC in hairlines: plates filled white, silhouettes mid-grey, the glass in ink */
-[data-theme="hairline"] .pc-art rect { fill: var(--paper); stroke: #c3c3c9; stroke-width: 0.9; }
-[data-theme="hairline"] .pc-art :is(.pc-top, .pc-front, .pc-side) { stroke: var(--edge); }
-[data-theme="hairline"] .pc-art .pc-key { stroke: #c3c3c9; transition: stroke 260ms, translate 520ms var(--ease-drawer); }
-[data-theme="hairline"] .pc-art .pc-key.hot { fill: var(--paper); stroke: var(--ink); transition: translate 520ms var(--ease-drawer); }
-[data-theme="hairline"] .pc-art .pc-glass { stroke: var(--ink); }
-[data-theme="hairline"] .pc-art .pc-scr { fill: none; stroke: var(--rule); }
-/* Output arriving: the screen's lines write in, top to bottom */
-[data-theme="hairline"] .hot:not(.muted) .pc-scr { fill: none; stroke: var(--ink); animation: scrWrite 560ms linear infinite; }
-[data-theme="hairline"] .hot .pc-scr[y="27"] { animation-delay: 90ms; }
-[data-theme="hairline"] .hot .pc-scr[y="38"] { animation-delay: 180ms; }
-[data-theme="hairline"] .hot .pc-scr[y="49"] { animation-delay: 270ms; }
-@keyframes scrWrite { 0% { opacity: 0.15; } 45%, 100% { opacity: 1; } }
-
-/* The hero: the desk PC on a hairline plate on the Chats home, with figure tags */
-[data-theme="hairline"] .hero { display: block; position: relative; height: 172px; margin-top: calc(var(--m) * 3); border: 1px solid var(--rule); border-radius: 14px; }
-.hero .pc-art { position: absolute; left: 0; top: 30px; width: 100%; height: calc(100% - 44px); overflow: visible; touch-action: none; }
-.hero-tag { position: absolute; top: 12px; left: 14px; font: 11px/1 var(--font-mono); letter-spacing: 0.02em; color: var(--ink-soft); }
-.hero-read { left: auto; right: 14px; color: var(--ink); }
-.hero-read::after { content: "idle"; }
-.hero.hot .hero-read::after { content: "output"; }
-
-/* Home: a plate of rows divided by hairlines; state as small line marks */
-[data-theme="hairline"] .view-header { padding-bottom: calc(var(--m) * 4); }
-[data-theme="hairline"] .home-row { border-radius: 0; }
-[data-theme="hairline"] .home-row:active { background: var(--accent-wash); }
-@media (hover: hover) and (pointer: fine) {
-  [data-theme="hairline"] .home-row:hover { background: #fafafa; }
-}
-[data-theme="hairline"] .terminal-row { border: 1px solid var(--rule); border-radius: var(--r-card); }
-[data-theme="hairline"] .row-icon { border: 1px solid var(--rule); border-radius: 10px; width: 36px; height: 36px; }
-[data-theme="hairline"] .row-icon .i { stroke-width: 1.25; }
-[data-theme="hairline"] .home-sessions { margin-bottom: calc(var(--m) * 3); border: 1px solid var(--rule); border-radius: var(--r-card); overflow: hidden; }
-[data-theme="hairline"] .home-sessions:has(.home-empty) { border-style: dashed; border-color: var(--edge); }
-[data-theme="hairline"] .home-sessions .home-row + .home-row { border-top: 1px solid var(--rule); }
-[data-theme="hairline"] .home-row-meta { font-family: var(--font-mono); font-size: 11px; }
-[data-theme="hairline"] .state-dot { width: 36px; height: 36px; background: radial-gradient(circle, transparent 4.5px, var(--edge) 4.5px 5.5px, transparent 6px); }
-[data-theme="hairline"] .home-row[data-state="thinking"] .state-dot { background: none; }
-[data-theme="hairline"] .home-row[data-state="thinking"] .state-dot::before { content: ""; position: absolute; inset: 11px; border: 1px dashed var(--ink); border-radius: 50%; animation: turn 2.4s linear infinite; }
-[data-theme="hairline"] .home-row[data-state="needs_you"] .state-dot { background: radial-gradient(circle, var(--ink) 0 4.5px, transparent 5px 7.5px, var(--ink) 7.5px 8.5px, transparent 9px); }
-[data-theme="hairline"] .home-row[data-state="error"] .state-dot { background: linear-gradient(135deg, transparent 47%, var(--bad) 47% 53%, transparent 53%) center / 13px 13px no-repeat, radial-gradient(circle, transparent 5.5px, var(--bad) 5.5px 6.5px, transparent 7px); }
-/* No chats yet: an empty tray in iso hairlines */
-[data-theme="hairline"] .home-sessions .home-empty::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 72'%3E%3Cg fill='none' stroke-width='1' stroke-linejoin='round'%3E%3Cpath d='M60 10 104 32 60 54 16 32z' stroke='%23a4a4ac'/%3E%3Cpath d='M16 32v10l44 22 44-22V32M60 54v10' stroke='%23a4a4ac'/%3E%3Cpath d='M60 20 84 32 60 44 36 32z' stroke='%23e0e0e4' stroke-dasharray='2 3'/%3E%3C/g%3E%3C/svg%3E"); }
-
-[data-theme="hairline"] .attach-chip { border: 1px solid var(--edge); background: var(--paper); }
-[data-theme="hairline"] .list-row-text small { font-family: var(--font-mono); font-size: 11px; }
-[data-theme="hairline"] .list-preview :is(img, video) { border-color: var(--rule); }
-[data-theme="hairline"] .update-banner { border-color: var(--rule); border-radius: 16px; box-shadow: none; font-weight: 500; }
-
-/* Chat: hairline bubbles and numbered step cards */
-[data-theme="hairline"] .msg-user { align-self: flex-end; max-width: 85%; padding: calc(var(--m) * 2.5) calc(var(--m) * 3.5); border: 1px solid var(--rule); border-radius: 18px 18px 4px 18px; }
-[data-theme="hairline"] .msg-agent { line-height: 1.55; }
-[data-theme="hairline"] .chat-log { counter-reset: step; }
-[data-theme="hairline"] .tool { counter-increment: step; overflow: hidden; }
-[data-theme="hairline"] .tool-kind::before { content: counter(step, decimal-leading-zero) "  "; color: var(--ink-soft); white-space: pre; }
-[data-theme="hairline"] .tool-status { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); }
-[data-theme="hairline"] .tool:is([data-status="pending"], [data-status="in_progress"]) .tool-status { background: none; border: 1px dashed var(--ink); animation: turn 2.4s linear infinite; }
-[data-theme="hairline"] .tool[data-status="failed"] .tool-status { background: none; border: 1px solid var(--bad); }
-[data-theme="hairline"] .tool.asking { border-color: var(--ink); }
-[data-theme="hairline"] .tool.asking .tool-status { background: none; border: 1px solid var(--ink); box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ink); animation: none; }
-[data-theme="hairline"] .diff-line.add { background: #f1f8f3; color: #1d6b35; }
-[data-theme="hairline"] .diff-line.del { background: #fbf1f1; color: #a3262a; }
-[data-theme="hairline"] .handoff-bar { border-color: var(--rule); background: var(--paper-low); }
-[data-theme="hairline"] #chat-view[data-state="thinking"] .chat-log::after { font-family: var(--font-mono); font-size: 12px; font-weight: 400; letter-spacing: 0.02em; text-transform: none; }
-
-/* Increased contrast: darker secondary ink and visible hairlines (3:1) */
+/* Increased contrast: darker secondary ink and visible rules (3:1) */
 @media (prefers-contrast: more) {
-  :root, :root[data-theme="hairline"] {
+  :root {
     --ink-soft: #46403a;
     --rule: #8a877f;
-    --edge: #6f6f78;
   }
 }
 

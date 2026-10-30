@@ -1,75 +1,70 @@
 ---
 name: TermPilot
-description: A porcelain instrument for watching and steering a PC terminal run from the phone.
+description: An orienteering map for watching and steering a PC terminal and its coding agents from the phone.
 colors:
-  signal: "#ff4f00"
-  signal-deep: "#e04600"
-  signal-ink: "#ffffff"
-  signal-text: "#c43c00"
-  signal-fill: "#d64200"
-  signal-fill-deep: "#b83a00"
-  body: "#ecebe7"
-  panel: "#f7f6f3"
-  panel-low: "#e4e2dc"
-  edge: "#cfccc5"
-  rule: "#d9d6cf"
-  ink: "#1a1a19"
-  ink-soft: "#5f5c56"
-  screen: "#121212"
-  screen-text: "#e8e6e1"
-  screen-dim: "#8b8984"
-  bezel: "#0b0b0b"
-  capsule: "#000000"
-  key-lit: "#2563eb"
-  ok: "#2f9e55"
-  ok-text: "#22783f"
-  bad: "#d6331f"
-  bad-text: "#b52a18"
+  overprint: "#c4007a"
+  overprint-ink: "#ffffff"
+  overprint-wash: "#fde7f2"
+  paper: "#fbfaf5"
+  paper-low: "#f1ede1"
+  ink: "#1d1a16"
+  ink-soft: "#5c5348"
+  rule: "#d9d2c4"
+  open-land: "#f7c948"
+  thicket: "#9bbf6a"
+  contour: "#7a4b2a"
+  water: "#1f5f9e"
+  ok: "#4f7a23"
+  ok-text: "#3f6417"
+  bad: "#b3261e"
+  bad-text: "#a8231c"
+  muted-mark: "#8f8678"
+  screen: "#1d1a16"
+  screen-text: "#f3efe4"
+  screen-signal: "#ff5cb8"
 typography:
   display:
-    fontFamily: "IBM Plex Mono, ui-monospace, SF Mono, Cascadia Mono, Menlo, Consolas, monospace"
-    fontSize: "44px"
-    fontWeight: 500
+    fontFamily: "Barlow Condensed, Arial Narrow, Roboto Condensed, sans-serif"
+    fontSize: "52px"
+    fontWeight: 700
     lineHeight: 1
-    letterSpacing: "0.16em"
+    letterSpacing: "0.18em"
     fontFeature: "tnum"
   headline:
-    fontFamily: "IBM Plex Sans, system-ui, -apple-system, Segoe UI, sans-serif"
-    fontSize: "26px"
-    fontWeight: 600
-    lineHeight: 1.15
-    letterSpacing: "-0.01em"
+    fontFamily: "Barlow Condensed, Arial Narrow, Roboto Condensed, sans-serif"
+    fontSize: "44px"
+    fontWeight: 700
+    lineHeight: 1
   title:
-    fontFamily: "IBM Plex Sans, system-ui, -apple-system, Segoe UI, sans-serif"
+    fontFamily: "Barlow, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
     fontSize: "20px"
     fontWeight: 600
     lineHeight: 1.25
-    letterSpacing: "-0.01em"
   body:
-    fontFamily: "IBM Plex Sans, system-ui, -apple-system, Segoe UI, sans-serif"
-    fontSize: "15px"
+    fontFamily: "Barlow, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+    fontSize: "16px"
+    fontWeight: 400
+    lineHeight: 1.5
+  button:
+    fontFamily: "Barlow Condensed, Arial Narrow, Roboto Condensed, sans-serif"
+    fontSize: "20px"
+    fontWeight: 700
+    lineHeight: 1
+    letterSpacing: "0.06em"
+  label:
+    fontFamily: "Barlow Condensed, Arial Narrow, Roboto Condensed, sans-serif"
+    fontSize: "13px"
+    fontWeight: 600
+    lineHeight: 1
+    letterSpacing: "0.08em"
+  mono:
+    fontFamily: "IBM Plex Mono, ui-monospace, SF Mono, Cascadia Mono, Menlo, Consolas, monospace"
+    fontSize: "12px"
     fontWeight: 400
     lineHeight: 1.45
-  key:
-    fontFamily: "IBM Plex Mono, ui-monospace, SF Mono, Cascadia Mono, Menlo, Consolas, monospace"
-    fontSize: "13px"
-    fontWeight: 500
-    lineHeight: 1
-  label:
-    fontFamily: "IBM Plex Mono, ui-monospace, SF Mono, Cascadia Mono, Menlo, Consolas, monospace"
-    fontSize: "11px"
-    fontWeight: 500
-    lineHeight: 1
-    letterSpacing: "0.1em"
 rounded:
-  badge: "6px"
-  tile: "12px"
-  key: "13px"
-  plate: "14px"
-  banner: "22px"
-  screen: "26px"
-  sheet: "28px"
-  pill: "99px"
+  none: "0px"
+  control: "50%"
 spacing:
   m: "4px"
   sm: "8px"
@@ -78,223 +73,252 @@ spacing:
   xl: "20px"
   xxl: "24px"
 components:
-  button-send:
-    backgroundColor: "{colors.signal}"
-    textColor: "{colors.signal-ink}"
-    rounded: "{rounded.pill}"
-    size: "50px"
-  button-send-active:
-    backgroundColor: "{colors.signal-deep}"
   button-primary:
-    backgroundColor: "{colors.signal}"
-    textColor: "{colors.signal-ink}"
-    rounded: "{rounded.pill}"
+    backgroundColor: "{colors.overprint}"
+    textColor: "{colors.overprint-ink}"
+    typography: "{typography.button}"
+    rounded: "{rounded.none}"
     height: "52px"
     width: "100%"
-  button-primary-active:
-    backgroundColor: "{colors.signal-deep}"
-  key:
-    backgroundColor: "{colors.panel}"
+  button-send:
+    backgroundColor: "{colors.overprint}"
+    textColor: "{colors.overprint-ink}"
+    rounded: "{rounded.none}"
+    size: "50px"
+  button-stop:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.paper}"
+    rounded: "{rounded.none}"
+    size: "50px"
+  button-secondary:
+    backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
-    typography: "{typography.key}"
-    rounded: "{rounded.key}"
+    rounded: "{rounded.none}"
+    height: "44px"
+    padding: "0 16px"
+  key:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+    height: "46px"
+  key-command:
+    backgroundColor: "{colors.open-land}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
     height: "46px"
   key-danger:
-    backgroundColor: "{colors.panel}"
+    backgroundColor: "{colors.paper}"
     textColor: "{colors.bad-text}"
-    typography: "{typography.key}"
-    rounded: "{rounded.key}"
+    rounded: "{rounded.none}"
     height: "46px"
-  pill:
-    backgroundColor: "{colors.panel}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.pill}"
-    padding: "0 14px"
-    height: "36px"
-  pill-active:
-    backgroundColor: "{colors.panel-low}"
   input-prompt:
-    backgroundColor: "{colors.panel}"
+    backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.pill}"
-    padding: "13px 18px 11px"
+    rounded: "{rounded.none}"
+    padding: "12px 14px 10px"
     height: "50px"
-  command-plate:
-    backgroundColor: "{colors.panel}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.plate}"
-    padding: "10px 14px"
   status-capsule:
-    backgroundColor: "{colors.capsule}"
-    textColor: "{colors.signal-ink}"
-    rounded: "{rounded.pill}"
-    padding: "0 16px"
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.none}"
+    padding: "0 12px"
     height: "36px"
+  stamp:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.none}"
+    padding: "5px 8px"
+  tool-step:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+    height: "48px"
+  tool-step-asking:
+    backgroundColor: "{colors.overprint-wash}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+  control-number:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.overprint}"
+    rounded: "{rounded.control}"
+    size: "33px"
+  sheet:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.none}"
+  toast:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.paper}"
+    rounded: "{rounded.none}"
+    padding: "10px 16px"
   terminal-screen:
     backgroundColor: "{colors.screen}"
     textColor: "{colors.screen-text}"
-    rounded: "{rounded.screen}"
-  sheet:
-    backgroundColor: "{colors.body}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.sheet}"
+    rounded: "{rounded.none}"
 ---
 
 # Design System: TermPilot
 
 ## Overview
 
-**Creative North Star: "The Porcelain Instrument"**
+**Creative North Star: "The Orienteering Map"**
 
-TermPilot is a piece of premium hardware held in one hand: a warm porcelain body, the terminal set into it like a dark glass screen behind a bezel, raised physical keys underneath, and one signal-orange accent. The lineage is Teenage Engineering, Braun and Leica: industrial calm, honest materials, every control looking like something you could press with a thumb.
+TermPilot is an orienteering map and its control-description sheet, printed on runnable white paper. Ink draws the structure, map symbol colors (yellow open land, olive thicket, brown contours, blue water) color the few surfaces that need a tint, and course-overprint purple is the one accent, exactly as it is on a real map: the course you are running, the control that needs you, the thing to press. An agent run is a course. Your prompt is the start triangle, each tool step is a numbered control on a purple leg line, and an idle run that used tools ends on the finish double circle.
 
-The screen is the truth and the body serves it. The dark glass takes all the space the column of controls leaves; the porcelain around it is quiet, near-white and warm, with depth carried by light and lips rather than lines. A black status capsule at the top is the instrument's readout: it breathes orange while a run is going, counts time in tabular mono, draws a green check when the run is done, and resizes with a spring as its label changes. When a run ends, a frosted banner drops in from the top and, if the phone is locked, a system notification takes its place.
+The chrome is square and printed: 2px ink outlines, zero radius, ruled and numbered lists, and pressables that "pop" off the paper on a hard offset ink shadow and travel into it when pressed. The terminal is the exception: it stays a dark screen ("the map at night") inside an ink frame topped by a scale bar, because agents print bright and truecolor text that would vanish on paper.
 
-Density is phone-instrument density: a fixed full-height column (readout, screen, text-size row, prompt row, key row), no page scroll, everything within thumb reach.
+Density is phone-instrument density: the terminal view is a fixed full-height column with no page scroll; Home and Chat are scrolling sheets over it.
 
 **Key Characteristics:**
-- Warm porcelain body, dark glass screen, black readout capsule: three materials, nothing else.
-- One signal orange for "happening now" and "press this"; green only for connected, red only for offline and interrupt.
-- Raised keys built from light and a lip (top inner highlight, edge line, soft cast), never from borders.
-- IBM Plex throughout the chrome: Sans for words people read, Mono for keys, codes, commands and readouts.
-- Spring motion on physical things (capsule width, sheets); quick ease-out on presses.
+- White map paper, ink line work, overprint purple as the only accent; map symbol colors only as small tints.
+- Every pressable is a 2px ink outline with a hard ink offset shadow; pressed, it sits down into the shadow.
+- Square corners everywhere; circles only for controls (state marks, control numbers, the finish).
+- Barlow Condensed uppercase for labels, titles and buttons; Barlow for anything read as a sentence; IBM Plex Mono for code, paths and commands.
+- Lists are control-description sheets: numbered in purple, ruled in ink.
 
 ## Colors
 
-A warm neutral body and a near-black screen, with signal orange as the only voice and green/red reserved for state.
+Paper and ink carry the structure, overprint purple carries meaning, and the map symbol colors appear only as tints and swatches.
 
 ### Primary
-- **Signal Orange** (`signal`): the Send key, primary buttons, the desk PC's screen while output arrives, the terminal cursor, focus rings, input carets and the selected command plate. Pressed state deepens to **Signal Ember** (`signal-deep`). Labels and icons on orange are white (`signal-ink`). When orange must be small text on porcelain, use **Signal Rust** (`signal-text`, 4.6:1). Buttons with white text labels (Unlock, Copy all) and focus rings use **Signal Fill** (`signal-fill`, white on it 4.5:1, 3.8:1 against porcelain), pressed **Signal Fill Deep** (`signal-fill-deep`); Send keeps full orange because it carries an icon, not text.
+- **Course Overprint Purple** (`overprint`): the primary button, Send, Allow, the chosen agent option, focus outlines, input carets, the leg line, control circles and numbers, the start triangle and finish, the 3px rule under view headers, and small accent text such as "needs you" meta and Running / Allow? statuses (5.5:1 on paper, so the same value serves as text). White on it (`overprint-ink`, 5.8:1). **Overprint Wash** (`overprint-wash`) fills the control that is waiting for your OK and the pressed or selected list row.
+
+### Secondary
+- **Open Land Yellow** (`open-land`): the / CMD key face, the start-triangle box behind your own messages, the handoff bar (30% into paper), attachment chips (45%), inline code badges in help text (55%), and row hover/press tints on Home (18% / 35%).
+- **Thicket Olive** (`thicket`): the desk PC figure's side faces and diff additions (at 38% alpha).
+- **Contour Brown** (`contour`): the faint contour texture (9-11% alpha) behind Home and the overlay, and diff deletions (16% alpha).
+- **Water Blue** (`water`): links in agent replies (6.6:1).
 
 ### Neutral
-- **Porcelain** (`body`): the device body, sheets, overlay boxes. Also the browser theme color.
-- **Key Face** (`panel`): raised key tops, pills, command plates, inputs (sunk), icon tiles.
-- **Key Shadow Face** (`panel-low`): bottom of the key gradient and the pressed state of pills and close buttons.
-- **Lip** (`edge`): the 1-2px line under a raised key.
-- **Hairline** (`rule`): dividers between guide rows, zoom readout separators, badge outlines.
-- **Graphite Ink** (`ink`, 15.6:1 on porcelain): primary text and icons.
-- **Soft Graphite** (`ink-soft`, 5.6:1): metadata, descriptions, placeholders, section labels.
-- **Glass** (`screen`): the terminal, the copy-text pane, code boxes, the banner's icon tile.
-- **Glass Text** (`screen-text`) and **Glass Dim** (`screen-dim`, 5.6:1 on glass): terminal foreground and dim output.
-- **Bezel** (`bezel`): the frame the glass is set into.
-- **Readout Black** (`capsule`): the status capsule, small status pills, toasts.
+- **Map Paper** (`paper`): the ground, cards, sheets, fields and pressables. The ground and the card surface are the same white; separation is ink line, never tone.
+- **Well Paper** (`paper-low`): code blocks, tool output, diffs and plan boxes.
+- **Map Ink** (`ink`, 16.6:1): text, every outline, every pop shadow, the toast and Stop fill.
+- **Soft Ink** (`ink-soft`, 7.2:1): metadata, placeholders, section labels, the zoom readout.
+- **Rule** (`rule`): 1px dividers inside chat content, the grab handle, the compose top rule.
+- **Muted Mark** (`muted-mark`): the swatch for a locked or unknown connection.
+- **Night Screen** (`screen`) and **Night Text** (`screen-text`): the terminal, the copy pane and the pairing code box. Same ink value as `ink`.
+- **Screen Signal** (`screen-signal`): the terminal cursor and the desk PC's screen while output arrives; it lives only on dark ground.
 
 ### State
-- **Done Green** (`ok`) for the connected dot in the capsule and status pills; **Done Green Text** (`ok-text`) when it is text on porcelain.
-- **Fault Red** (`bad`) for offline dots; **Fault Red Text** (`bad-text`) for the ESC and ^C key labels.
+- **Done Olive** (`ok`) swatch for Connected; **Done Olive Text** (`ok-text`) for PUNCHED and completed plan rows.
+- **Fault Red** (`bad`) swatch for Offline and stopped chats; **Fault Red Text** (`bad-text`) for ESC / ^C, Deny, MISPUNCH and errors.
 
 ### Named Rules
-**The One Signal Rule.** Orange means either "the agent is working right now" or "this is the thing to press". It never decorates. A screen in its resting state shows orange only on Send. The one other hue is **Key Blue** (`key-lit`, #2563eb), which flashes a key on the desk PC as you type and appears nowhere else.
+**The Overprint Rule.** Purple is the course: what is running, what needs you, the one thing to press. A screen at rest shows purple on the primary action, the header rule and the course marks, nowhere else.
 
-**The State Colors Rule.** Green appears only for a finished run, red only for offline or interrupt. Neither is used as a brand or decorative hue.
+**The Symbol Tint Rule.** Yellow, olive, brown and blue are map symbols, used as tints, swatches and figure faces. They never become a second accent or a button color (the / CMD key is the single yellow key).
 
-**The Glass Palette Rule.** Inside the screen, the xterm theme owns color: background and foreground match `screen` / `screen-text`, the cursor is signal orange, brightBlack is `screen-dim`, and ANSI hues are the softened set tuned for a #121212 ground.
+**The Night Screen Rule.** The terminal stays dark in the paper world. Its xterm theme owns color there: background and foreground match `screen` / `screen-text`, the cursor is `screen-signal`, selection is purple at 45%.
 
 ## Typography
 
-**Body Font:** IBM Plex Sans (variable 400-600, self-hosted) with system-ui fallback
-**Label/Mono Font:** IBM Plex Mono (400, 500, self-hosted) with ui-monospace fallback
-**Terminal Font:** the platform monospace stack (ui-monospace, SF Mono, Cascadia Mono, Menlo, Consolas), set by xterm so glyph metrics match the device and the PTY grid fits.
+**Display / Label Font:** Barlow Condensed (600, 700, self-hosted) with Arial Narrow fallback
+**Body Font:** Barlow (400, 600, self-hosted) with system-ui fallback
+**Mono Font:** IBM Plex Mono (400, self-hosted) with ui-monospace fallback
+**Terminal Font:** the platform monospace stack, set by xterm so glyph metrics fit the PTY grid.
 
-**Character:** Plex is engineered and humane at once, the typeface of a well-made instrument panel. Sans carries the words; Mono carries anything you would read off a dial or press as a key.
+**Character:** the condensed caps of a map legend and control sheet over a plain, sturdy grotesque for reading.
+
+Reading text is sized in `--pt` units (1px, or 1/17 of iOS Dynamic Type body), so it follows the phone's text-size setting; keys, fields and the terminal keep fixed px.
 
 ### Hierarchy
-- **Display** (Mono 500, 44px, 1, 0.16em, tabular): the 6-digit pairing code only.
-- **Headline** (Sans 600, 26px, 1.15, -0.01em, balanced): overlay titles (unlock, reconnect).
-- **Title** (Sans 600, 20px, 1.25, -0.01em): the current prompt under the capsule (single line, ellipsized; 18px under 360px wide, 24px from 900px) and sheet titles. Guide row titles step down to 16px.
-- **Body** (Sans 400, 15px, 1.45): subtitles and descriptions; 14px/1.5 in guide rows, 13px in hints and banner subtext. Prompt input is 16px so iOS does not zoom.
-- **Key** (Mono 500, 13px): key row labels, command names (14px).
-- **Label** (Mono 500, 11px, 0.1em-0.12em, uppercase): the run metadata line and command-sheet section headings; the wordmark uses 0.14em.
+- **Display** (Condensed 700, 52px, 1, 0.18em, tabular): the 6-digit pairing code, in purple.
+- **Headline** (Condensed 700, uppercase, 1-1.1): view titles 44pt, overlay titles 30pt (balanced), sheet titles 24pt, chat title 22pt.
+- **Title** (Barlow 600, 20px, 1.25): the current prompt under the capsule (18px under 360px, 16px on short screens, 24px from 900px). List row titles 15-17pt 600.
+- **Body** (Barlow 400, 16pt, 1.5): chat messages; 15pt/1.45 subtitles, 14pt/1.5 descriptions, 13pt hints.
+- **Button** (Condensed 700, uppercase): primary 20px 0.06em, ask buttons 18pt 0.04em, keys 16px 0.02em (not uppercase), size buttons 17px.
+- **Label** (Condensed 600, 13px, 0.06-0.1em, uppercase): capsule (15px), stamps, entry meta, tool kind and status, section and field labels, plan title, Working… and Finish.
+- **Mono** (Plex Mono 400, 12-14px): code, diffs, paths, command names, the access key field.
 
 ### Named Rules
-**The Readout Rule.** Numbers that change (timer, zoom percent, pairing code) are Mono with tabular figures so they never jitter.
+**The Legend Rule.** Anything that names, labels or stamps is Condensed uppercase; anything read as a sentence is Barlow in sentence case.
 
-**The Sans Speaks Rule.** Anything a person reads as a sentence is Plex Sans. Mono is for keys, commands, codes and readouts, not for prose.
+**The Readout Rule.** Numbers that change (pairing code, zoom percent) use tabular figures.
 
 ## Layout
 
-A fixed, full-viewport column with no page scroll (`100dvh`, safe-area aware): header (capsule centered, then the prompt line), the bezel-framed screen taking all remaining height, with the desk PC in a bubble of the bezel hanging below its bottom-right corner over the end of the text-size row, the text-size row (zoom group and copy), the prompt row (mic, auto-growing textarea, Send), and the key row of equal-flex keys.
+The terminal view is a fixed, inset-0 column with no page scroll: header (capsule centered, then the prompt line), the framed screen taking all remaining height, the text-size row, the prompt row (mic, auto-growing field, Send) and the key row of equal-flex keys. The desk PC hangs as a tab under the frame's bottom-right corner on a zero-height anchor, over the end of the text-size row, whose 112px right padding keeps clear of it.
 
-Spacing runs on a 4px module (`--m`), used as multiples: 8px gutters at the screen edge, 12px for row padding and gaps, 16-20px inside sheets and overlays. Sheets are bottom sheets on phones (max 500px wide, grab handle) and become centered dialogs from 600px. From 600px horizontal padding widens; from 900px keys stop stretching (min 88px, arrows 64px), the capsule grows to 40px, and the prompt title to 24px. Short viewports (under 550px tall) drop the metadata line, collapse the grille, and shrink keys to 36px.
+Home and Chat are fixed views laid over the terminal, which stays laid out underneath so the PTY never resizes: a header ruled in purple, a scrolling body, a foot.
 
-**The Screen Takes The Rest Rule.** Every other row is `flex-shrink: 0`; only the screen flexes. New chrome must fit in an existing row or justify taking height from the terminal.
+Spacing runs on a 4px module (`--m`), used in multiples: 8px screen margin, 10-12px gaps and row padding, 16-20px inside sheets and overlays. Sheets are bottom sheets (max 500px, grab handle) that become centered dialogs from 600px. From 600px side padding widens; from 900px keys stop stretching (min 88px, arrows 64px) and the capsule grows to 40px. Under 550px tall the meta line hides, the scale bar shrinks and keys drop to 36px.
+
+**The Screen Takes The Rest Rule.** Every row but the screen is `flex-shrink: 0`; new chrome fits in an existing row or justifies taking height from the terminal.
 
 ## Elevation & Depth
 
-Depth is physical. Porcelain objects are lit from above: a 1px white inner highlight on the top edge, a hard 1-2px lip in `edge` beneath, and a soft low cast shadow. The screen does the opposite: it is sunk, with a deep inner shadow under the bezel's top edge. Inputs are sunk too (a soft 1px inner shadow). Floating layers (sheets, overlays, banner, capsule, toast) get large, soft ambient shadows. Orange keys carry a warm orange glow instead of a grey cast.
+Depth is printed, not lit. There are no blurred shadows. Pressables and floating dialogs stand off the paper on hard offset shadows with zero blur; everything else is flat and separated by ink lines. Overlays sit on a contour-textured paper veil; sheets sit on a 38% ink scrim.
 
 ### Shadow Vocabulary
-- **Raised key** (`box-shadow: inset 0 1px 0 #fff, 0 2px 0 var(--edge), 0 3px 8px rgba(0,0,0,0.08)`): key row keys, secondary copy action.
-- **Raised low** (`box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 1px 0 var(--edge)`): pills, command plates, close buttons, icon tiles.
-- **Dial** (`box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(0,0,0,0.14), 0 1px 0 var(--edge)` over a 145deg #fbfaf8 to #dddad3 gradient): the mic key.
-- **Pressed** (key travels 1-2px down and its lip collapses; dials invert to `inset 0 2px 5px rgba(0,0,0,0.15)`).
-- **Sunk field** (`box-shadow: inset 0 1px 3px rgba(0,0,0,0.12)`): all text inputs; focus adds `0 0 0 2px var(--signal)`.
-- **Glass well** (`box-shadow: inset 0 0 0 1px #000, inset 0 8px 20px rgba(0,0,0,0.7), 0 1px 0 #fff`): the bezel.
-- **Signal glow** (`box-shadow: 0 6px 16px rgba(255,79,0,0.32)`): Send and primary buttons.
-- **Float** (`0 8px 20px rgba(0,0,0,0.18)` capsule; `0 -10px 40px rgba(0,0,0,0.22)` sheet; `0 24px 60px rgba(0,0,0,0.28)` overlay box).
+- **Pop** (`box-shadow: 3px 3px 0 ink`): keys, size buttons, chips, close/back, secondary actions, agent options.
+- **Pop large** (`box-shadow: 4px 4px 0 ink`): primary, Send, mic, ask buttons.
+- **Pressed** (`transform: translate(3-4px, 3-4px); box-shadow: 0 0 0 ink`): the element travels exactly its shadow's distance. A chosen agent option stays pressed.
+- **Dialog** (`box-shadow: 6px 6px 0 ink`): the unlock/reconnect box and centered sheets from 600px.
+- **Notice** (`box-shadow: 3px 3px 0 overprint` toast; `4px 4px 0 overprint` update banner): transient messages that are not pressable.
 
 ### Named Rules
-**The Light From Above Rule.** Raised porcelain always has the white top highlight and the lip below; a raised element with only a drop shadow is wrong. Shadows are soft and grey (or orange glow on orange), never hard offset blocks.
+**The Pop Rule.** A pressable is a 2px ink outline plus a hard ink offset shadow, and pressing moves it into the shadow over 120ms ease-out. Nothing scales on tap; nothing gets a blurred shadow.
 
-**The Press Travels Rule.** A pressed key moves down 1-2px and loses its lip. Presses are fast (90-120ms ease-out); nothing scales on tap.
+**The Flat Content Rule.** Content (rows, tool steps, code wells) never pops. Only things you press, and dialogs, stand off the paper.
 
 ## Shapes
 
-Soft, machined corners and full pills. Round things are controls you turn or tap with a thumb (Send, mic, close: circles; pills, inputs, capsule: 99px). Rectangular keys are gently rounded (13px), command plates 14px, icon tiles 12px, the banner 22px, the bezel 26px with the glass inset at 20px, sheets and overlay boxes 28px. Borders are almost absent: separation comes from tone and the raised/sunk shadow, with `rule` hairlines only between list rows and in the zoom group. The speaker grille, a short centered strip of 10px-pitch dots masked to the middle quarter of the bezel's top, is the screen's one ornament and doubles as the visual top edge of the glass.
+Square and printed. Every surface has zero radius: buttons, keys, fields, cards, sheets, the terminal frame. Outlines are the form language: 2px ink on pressables, fields, the frame and sheets; 1.5px ink on stamps, tool cards and the folder list; 1px ink rules in numbered lists, with every third row 2.5px like a real control-description sheet. Circles are reserved for the course: state marks, numbered controls, the finish, the mute badge. Triangles mark the start. The strip above the terminal is a map scale bar with alternate segments filled.
 
 ## Components
 
 ### Buttons
-Tactile and certain: each looks like hardware you could press.
-- **Send:** 50px orange circle, white 2.4-stroke arrow, signal glow; pressed deepens to `signal-deep` and drops 1px.
-- **Primary (overlays, guide):** full-width 52px orange pill, Sans 600 18px, signal glow, same press.
-- **Mic:** a 46-50px porcelain dial (Dial shadow). It turns solid orange with an expanding orange ring pulse while listening.
-- **Desk PC (chime toggle):** a 76x58px isometric desk PC drawn in porcelain tokens (`panel` tops, `panel-low` fronts, `edge` sides, `ink-soft` hairlines) with a `screen` glass. The key for each typed letter flashes Key Blue; the screen's lines turn orange while output arrives. Tapping it mutes the chime: the figure drops to 50% with a graphite bell-off badge. It greys out while the capsule is offline. Kernel after iso-figure (Tolga Cohce) and iso-glow (April Zhu), MIT.
-- **Close:** 40px `panel` circle, raised low, presses to `panel-low`.
-- **Secondary action:** a second action next to an orange one becomes a `panel` key with the raised shadow.
+Printed and tactile: each pops off the paper and presses in.
+- **Primary:** full-width 52px overprint block, white Condensed 700 20px uppercase, Pop large. Disabled at 45% opacity.
+- **Send:** 50px overprint square, white 2.4-stroke arrow. While the agent works it becomes an ink Stop square; the icons cross-fade with a 2px blur over 200ms.
+- **Mic:** 50px paper square, Pop large; listening fills it purple with a purple outline ring breathing out (1.2s).
+- **Secondary / close / back:** 44px paper squares or blocks, Pop. Deny-type ask buttons keep paper with `bad-text` labels.
 
 ### Key Row
-Equal-flex rectangular keys, 46px, 13px radius, a top-to-bottom `panel` to `panel-low` gradient, the raised-key shadow, Mono 500 13px labels or 18px icons. ESC and ^C labels are `bad-text`. `/ CMD` is 1.6x wide, arrows 0.85x.
-
-### Text-size row
-- **Zoom group:** one 40px `panel` pill, raised low plus a faint 2px cast, split into A-, a tabular Mono percent readout between hairlines, and A+.
-- **Copy:** a matching round pill with the copy icon.
-- **State:** pressed fills `panel-low` and drops 1px.
+Equal-flex 46px paper keys, Pop, Condensed 700 16px or 18px icons. / CMD is 1.6x wide on open-land yellow; arrows are 0.85x; ESC and ^C labels are `bad-text`.
 
 ### Inputs / Fields
-- **Style:** `panel` fill, sunk inner shadow, no border, pill radius (the prompt textarea is 25px so it can grow to 120px), orange caret.
-- **Focus:** a 2px signal-orange ring added outside the sunk shadow.
+- **Style:** paper, 2px ink outline, square, purple caret, 16px text so iOS does not zoom. The prompt field grows from 50px to 120px (chat: 48-140px).
+- **Focus:** a 2px overprint outline drawn over the ink at zero offset. Other controls focus with a 2px overprint outline at 3px offset.
 
-### Command Plates (commands sheet)
-Each command is a `panel` key plate (14px radius, raised low): command in Mono 500 14px, one `ink-soft` 13px description that never wraps. Selected or pressed shows a 2px inner orange ring. Groups are headed by Mono 11px uppercase labels in `ink-soft`.
+### Status Capsule and Stamps (signature)
+A legend box: 36px paper block with a 2px ink outline, a 12px square swatch outlined in ink, and a Condensed 600 15px uppercase label. Swatch is olive for Connected, red for Offline, muted for Locked. JS animates its width (240ms) and it pops from 0.95 on change. Small **stamps** repeat the language (13px, 1.5px outline, 10px swatch) on the overlay, guide and Home.
+
+### Control-Description Lists
+Chats on Home, folders, commands, files, sessions and devices are ruled ink lists numbered in a 40px purple Condensed 700 column separated by a 1px ink rule. Home's chat list is boxed in 2px ink (dashed when empty, with a start-leg-control drawing). Row press fills `overprint-wash`. The Terminal row above it is outlined and marked with the start triangle.
+
+### State Marks
+24px control circles in a 2.5px purple ring: idle open, thinking dashed and turning (3s), needs-you filled purple with a halo, stopped red with a diagonal strike.
+
+### The Course (chat)
+A 2.5px purple leg line runs down the left margin, each row painting its own piece. Your message is a start triangle beside an open-land yellow box. Each tool step is a 1.5px ink card on paper with a 33px numbered control circle on the leg; its status reads PUNCHED (olive), RUNNING (purple), MISPUNCH (red) or ALLOW? (purple). A step waiting for permission gets a dashed pulsing control and a 2.5px purple card on wash. While the agent thinks, the leg runs on dashed into a shimmering WORKING… line; an idle run with tools ends at FINISH. Agent replies are plain Markdown prose; code, output and diffs sit in well-paper boxes with rule outlines.
 
 ### Sheets / Overlays
-Porcelain surfaces with a white top highlight and large soft shadow over a 40-45% graphite scrim with 4-6px blur. Bottom sheets slide up (320ms ease-out) with a grab handle; from 600px they pop in as centered 28px-radius dialogs (240ms spring).
-
-### Status Capsule (signature)
-The black readout centered at the top, 36px (40px from 900px), Sans 500 14px white label. It shows only the link to the PC's terminal: **Connected** (green dot), **Locked** (grey dot), **Offline / PC offline** (red dot). No run states, timers or completion messages. Width is measured and animated on a 520ms spring; each state change pops it (scale 0.92 to 1.04 to 1). The same black-capsule language appears small as status pills (Mono 11px uppercase with a 7px state dot) in the overlay and guide, and as the toast.
-
-When a run ends there is no banner or notification; only the optional chime and a haptic.
-
-### Home and Chat Screens
-The phone opens to **Chats**: a 34pt title with a round info key beside it (the Close button's shape) that opens a four-card guide in the guide sheet's style, the Terminal row first (dark glass icon), then one porcelain row per chat with a state dot (orange pulse = working, orange with a halo and orange meta text = needs you, red = stopped, grey = idle) and an orange **New chat** button at the thumb. The chat screen keeps the porcelain body: your messages in raised panel bubbles on the right, the agent's Markdown as plain prose, code and diffs on terminal glass. Tool steps are one-line panel cards (Mono kind label, Sans title, state dot); edits open to their diff. A permission question rings its card in orange, with the agent's own options as buttons: Allow in filled orange, Deny in red ink. Send turns into a black Stop while the agent works. The terminal screen stays laid out under both, so switching never resizes the PC's terminal; a round back key at its top left returns to Chats.
+Paper sheets with a 2px ink outline (no bottom edge on phones), sliding up 280ms on the drawer curve, header draggable, rows rising in 35ms apart. From 600px they become centered square dialogs with the Dialog shadow, scaling in from 0.96. The unlock/reconnect overlay is a 380px paper box with the Dialog shadow over contour-textured paper.
 
 ### Terminal Screen
-The bezel (black, 26px radius, glass well shadow) holds the grille strip and the xterm glass (`screen`, bottom corners 20px). The terminal is display-only; its column count is pinned to the PC's PTY and the font size scales, so nothing in the chrome may change its width.
+An ink-framed paper bezel (2px outline, 4px total per side so the PTY keeps its columns), the scale bar on top, and the night screen inside. The terminal is display-only; its column count is pinned to the PC's PTY and its font size scales.
+
+### Desk PC
+A 76x58 isometric figure drawn in map colors (paper top, open-land front, thicket sides, night glass, ink 0.8 outlines). Typed keys flash purple; the screen lights `screen-signal` as output arrives. Muted it dims to 50% with an ink bell-off badge; offline it greys out.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** keep signal orange (#ff4f00) to running state and the one primary action per view; use `signal-text` when orange must be small text on porcelain.
-- **Do** build raised controls from the white top highlight, the `edge` lip and a soft cast (the Raised key / Raised low shadows); build fields as sunk.
-- **Do** use the black capsule language (pill, Readout Black, state dot) for status, and Mono with tabular figures for any changing number.
-- **Do** use the one inline SVG icon set: 24px grid, 1.75 stroke, round caps and joins, `currentColor`.
-- **Do** animate physical things on the spring (`cubic-bezier(0.2, 1.25, 0.35, 1)`) and presses on the ease-out (`cubic-bezier(0.16, 1, 0.3, 1)`) at 90-120ms; honor reduced motion.
-- **Do** give every new row `flex-shrink: 0` so the screen keeps the remaining height.
+- **Do** keep overprint purple (#c4007a) to the course, what needs you, and the one thing to press per view.
+- **Do** build every pressable from the Pop: 2px ink outline, hard ink offset shadow (3px, 4px for primary-weight actions), press travels into the shadow at 120ms `cubic-bezier(0.23, 1, 0.32, 1)`.
+- **Do** keep corners square; use circles only for course marks and triangles only for the start.
+- **Do** number and rule lists like a control-description sheet, numbers in purple Condensed.
+- **Do** set labels, titles and buttons in Barlow Condensed uppercase and sentences in Barlow.
+- **Do** size reading text in `--pt` units and give fields 16px text.
+- **Do** keep the terminal dark and give every non-screen row `flex-shrink: 0`.
+- **Do** honor reduced motion and increased contrast (`ink-soft` #46403a, `rule` #8a877f).
 
 ### Don't:
-- **Don't** add a second accent hue, or use green and red for anything but connected and offline/interrupt.
-- **Don't** draw borders around porcelain controls; separation is tone and shadow, with `rule` hairlines only between list rows and inset outlines only on inline badges.
-- **Don't** use hard offset or block shadows; depth here is lit from above and soft.
-- **Don't** set prose in Mono or keys and readouts in Sans.
-- **Don't** change the terminal's column count or let chrome reflow the grid; scale its font instead.
+- **Don't** use blurred or soft shadows; depth here is printed.
+- **Don't** round corners on buttons, keys, fields, cards or sheets.
+- **Don't** add a second accent hue or promote a map symbol color to a button color.
+- **Don't** give content (rows, tool steps, code wells) a pop shadow.
+- **Don't** put the terminal on paper or let chrome change its column count.

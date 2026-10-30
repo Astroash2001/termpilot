@@ -343,7 +343,7 @@
     const head = document.createElement("button");
     head.className = "tool-head";
     head.setAttribute("aria-expanded", "false");
-    head.innerHTML = '<span class="tool-kind"></span><span class="tool-title"></span><span class="tool-status" aria-hidden="true"></span>';
+    head.innerHTML = '<span class="tool-kind"></span><span class="tool-title"></span><span class="tool-status"></span>';
     const body = document.createElement("div");
     body.className = "tool-body";
     body.hidden = true;
@@ -593,7 +593,7 @@
       const name = document.createElement("span");
       name.textContent = a.id ? a.name : a.name + " ↑";
       const x = document.createElement("button");
-      x.textContent = "×";
+      x.innerHTML = '<svg class="i"><use href="#i-close"/></svg>';
       x.setAttribute("aria-label", "Remove " + a.name);
       x.addEventListener("click", () => { attached.splice(attached.indexOf(a), 1); renderTray(); });
       chip.append(name, x);

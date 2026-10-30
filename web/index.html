@@ -13,9 +13,7 @@
   <link rel="alternate icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" href="/favicon.svg?v=24">
   <link rel="manifest" href="/manifest.json">
-  <!-- The saved look, before first paint (app.js owns switching) -->
-  <script>try { if (localStorage.getItem("termpilot_theme") === "hairline") document.documentElement.dataset.theme = "hairline"; } catch (e) {}</script>
-  <link rel="stylesheet" href="styles.css?v=76">
+  <link rel="stylesheet" href="styles.css?v=77">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -179,7 +177,7 @@
         </div>
 
         <button id="btn-got-it" class="btn-primary btn-got-it">Got it</button>
-        <p class="guide-credit">Desk PC drawing after iso-figure by Tolga Cohce and iso-glow by April Zhu; the Line look after hairline by Lucas Marques (all MIT).</p>
+        <p class="guide-credit">Desk PC drawing after iso-figure by Tolga Cohce and iso-glow by April Zhu (both MIT).</p>
 
       </div>
     </div>
@@ -285,18 +283,8 @@
   <section id="home-view" class="view" aria-label="Chats">
     <header class="view-header">
       <div class="view-bar"><span class="wordmark">TermPilot</span><span class="stamp mini conn-mirror" data-state="offline">Offline</span></div>
-      <!-- Hairline: the desk PC as the hero, answering the finger -->
-      <div class="hero" aria-hidden="true">
-        <span class="hero-tag">fig. 1 · your pc</span>
-        <span class="hero-tag hero-read"></span>
-        <svg class="pc-art"></svg>
-      </div>
       <div class="view-title-row">
-        <h1 class="view-title"><span class="title-lead">Your </span><em>chats</em></h1>
-        <div class="theme-switch" role="group" aria-label="Look">
-          <button class="theme-pick" data-theme-pick="orienteering" aria-pressed="true">Map</button>
-          <button class="theme-pick" data-theme-pick="hairline" aria-pressed="false">Line</button>
-        </div>
+        <h1 class="view-title">Chats</h1>
         <button id="btn-home-guide" class="modal-close-btn" title="How to use TermPilot" aria-label="How to use TermPilot"><svg class="i"><use href="#i-info"/></svg></button>
       </div>
     </header>
@@ -438,10 +426,10 @@
 
   <div id="update-banner" class="update-banner" role="status" hidden>TermPilot was updated on the PC<button class="ask-btn" onclick="location.reload()">Reload</button></div>
 
-  <script src="app.js?v=76"></script>
+  <script src="app.js?v=77"></script>
   <!-- Agent replies are Markdown; DOMPurify strips anything executable before it is shown -->
   <script src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js" integrity="sha384-2vpGtuKqJvFlwJqYnf/wUMuzUfhUnYBt9oay0e2yaFcq0Dh6/aEbQ8YAOeKGzlYo" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js" integrity="sha384-a7SzOxErzJ3ZpQz0zJ32d67dSitNzPcbfybc/ykU9KJhMgZkwqfSxlhhdJRS+XGL" crossorigin="anonymous"></script>
-  <script src="chat.js?v=76"></script>
+  <script src="chat.js?v=77"></script>
 </body>
 </html>
