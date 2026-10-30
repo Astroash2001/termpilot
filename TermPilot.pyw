@@ -103,9 +103,10 @@ class App:
             # No tunnel: the local link, without its one-use enroll code
             self.phone_url = line.split("Or open:", 1)[1].strip().split("#", 1)[0]
         elif "Application startup complete" in line:
-            # Without an https tunnel the ngrok warning printed earlier stays on screen
             if self.phone_url.startswith("https"):
                 self.relay_line.configure(text="Relay: running", fg=OK)
+            else:  # ngrok failed or is turned off: phones away from this PC can't reach it
+                self.relay_line.configure(text="Relay: on this PC only, no phone link from outside.", fg=BAD)
             self.link_line.configure(text="Phone link: " + self.phone_url)
             self.copy_btn.configure(state="normal")
             self.start_agent()
@@ -115,8 +116,6 @@ class App:
         elif "Desktop Agent Disconnected" in line:
             self.pc_line.configure(text="PC terminal: not connected", fg=BAD)
             self.set_status("The PC terminal is not connected.", BAD)
-        elif "ngrok" in line and line.startswith("⚠️"):
-            self.relay_line.configure(text="Relay: on this PC only, no phone link from outside.", fg=BAD)
 
     def start_agent(self):
         if self.agent and self.agent.poll() is None:
