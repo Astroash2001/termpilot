@@ -171,7 +171,7 @@ cd desktop-agent; .\venv\Scripts\python.exe agent.py
 Anyone who can reach TermPilot can run code on your PC, so every phone has its own key.
 * **Each phone has its own key.** The relay stores only a SHA-256 hash of it, in `backend/phones.json` (gitignored). A phone not used for 30 days must be added again.
 * **Only the PC can add a phone.** The one-time code comes from the PC's screen (startup QR code or `/enroll`, which answers only to a browser on the PC itself). A stolen phone cannot add more phones.
-* **Remove a phone** under **Devices** on the home screen. Its connection closes at once, its key stops working and its alerts stop. To remove every phone, stop TermPilot first, then run `cd backend; .envScriptspython.exe main.py --remove-all-phones`.
+* **Remove a phone** under **Devices** on the home screen. Its connection closes at once, its key stops working and its alerts stop. To remove every phone, stop TermPilot first, then run `cd backend; .env\Scripts\python.exe main.py --remove-all-phones`.
 * **Updates**: when the PC serves a newer web app, an open page shows *TermPilot was updated on the PC* with a Reload button, on reconnect or when you come back to the app.
 
 ### Check
