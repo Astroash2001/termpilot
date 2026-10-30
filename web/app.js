@@ -222,6 +222,7 @@ const FIT_FONT = 12; // px at 100% zoom: about 50 columns on a 390px-wide phone
 let ws = null;
 let wsAuthed = false;
 let fitCols = 0, fitRows = 0; // the size this phone last asked for
+let ptyOwner = ""; // who the PC sizes the terminal for: "phone" or "pc" (the Home slider)
 let fitPending = false; // asked, and the PC hasn't answered with a PTY_SIZE yet
 
 function fitFontSize() {
@@ -255,9 +256,9 @@ function adaptFontSizeToPty() {
   const container = document.getElementById('xterm-container');
   if (!container) return;
   const availableWidth = container.clientWidth || window.innerWidth || 400;
-  // Phone fit holds until the PC takes the terminal back, which shows as a PTY_SIZE that
-  // isn't the one we asked for. The font only changes when that happens, never per call.
-  const phoneFit = wsAuthed && ptyCols >= 20 && (!fitCols || fitPending || ptyCols === fitCols);
+  // Phone fit holds while the phone has control (the Home slider, or its first visit). The
+  // font only changes when control moves, never per call.
+  const phoneFit = wsAuthed && ptyCols >= 20 && (!fitCols || fitPending || ptyOwner === "phone");
 
   // Past 1x the grid is wider than the screen, so let the wrapper pan horizontally.
   // At 1x this class is absent and the layout is byte-for-byte what it was before.
@@ -291,6 +292,57 @@ function adaptFontSizeToPty() {
     }
   } catch (e) {}
 }
+
+// ── Phone / PC slider (Home) ────────────────────────────────────────────
+// Drag the thumb, or tap, toward the screen that should type into the PC. The PC answers
+// with a PTY_SIZE naming the new owner, which is what finally sets the slider.
+const controlSlider = document.getElementById("control-slider");
+const controlThumb = controlSlider.querySelector(".slider-thumb");
+
+function showControl(owner) {
+  controlSlider.dataset.owner = owner;
+  controlSlider.setAttribute("aria-checked", String(owner === "pc"));
+  controlSlider.style.removeProperty("--x");
+  controlThumb.querySelector("use").setAttribute("href", owner === "pc" ? "#i-monitor" : "#i-phone");
+  controlThumb.querySelector("span").textContent = owner === "pc" ? "PC" : "Phone";
+  document.getElementById("control-text").textContent = owner === "pc" ? "Your PC is in control" : "Your phone is in control";
+}
+
+function takeControl(owner) {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  showControl(owner);
+  ws.send(JSON.stringify({ type: "CONTROL", owner }));
+  // Measure this screen afresh: the RESIZE that follows brings the PC the phone's size
+  if (owner === "phone") { fitCols = fitRows = 0; adaptFontSizeToPty(); }
+}
+
+let slide = null; // { x, from, moved } while a finger is on the slider
+controlSlider.addEventListener("pointerdown", (e) => {
+  slide = { x: e.clientX, from: controlSlider.dataset.owner === "pc" ? 1 : 0, moved: false };
+  controlSlider.setPointerCapture(e.pointerId);
+  controlSlider.classList.add("dragging");
+});
+controlSlider.addEventListener("pointermove", (e) => {
+  if (!slide) return;
+  const dx = e.clientX - slide.x;
+  if (Math.abs(dx) > 6) slide.moved = true;
+  const x = Math.max(0, Math.min(1, slide.from + dx / (controlSlider.clientWidth / 2)));
+  controlSlider.style.setProperty("--x", x.toFixed(3));
+});
+const endSlide = (e) => {
+  if (!slide) return;
+  const current = controlSlider.dataset.owner;
+  const x = parseFloat(controlSlider.style.getPropertyValue("--x") || slide.from);
+  // A drag lands on the nearer side; a tap flips
+  const owner = e.type === "pointercancel" ? current : slide.moved ? (x > 0.5 ? "pc" : "phone") : (current === "pc" ? "phone" : "pc");
+  slide = null;
+  controlSlider.classList.remove("dragging");
+  if (owner !== current) takeControl(owner); else showControl(current);
+};
+controlSlider.addEventListener("pointerup", endSlide);
+controlSlider.addEventListener("pointercancel", endSlide);
+// Keyboard (Enter/Space) clicks carry detail 0; pointer taps are handled above
+controlSlider.addEventListener("click", (e) => { if (e.detail === 0) takeControl(controlSlider.dataset.owner === "pc" ? "phone" : "pc"); });
 
 // ── Coding agents ───────────────────────────────────────────────────────
 // TermPilot drives a plain terminal, so any coding agent can run in it. Each profile says
@@ -813,6 +865,7 @@ function connect() {
       // A new link: the old size may be stale and the PC may have the terminal back.
       // Phone fit starts once the relay says what size the PTY is now.
       fitCols = fitRows = ptyCols = ptyRows = 0;
+      ptyOwner = "";
       fitPending = false;
       // The relay replays its saved output next. Written over what this phone already
       // shows, every reconnect (lock, app switch, network change) would add another copy.
@@ -838,6 +891,9 @@ function connect() {
       ptyCols = payload.cols;
       ptyRows = payload.rows;
       fitPending = false;
+      ptyOwner = payload.owner === "phone" ? "phone" : "pc";
+      showControl(ptyOwner);
+      controlSlider.disabled = false;
       adaptFontSizeToPty();
     } else if (payload.type === "STDERR") {
       // Show errors visibly in the terminal
@@ -851,6 +907,7 @@ function connect() {
 
   ws.onclose = (event) => {
     wsAuthed = false;
+    controlSlider.disabled = true;
     if (event.code === 4001) {
       // Removed, expired or used code: retrying with it would only fail again
       store(DEVICE_STORAGE, "");

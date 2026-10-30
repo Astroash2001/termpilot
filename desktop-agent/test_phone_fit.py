@@ -31,7 +31,7 @@ assert agent.parse_phone_size({}) is None
 agent.phone_size = (48, 40)
 agent.give_size_to("phone")
 assert pty.sizes == [(48, 40)]
-assert sent[-1] == {"type": "PTY_SIZE", "cols": 48, "rows": 40}
+assert sent[-1] == {"type": "PTY_SIZE", "cols": 48, "rows": 40, "owner": "phone"}
 
 # More phone typing changes nothing
 agent.give_size_to("phone")
@@ -47,5 +47,23 @@ agent.phone_size = None
 agent.give_size_to("host")
 agent.give_size_to("phone")
 assert pty.sizes[-1] == (120, 30) and agent.size_owner == "host"
+
+# The Home slider. All phones gone, then one arrives: its first RESIZE takes control
+agent.phone_size = None
+agent.give_size_to("host")
+agent.phone_resized((50, 40))
+assert pty.sizes[-1] == (50, 40) and sent[-1]["owner"] == "phone"
+
+# Slid to PC: the PC's size, and a later phone RESIZE (a rotation) doesn't take it back
+agent.phone_control("pc")
+assert pty.sizes[-1] == (120, 30) and sent[-1]["owner"] == "host"
+agent.phone_resized((90, 20))
+assert pty.sizes[-1] == (120, 30) and sent[-1] == {"type": "PTY_SIZE", "cols": 120, "rows": 30, "owner": "host"}
+
+# Slid back to the phone: its latest size; junk owners change nothing
+agent.phone_control("phone")
+assert pty.sizes[-1] == (90, 20) and agent.size_owner == "phone"
+agent.phone_control("everyone")
+assert agent.size_owner == "phone"
 
 print("phone fit: all checks passed")

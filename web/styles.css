@@ -1106,6 +1106,44 @@ body[data-view="chat"] #chat-view { display: flex; }
 #btn-scheme .i-sun, :root[data-scheme="dark"] #btn-scheme .i-moon { display: none; }
 :root[data-scheme="dark"] #btn-scheme .i-sun { display: block; }
 
+/* ---------- Phone / PC slider (Home) ---------- */
+/* A two-sided track; the thumb is a popping plate that slides to the side in control.
+   --x runs 0 (phone) to 1 (PC); JS sets it under the finger while dragging. */
+.control-card { display: grid; gap: calc(var(--m) * 2); margin-bottom: calc(var(--m) * 4); }
+.control-text { font: 700 calc(20 * var(--pt))/1.1 var(--font-label); letter-spacing: 0.04em; text-transform: uppercase; }
+.control-hint { font-size: calc(14 * var(--pt)); color: var(--ink-soft); }
+.slider {
+  --x: 0;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 64px;
+  padding: 0;
+  border: var(--line-w) solid var(--ink);
+  background: var(--paper-low);
+  color: var(--ink-soft);
+  touch-action: none; /* the finger drags the thumb instead of scrolling the page */
+  user-select: none;
+}
+.slider[data-owner="pc"] { --x: 1; }
+.slider:disabled { opacity: 0.45; }
+.slider-side, .slider-thumb { display: flex; align-items: center; justify-content: center; gap: calc(var(--m) * 2); font: 700 17px/1 var(--font-label); letter-spacing: 0.06em; text-transform: uppercase; }
+.slider-thumb {
+  position: absolute;
+  top: 5px;
+  bottom: 8px;
+  left: 5px;
+  width: calc(50% - 10px);
+  border: var(--line-w) solid var(--ink);
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: var(--pop) var(--pop) 0 var(--ink);
+  translate: calc(var(--x) * (100% + 10px)) 0;
+  transition: translate 240ms var(--ease-out), transform var(--press) var(--ease-out), box-shadow var(--press) var(--ease-out);
+}
+.slider.dragging .slider-thumb { transition: transform var(--press) var(--ease-out), box-shadow var(--press) var(--ease-out); }
+.slider:active:not(:disabled) .slider-thumb { box-shadow: 0 0 0 var(--ink); transform: translate(var(--pop), var(--pop)); }
+
 /* ---------- Home ---------- */
 #home-view { background: var(--contours), var(--ground); }
 .home-row {

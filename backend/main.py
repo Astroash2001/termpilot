@@ -293,6 +293,7 @@ class ConnectionManager:
         self._alt_screen: bool = False
         self.pty_cols: int = None
         self.pty_rows: int = None
+        self.pty_owner: str = None  # "phone" or "host": who the phone slider shows in control
         # Phones showing TermPilot right now; alerts go out only when there are none
         self.visible: set = set()
         self.phone_of: dict = {}  # client socket -> phone id, to cut off a removed phone
@@ -322,7 +323,8 @@ class ConnectionManager:
                 await websocket.send_text(json.dumps({
                     "type": "PTY_SIZE",
                     "cols": self.pty_cols,
-                    "rows": self.pty_rows
+                    "rows": self.pty_rows,
+                    "owner": self.pty_owner,
                 }))
             except Exception:
                 pass
@@ -400,6 +402,7 @@ class ConnectionManager:
         if message.get("type") == "PTY_SIZE":
             self.pty_cols = message.get("cols")
             self.pty_rows = message.get("rows")
+            self.pty_owner = message.get("owner")
         # Buffer RAW terminal output for replay on future client connects
         elif message.get("type") == "RAW":
             self._buffer_output(message.get("data", ""))
@@ -852,7 +855,7 @@ async def websocket_client(websocket: WebSocket):
                     # Back on screen: a page left open learns of an updated web app without reconnecting
                     await websocket.send_text(json.dumps({"type": "VERSION", "version": web_version()}))
                 continue
-            if not (kind in ("INPUT", "RESIZE") or (isinstance(kind, str) and kind.startswith("CHAT_"))):
+            if not (kind in ("INPUT", "RESIZE", "CONTROL") or (isinstance(kind, str) and kind.startswith("CHAT_"))):
                 continue
             # The agent's socket closes on messages over 1 MiB; one oversized paste must not cut it off
             if len(data) > 512_000:

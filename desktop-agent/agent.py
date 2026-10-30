@@ -47,8 +47,9 @@ relay_ws = None
 relay_loop = None
 
 # Who sizes the PTY. A phone reports its screen with RESIZE; this console has its window.
-# Like tmux's "latest" window-size rule, whoever typed last gets a terminal sized for them,
-# so neither side has to read one wrapped for the other.
+# The phone's Phone/PC slider (CONTROL) decides. The first phone to arrive takes it, typing
+# in this window takes it back (the PC has no slider), and it returns here when phones leave.
+# Typing on the phone never moves it, so the terminal doesn't re-wrap under the user.
 size_lock = threading.Lock()
 phone_size = None   # (cols, rows) from the phone's last RESIZE
 size_owner = "host"
@@ -261,8 +262,24 @@ def give_size_to(owner: str, force: bool = False):
             return
         size_owner, pty_size = owner, size
         cols, rows = size
-        send_to_relay({"type": "PTY_SIZE", "cols": cols, "rows": rows})
+        send_to_relay({"type": "PTY_SIZE", "cols": cols, "rows": rows, "owner": owner})
         active_pty.setwinsize(rows, cols)
+
+def phone_resized(size):
+    """A phone's RESIZE. Always answered, so the phone knows its request landed: the first
+    phone to arrive takes control, and while the PC holds the slider the answer is the PC's
+    size, unchanged."""
+    global phone_size
+    first = phone_size is None
+    phone_size = size
+    give_size_to("phone" if first or size_owner == "phone" else "host", force=True)
+
+def phone_control(owner):
+    """The phone's Phone/PC slider. Without a phone size yet, its next RESIZE brings one."""
+    if owner == "phone" and phone_size:
+        give_size_to("phone", force=True)
+    elif owner == "pc":
+        give_size_to("host", force=True)
 
 def safe_pty_write(data: str):
     """Write input to PTY cleanly."""
@@ -352,7 +369,7 @@ def start_pty_session():
         agent_print("PTY is already running.")
         # A new relay has no cached size to give phones that connect to it
         if pty_size:
-            send_to_relay({"type": "PTY_SIZE", "cols": pty_size[0], "rows": pty_size[1]})
+            send_to_relay({"type": "PTY_SIZE", "cols": pty_size[0], "rows": pty_size[1], "owner": size_owner})
         return
 
     enable_virtual_terminal_processing()
@@ -409,7 +426,7 @@ def start_pty_session():
         agent_print(f"🚀 Started persistent PTY session (PID: {active_pty.pid}, size: {ts.columns}x{ts.lines}, backend: {pty_backend or 'default'})")
         pty_size = (ts.columns, ts.lines)
         # Announce initial PTY dimensions to backend & phone client
-        send_to_relay({"type": "PTY_SIZE", "cols": ts.columns, "rows": ts.lines})
+        send_to_relay({"type": "PTY_SIZE", "cols": ts.columns, "rows": ts.lines, "owner": "host"})
     except Exception as e:
         agent_print(f"❌ Failed to spawn PTY process: {e}")
         import traceback
@@ -607,15 +624,13 @@ async def start_agent():
 
                     if msg_type == "INPUT":
                         data = payload.get("data", "")
-                        # Typing on the phone takes the size back from this console first
-                        give_size_to("phone")
                         safe_pty_write(data)
                     elif msg_type == "RESIZE":
                         size = parse_phone_size(payload)
                         if size:
-                            phone_size = size
-                            # Always answer, so the phone knows its request landed
-                            give_size_to("phone", force=True)
+                            phone_resized(size)
+                    elif msg_type == "CONTROL":
+                        phone_control(payload.get("owner"))
                     elif msg_type == "PHONES_GONE":
                         # Nobody left to read a phone-sized terminal: back to the window's size
                         phone_size = None

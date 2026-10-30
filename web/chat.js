@@ -93,12 +93,12 @@
   const folderName = (path) => (path || "").split(/[\\/]/).filter(Boolean).pop() || path;
 
   function renderHome() {
-    $("terminal-card-sub").textContent = $("run-prompt").textContent || "PowerShell on your PC";
+    $("terminal-card-sub").textContent = $("run-prompt").textContent || "Type commands on your PC";
     if (!sessions.length) {
       const empty = document.createElement("p");
       empty.className = "home-empty";
       empty.textContent = Object.keys(agents).length
-        ? "No chats yet. Start one and the agent works on your PC while you watch and approve from here."
+        ? "No chats yet. Tap New chat and ask the AI to do something on your PC. You approve each step from here."
         : "Connect to your PC to see your chats.";
       homeSessions.replaceChildren(empty);
       return;

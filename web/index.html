@@ -15,7 +15,7 @@
   <link rel="manifest" href="/manifest.json">
   <!-- Light or dark before first paint: the saved pick, else the phone's setting (app.js owns the switch) -->
   <script>{ let s; try { s = localStorage.getItem("termpilot_scheme"); } catch (e) {} document.documentElement.dataset.scheme = s || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); }</script>
-  <link rel="stylesheet" href="styles.css?v=79">
+  <link rel="stylesheet" href="styles.css?v=80">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -176,7 +176,7 @@
           <div class="feature-icon-box"><svg class="i"><use href="#i-fit"/></svg></div>
           <div class="feature-info">
             <div class="feature-title">Fits your phone</div>
-            <div class="feature-desc">The terminal on your PC resizes to your phone's screen, so lines wrap to fit instead of running off the edge. <span class="feature-badge">A−</span> <span class="feature-badge">A+</span> change the text size and the lines re-wrap. Type on the PC and it takes its own size back; type on the phone and the phone gets it again.</div>
+            <div class="feature-desc">Slide the switch on Home to Phone or PC. The command window fits the screen you pick, so lines never run off the edge. <span class="feature-badge">A−</span> <span class="feature-badge">A+</span> change the text size. Typing on the PC gives control back to the PC.</div>
           </div>
         </div>
 
@@ -284,34 +284,44 @@
   </div>
 
   <!-- Home: the terminal and every chat with a coding agent on the PC -->
-  <section id="home-view" class="view" aria-label="Chats">
+  <section id="home-view" class="view" aria-label="Home">
     <header class="view-header">
       <div class="view-bar"><span class="wordmark">TermPilot</span><span class="stamp mini conn-mirror" data-state="offline">Offline</span></div>
       <div class="view-title-row">
-        <h1 class="view-title">Chats</h1>
+        <h1 class="view-title">Home</h1>
         <button id="btn-scheme" class="modal-close-btn" aria-label="Dark mode" aria-pressed="false"><svg class="i i-moon"><use href="#i-moon"/></svg><svg class="i i-sun"><use href="#i-sun"/></svg></button>
         <button id="btn-home-guide" class="modal-close-btn" title="How to use TermPilot" aria-label="How to use TermPilot"><svg class="i"><use href="#i-info"/></svg></button>
       </div>
     </header>
     <div class="view-scroll">
+      <!-- Who types into the PC: slide (or tap) toward the screen in your hand -->
+      <div class="control-card">
+        <p id="control-text" class="control-text">Your phone is in control</p>
+        <button id="control-slider" class="slider" role="switch" aria-checked="false" aria-labelledby="control-text" data-owner="phone" disabled>
+          <span class="slider-side"><svg class="i"><use href="#i-phone"/></svg>Phone</span>
+          <span class="slider-side"><svg class="i"><use href="#i-monitor"/></svg>PC</span>
+          <span class="slider-thumb" aria-hidden="true"><svg class="i"><use href="#i-phone"/></svg><span>Phone</span></span>
+        </button>
+        <p class="control-hint">Slide to where you'll type. The command window fits that screen.</p>
+      </div>
       <button id="open-terminal" class="home-row terminal-row">
         <span class="row-icon"><svg class="i"><use href="#i-monitor"/></svg></span>
-        <span class="home-row-text"><span class="home-row-title">Terminal</span><span id="terminal-card-sub" class="home-row-meta">PowerShell on your PC</span></span>
+        <span class="home-row-text"><span class="home-row-title">Command window</span><span id="terminal-card-sub" class="home-row-meta">Type commands on your PC</span></span>
         <svg class="i chevron"><use href="#i-right"/></svg>
       </button>
       <button id="alerts-row" class="home-row terminal-row" hidden>
         <span class="row-icon"><svg class="i"><use href="#i-bell"/></svg></span>
-        <span class="home-row-text"><span class="home-row-title">Turn on alerts</span><span id="alerts-sub" class="home-row-meta">Know when an agent needs your OK or is done</span></span>
+        <span class="home-row-text"><span class="home-row-title">Turn on alerts</span><span id="alerts-sub" class="home-row-meta">Get a ping when the AI needs you or is done</span></span>
       </button>
       <div id="chat-sessions" class="home-sessions"></div>
       <button id="btn-history" class="home-row terminal-row">
         <span class="row-icon"><svg class="i"><use href="#i-history"/></svg></span>
-        <span class="home-row-text"><span class="home-row-title">Past sessions</span><span class="home-row-meta">Reopen any Claude Code or Codex session from this PC</span></span>
+        <span class="home-row-text"><span class="home-row-title">Earlier chats</span><span class="home-row-meta">Pick up a chat from before</span></span>
         <svg class="i chevron"><use href="#i-right"/></svg>
       </button>
       <button id="btn-devices" class="home-row terminal-row">
         <span class="row-icon"><svg class="i"><use href="#i-phone"/></svg></span>
-        <span class="home-row-text"><span class="home-row-title">Devices</span><span class="home-row-meta">Phones that can reach this PC</span></span>
+        <span class="home-row-text"><span class="home-row-title">Phones</span><span class="home-row-meta">Phones allowed to use this PC</span></span>
         <svg class="i chevron"><use href="#i-right"/></svg>
       </button>
     </div>
@@ -431,10 +441,10 @@
 
   <div id="update-banner" class="update-banner" role="status" hidden>TermPilot was updated on the PC<button class="ask-btn" onclick="location.reload()">Reload</button></div>
 
-  <script src="app.js?v=79"></script>
+  <script src="app.js?v=80"></script>
   <!-- Agent replies are Markdown; DOMPurify strips anything executable before it is shown -->
   <script src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js" integrity="sha384-2vpGtuKqJvFlwJqYnf/wUMuzUfhUnYBt9oay0e2yaFcq0Dh6/aEbQ8YAOeKGzlYo" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js" integrity="sha384-a7SzOxErzJ3ZpQz0zJ32d67dSitNzPcbfybc/ykU9KJhMgZkwqfSxlhhdJRS+XGL" crossorigin="anonymous"></script>
-  <script src="chat.js?v=77"></script>
+  <script src="chat.js?v=80"></script>
 </body>
 </html>
