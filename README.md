@@ -159,7 +159,18 @@ backendenv\Scripts\python.exe test_integration.py
 Runs the phone, relay, PC agent and a fake ACP agent over real sockets in a throwaway home folder: adding and removing phones, attachments, the Files sheet, past sessions and agent health.
 
 ### Everyday start
-After setup, open two PowerShell windows and run one line in each, relay first. Close both windows to stop TermPilot. Nothing starts with Windows.
+After setup, double-click **TermPilot** on the desktop. Its window starts the relay and opens the PC terminal, shows when both are connected, copies the phone link, and opens the add-a-phone page. **Stop TermPilot** (or closing the window) stops everything. Nothing starts with Windows.
+
+Make the desktop shortcut once:
+```powershell
+$s = (New-Object -ComObject WScript.Shell).CreateShortcut("$([Environment]::GetFolderPath('Desktop'))\TermPilot.lnk")
+$s.TargetPath = "C:\Users\avina\termpilot\backend\venv\Scripts\pythonw.exe"
+$s.Arguments = '"C:\Users\avina\termpilot\TermPilot.pyw"'
+$s.WorkingDirectory = "C:\Users\avina\termpilot"
+$s.Save()
+```
+
+Without the app, run one line in each of two PowerShell windows, relay first:
 ```powershell
 cd C:\Users\avina\termpilot\backend; .\venv\Scripts\python.exe main.py
 cd C:\Users\avina\termpilot\desktop-agent; .\venv\Scripts\python.exe agent.py
