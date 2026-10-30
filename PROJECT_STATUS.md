@@ -21,8 +21,8 @@
 ---
 
 ## 📁 Key File Index
-- Backend Relay: [`backend/main.py`](file:///C:/Users/avina/termpilot/backend/main.py)
-- Desktop Agent: [`desktop-agent/agent.py`](file:///C:/Users/avina/termpilot/desktop-agent/agent.py)
-- Web Interface Layout: [`web/index.html`](file:///C:/Users/avina/termpilot/web/index.html)
-- Technical Blueprint Stylesheet: [`web/styles.css`](file:///C:/Users/avina/termpilot/web/styles.css)
-- Web App WebSocket Handler: [`web/app.js`](file:///C:/Users/avina/termpilot/web/app.js)
+- Backend Relay: [`backend/main.py`](backend/main.py)
+- Desktop Agent: [`desktop-agent/agent.py`](desktop-agent/agent.py)
+- Web Interface Layout: [`web/index.html`](web/index.html)
+- Technical Blueprint Stylesheet: [`web/styles.css`](web/styles.css)
+- Web App WebSocket Handler: [`web/app.js`](web/app.js)

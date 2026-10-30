@@ -122,59 +122,63 @@ graph TB
 
 ## 🚀 Quick Start
 
-### 1. Prerequisites
-* Python 3.10+
-* Node.js and the agents you want to chat with (Claude Code, Codex, Antigravity `agy`), then `npm ci --prefix desktop-agent/acp --ignore-scripts`
-* (Optional) `ngrok` for public remote phone access over 5G/LTE
+Windows 10 or 11 only: the PC agent drives a real Windows terminal (ConPTY). Run every command below in **PowerShell**, from the folder you cloned into (`cd termpilot`).
 
-### 2. Start the Backend Relay
-```bash
-cd backend
-pip install -r requirements.txt
-python main.py
+### 1. What you need
+* **Python 3.10+** from python.org (its installer includes tkinter, which the PC app uses). Check with `python --version`.
+* **ngrok**, signed in, so your phone can reach the PC from anywhere. The relay listens only on this PC; ngrok gives it the https address the phone uses. Make a free account at ngrok.com, install ngrok, then run once: `ngrok config add-authtoken <your token>`.
+* **Node.js** and the coding agents you want to chat with (Claude Code, Codex, Antigravity `agy`), each signed in. Optional: without them the terminal still works.
+
+### 2. Install (once)
+```powershell
+python -m venv backend\venv
+backend\venv\Scripts\python.exe -m pip install -r backend\requirements.txt
+python -m venv desktop-agent\venv
+desktop-agent\venv\Scripts\python.exe -m pip install -r desktop-agent\requirements.txt
+npm ci --prefix desktop-agent/acp --ignore-scripts   # only for agent chats
 ```
 
-### 3. Connect the Desktop Agent
-```bash
-cd desktop-agent
-pip install -r requirements.txt
-python agent.py
-```
-*(If pairing for the first time, run `python agent.py --pair <6-digit-code>` shown on your phone screen).*
+### 3. First start: add your phone, then pair the PC (once)
+1. Start the relay and leave this window open:
+   ```powershell
+   cd backend; .\venv\Scripts\python.exe main.py
+   ```
+2. **Add your phone:** scan the QR code it prints with the phone's camera (it works once, for 10 minutes). Add TermPilot to the home screen if the phone offers it.
+3. **Pair the PC:** the phone says the PC is not connected and shows **Generate pairing code**. Tap it, then in a second PowerShell window (from the cloned folder) run, with the 6 digits it shows:
+   ```powershell
+   cd desktop-agent; .\venv\Scripts\python.exe agent.py --pair 123456
+   ```
+4. Close both windows. Setup is done.
 
-### 4. Add your phone
-Scan the QR code the relay prints with the phone's camera. The code works once, for 10 minutes. For another phone later, open `http://localhost:8000/enroll` on the PC and scan that one.
+### 4. Every day
+Make a desktop shortcut once (run from the cloned folder):
+```powershell
+$s = (New-Object -ComObject WScript.Shell).CreateShortcut("$([Environment]::GetFolderPath('Desktop'))\TermPilot.lnk")
+$s.TargetPath = "$PWD\backend\venv\Scripts\pythonw.exe"
+$s.Arguments = "`"$PWD\TermPilot.pyw`""
+$s.WorkingDirectory = "$PWD"
+$s.Save()
+```
+Then double-click **TermPilot** on the desktop. Its window starts the relay and opens the PC terminal, shows when both are connected, copies the phone link, and opens the add-a-phone page for another phone. **Stop TermPilot** (or closing the window) stops everything. Nothing starts with Windows.
+
+Without the app, run one line in each of two PowerShell windows from the cloned folder, relay first:
+```powershell
+cd backend; .\venv\Scripts\python.exe main.py
+cd desktop-agent; .\venv\Scripts\python.exe agent.py
+```
 
 ## 🔒 Phones and security
 Anyone who can reach TermPilot can run code on your PC, so every phone has its own key.
 * **Each phone has its own key.** The relay stores only a SHA-256 hash of it, in `backend/phones.json` (gitignored). A phone not used for 30 days must be added again.
 * **Only the PC can add a phone.** The one-time code comes from the PC's screen (startup QR code or `/enroll`, which answers only to a browser on the PC itself). A stolen phone cannot add more phones.
-* **Remove a phone** under **Devices** on the home screen. Its connection closes at once, its key stops working and its alerts stop. To remove every phone, stop TermPilot first, then run `python main.py --remove-all-phones` in `backend`.
+* **Remove a phone** under **Devices** on the home screen. Its connection closes at once, its key stops working and its alerts stop. To remove every phone, stop TermPilot first, then run `cd backend; .envScriptspython.exe main.py --remove-all-phones`.
 * **Updates**: when the PC serves a newer web app, an open page shows *TermPilot was updated on the PC* with a Reload button, on reconnect or when you come back to the app.
 
 ### Check
 ```powershell
-backendenv\Scripts\python.exe test_integration.py
+backend\venv\Scripts\python.exe test_integration.py
 ```
 Runs the phone, relay, PC agent and a fake ACP agent over real sockets in a throwaway home folder: adding and removing phones, attachments, the Files sheet, past sessions and agent health.
-
-### Everyday start
-After setup, double-click **TermPilot** on the desktop. Its window starts the relay and opens the PC terminal, shows when both are connected, copies the phone link, and opens the add-a-phone page. **Stop TermPilot** (or closing the window) stops everything. Nothing starts with Windows.
-
-Make the desktop shortcut once:
-```powershell
-$s = (New-Object -ComObject WScript.Shell).CreateShortcut("$([Environment]::GetFolderPath('Desktop'))\TermPilot.lnk")
-$s.TargetPath = "C:\Users\avina\termpilot\backend\venv\Scripts\pythonw.exe"
-$s.Arguments = '"C:\Users\avina\termpilot\TermPilot.pyw"'
-$s.WorkingDirectory = "C:\Users\avina\termpilot"
-$s.Save()
-```
-
-Without the app, run one line in each of two PowerShell windows, relay first:
-```powershell
-cd C:\Users\avina\termpilot\backend; .\venv\Scripts\python.exe main.py
-cd C:\Users\avina\termpilot\desktop-agent; .\venv\Scripts\python.exe agent.py
-```
 
 ---
 
