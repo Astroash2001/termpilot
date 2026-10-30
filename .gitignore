@@ -37,3 +37,6 @@ push.json
 
 # Phone keys (hashed) for the relay
 phones.json
+
+# Saved design references (old UI builds and sketches), kept local
+.impeccable/saved-directions/
