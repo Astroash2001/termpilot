@@ -66,4 +66,13 @@ assert pty.sizes[-1] == (90, 20) and agent.size_owner == "phone"
 agent.phone_control("everyone")
 assert agent.size_owner == "phone"
 
+# Slid to PC, then the phone locks (PHONES_GONE) and comes back: the PC keeps it
+agent.phone_control("pc")
+agent.phone_size = None
+agent.give_size_to("host")
+agent.phone_resized((50, 40))
+assert agent.size_owner == "host" and sent[-1]["owner"] == "host"
+agent.phone_control("phone")
+assert agent.size_owner == "phone" and not agent.pc_chosen
+
 print("phone fit: all checks passed")

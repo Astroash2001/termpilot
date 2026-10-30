@@ -28,10 +28,13 @@ assert app.status["text"].startswith("Ready") and app.pc_line["text"] == "PC ter
 feed("🔴 Desktop Agent Disconnected.")
 assert app.pc_line["text"] == "PC terminal: not connected"
 
-# No tunnel: the local link, never the one-use enroll code
+# No tunnel: the local link, never the one-use enroll code, and the warning stays
 app.phone_url = ""
+feed("⚠️ ngrok did not report an https ngrok tunnel; only the local link is shown.")
 feed("Or open: http://localhost:8000/#enroll=SECRET")
+feed("INFO:     Application startup complete.")
 assert app.phone_url == "http://localhost:8000/"
+assert "on this PC only" in app.relay_line["text"]
 
 root.destroy()
 print("pc app: all checks pass")

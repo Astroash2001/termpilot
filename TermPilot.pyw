@@ -103,7 +103,9 @@ class App:
             # No tunnel: the local link, without its one-use enroll code
             self.phone_url = line.split("Or open:", 1)[1].strip().split("#", 1)[0]
         elif "Application startup complete" in line:
-            self.relay_line.configure(text="Relay: running", fg=OK)
+            # Without an https tunnel the ngrok warning printed earlier stays on screen
+            if self.phone_url.startswith("https"):
+                self.relay_line.configure(text="Relay: running", fg=OK)
             self.link_line.configure(text="Phone link: " + self.phone_url)
             self.copy_btn.configure(state="normal")
             self.start_agent()

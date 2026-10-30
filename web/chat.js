@@ -272,10 +272,10 @@
     const s = summaryOf(sid);
     if (s && (s.owner === "pc" || s.owner === "moving")) {
       c.preview = true;
-      c.previewLast = s.last;
       chatItems.replaceChildren(previewEl);
       previewEl.replaceChildren(listNote("Loading the latest messages…"));
-      send({ type: "CHAT_PREVIEW", sid }, true);
+      // Offline: no previewLast, so the session list every reconnect brings asks again
+      c.previewLast = send({ type: "CHAT_PREVIEW", sid }, true) ? s.last : null;
       renderHeader(c);
       return;
     }
@@ -294,6 +294,7 @@
     previewEl.replaceChildren(...items.map((m) => {
       const el = document.createElement("div");
       el.className = "msg msg-" + m.role;
+      el.dataset.role = m.role; // agent text is parsed as Markdown, like the live chat
       el._text = m.text;
       drawText(el);
       return el;
@@ -932,7 +933,7 @@
         if (listKind === "devices") renderDevices(msg.devices || []);
         break;
       case "CHAT_ERROR":
-        if (c && c.sid === current) {
+        if (c && c.sid === current && !c.preview) {
           const err = document.createElement("div");
           err.className = "msg msg-error";
           err.textContent = msg.msg;
@@ -940,6 +941,8 @@
           keepBottom(c, true);
         } else showToast(msg.msg);
         if (startingNew && (!c || c.sid !== current)) startingNew = false;
+        // A refused take over: put the card's slider back where the session really is
+        if (document.body.dataset.view === "home") renderHome();
         break;
     }
   }

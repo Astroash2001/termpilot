@@ -47,13 +47,14 @@ relay_ws = None
 relay_loop = None
 
 # Who sizes the PTY. A phone reports its screen with RESIZE; this console has its window.
-# The phone's Phone/PC slider (CONTROL) decides. The first phone to arrive takes it, typing
-# in this window takes it back (the PC has no slider), and it returns here when phones leave.
+# The phone's Phone/PC slider (CONTROL) decides. A phone arriving takes it unless the PC was chosen;
+# typing in this window takes it back (the PC has no slider), and it returns here when phones leave.
 # Typing on the phone never moves it, so the terminal doesn't re-wrap under the user.
 size_lock = threading.Lock()
 phone_size = None   # (cols, rows) from the phone's last RESIZE
 size_owner = "host"
 pty_size = None     # (cols, rows) the PTY has now
+pc_chosen = False   # slid to PC (or typed here): a returning phone doesn't take it back
 
 _console_owned_by_pty = False
 _original_console_mode = None
@@ -270,12 +271,15 @@ def phone_resized(size):
     phone to arrive takes control, and while the PC holds the slider the answer is the PC's
     size, unchanged."""
     global phone_size
-    first = phone_size is None
+    first = phone_size is None and not pc_chosen
     phone_size = size
     give_size_to("phone" if first or size_owner == "phone" else "host", force=True)
 
 def phone_control(owner):
     """The phone's Phone/PC slider. Without a phone size yet, its next RESIZE brings one."""
+    global pc_chosen
+    if owner in ("phone", "pc"):
+        pc_chosen = owner == "pc"
     if owner == "phone" and phone_size:
         give_size_to("phone", force=True)
     elif owner == "pc":
@@ -494,6 +498,7 @@ def start_pty_session():
 
     def read_local_input():
         """Read keyboard input and track console resize on the host laptop in strict FIFO order."""
+        global pc_chosen  # typing here is choosing the PC
         SPECIAL_KEYS_WIDE = {
             'H': '\x1b[A',   # Up arrow
             'P': '\x1b[B',   # Down arrow
@@ -578,6 +583,7 @@ def start_pty_session():
                     # Send the whole burst as one PTY write so ordering is preserved
                     if pending:
                         # Typing here takes the size back from the phone first
+                        pc_chosen = True
                         give_size_to("host")
                         safe_pty_write(''.join(pending))
                 else:

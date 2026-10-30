@@ -308,16 +308,18 @@ function setSlider(el, owner) {
 
 // onPick(owner) runs only when the slider lands on the other side
 function wireSlider(el, onPick) {
-  let slide = null; // { x, from, moved } while a finger is on it
+  let slide = null; // { x, y, from, moved } while a finger is on it
   el.addEventListener("pointerdown", (e) => {
-    slide = { x: e.clientX, from: el.dataset.owner === "pc" ? 1 : 0, moved: false };
+    if (el.disabled) return;
+    slide = { x: e.clientX, y: e.clientY, from: el.dataset.owner === "pc" ? 1 : 0, moved: false };
     el.setPointerCapture(e.pointerId);
     el.classList.add("dragging");
   });
   el.addEventListener("pointermove", (e) => {
     if (!slide) return;
     const dx = e.clientX - slide.x;
-    if (Math.abs(dx) > 6) slide.moved = true;
+    // Any travel, sideways or up and down (a scroll that began on the slider), is not a tap
+    if (Math.abs(dx) > 6 || Math.abs(e.clientY - slide.y) > 6) slide.moved = true;
     const x = Math.max(0, Math.min(1, slide.from + dx / (el.clientWidth / 2)));
     el.style.setProperty("--x", x.toFixed(3));
   });
