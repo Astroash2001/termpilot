@@ -34,14 +34,24 @@ assert acp_host.recent_messages("s", 1) == [{"role": "agent", "text": "Done: the
 async def main():
     host = acp_host.AcpHost(lambda m: None, lambda: {})
     s = acp_host.Session("s", "claude", "C:/work/termpilot")
-    s.owner, s.window = "pc", {"pid": 1, "shells": [], "at": 0, "status": "busy"}
+    s.owner, s.window, s.status = "pc", {"pid": 1, "shells": [], "at": 0}, "busy"
     host.sessions = {"s": s}
     assert await host.refresh_last() and s.last == "Done: the test passes."
     assert not await host.refresh_last(), "unchanged transcript is not read again"
     card = s.summary()
     assert card["last"] == "Done: the test passes." and card["busy"] and card["owner"] == "pc"
-    s.window["status"] = "idle"
+    s.status = "idle"
     assert not s.summary()["busy"]
+
+    # A `tp` session in the PC terminal: Claude's own status file says whether it is working
+    tp = acp_host.Session("t", "claude", "C:/work/termpilot")
+    tp.owner = "pc"
+    host.sessions = {"t": tp}
+    acp_host.read_pc_session = lambda: {"sid": "t", "agent": "claude", "owner": "pc"}
+    acp_host.read_laptop_sessions = lambda: {"t": {"pid": 2, "cwd": "C:/work/termpilot", "status": "busy"}}
+    host.send_list = lambda: None
+    await host.check_laptop_sessions()
+    assert tp.summary()["busy"] and tp.window is None, "tp stays a terminal session, now marked working"
 
 asyncio.run(main())
 print("running cards: all checks pass")

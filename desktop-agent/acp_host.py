@@ -148,17 +148,19 @@ class Session:
         # closes for the phone, "phone" once the phone has it. None for chats begun on the phone.
         self.owner = None
         # Same, for a plain `claude` in some laptop window instead of `tp`:
-        # {"pid": claude's pid, "shells": pids left in that window, "at": last change, "status": Claude's}
+        # {"pid": claude's pid, "shells": pids left in that window, "at": last change}
         self.window = None
-        # While the PC holds it: Claude's latest reply, so the phone's card says which session it is
+        # While the PC holds it: Claude's latest reply, so the phone's card says which session it
+        # is, and Claude's own status ("idle", or busy in a turn) for `tp` and window sessions alike
         self.last, self.last_mtime = "", 0
+        self.status = None
 
     def summary(self):
         return {"sid": self.sid, "agent": self.agent_id, "cwd": self.cwd, "title": self.title,
                 "state": self.state, "updated": self.updated, "live": self.adapter is not None,
                 "owner": self.owner, "window": self.window is not None, "last": self.last,
                 # A laptop Claude in the middle of a turn can't be taken over until it finishes
-                "busy": bool(self.window and self.window.get("status", "idle") != "idle")}
+                "busy": self.owner == "pc" and self.status not in (None, "idle")}
 
 
 def read_pc_session():
@@ -588,8 +590,12 @@ class AcpHost:
     async def check_laptop_sessions(self):
         live = await asyncio.to_thread(read_laptop_sessions)
         d = read_pc_session()
-        live.pop(d["sid"] if d else None, None)  # a `tp` session has its own handoff above
         changed = False
+        # A `tp` session has its own handoff above; only its card's working/waiting comes from here
+        tp = live.pop(d["sid"] if d else None, None)
+        s = tp and self.sessions.get(d["sid"])
+        if s and s.status != tp["status"]:
+            s.status, changed = tp["status"], True
         for sid, rec in live.items():
             s = self.sessions.get(sid)
             if not s:
@@ -604,9 +610,8 @@ class AcpHost:
                 s.owner = "pc"
                 s.window = {"pid": rec["pid"], "shells": (s.window or {}).get("shells", []), "at": time.time()}
                 changed = True
-            if s.window.get("status") != rec["status"]:
-                s.window["status"] = rec["status"]
-                changed = True
+            if s.status != rec["status"]:
+                s.status, changed = rec["status"], True
         for s in list(self.sessions.values()):
             # Closed at the laptop. The grace period covers a resume that is starting. Never moved
             # to the phone: it leaves the list. Otherwise it stays as an ordinary chat.

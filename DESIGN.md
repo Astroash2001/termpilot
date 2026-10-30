@@ -212,6 +212,15 @@ Paper and ink carry the structure, overprint purple carries meaning, and the map
 
 **The Night Screen Rule.** The terminal stays dark in the paper world. Its xterm theme owns color there: background and foreground match `screen` / `screen-text`, the cursor is `screen-signal`, selection is purple at 45%.
 
+### Night Map (dark mode)
+The same map printed on dark paper. A moon/sun button on Home switches it (`data-scheme="dark"` on `<html>`); the choice is kept on the phone, and before the first tap the phone's own setting decides. A head script applies it before first paint, and the browser bar color follows (`#fbfaf5` / `#17140f`). Night redefines tokens only; no component has night-specific rules.
+- **Night Paper** `#17140f` (ground and paper), **Night Well** `#221e18`, **Night Ink** `#f3efe4` (16.0:1), **Night Soft Ink** `#b5ab9b` (8.1:1), rule `#4a4237`.
+- **Overprint** brightens to `#ff5cb8`, with dark ink on it (`#1d1a16`, 6.2:1) and `#ff7cc6` as accent text (7.8:1); the wash is `#3d1531`.
+- **Open Land** darkens to ochre `#5c4a12` so light ink sits on it (7.5:1); thicket `#4d6630`, water `#8cc4f0`, done `#a9cf78`, fault `#ff7a63` / `#ff9d8a`, contours in pale brown at 6-8%.
+- **Pop shadows** stay hard and switch to light ink with everything else.
+- Course marks are SVG data URIs that cannot read tokens, so they are tokens themselves (`--mark-terminal`, `--mark-empty`, `--mark-start`, `--mark-finish`) redrawn in night colors. The sheet scrim (`--scrim`) and deleted diff text (`--del-text`) are tokens for the same reason.
+- The terminal is unchanged: it was already the map at night.
+
 ## Typography
 
 **Display / Label Font:** Barlow Condensed (600, 700, self-hosted) with Arial Narrow fallback
@@ -287,7 +296,22 @@ Equal-flex 46px paper keys, Pop, Condensed 700 16px or 18px icons. / CMD is 1.6x
 A legend box: 36px paper block with a 2px ink outline, a 12px square swatch outlined in ink, and a Condensed 600 15px uppercase label. Swatch is olive for Connected, red for Offline, muted for Locked. JS animates its width (240ms) and it pops from 0.95 on change. Small **stamps** repeat the language (13px, 1.5px outline, 10px swatch) on the overlay, guide and Home.
 
 ### Control-Description Lists
-Chats on Home, folders, commands, files, sessions and devices are ruled ink lists numbered in a 40px purple Condensed 700 column separated by a 1px ink rule. Home's chat list is boxed in 2px ink (dashed when empty, with a start-leg-control drawing). Row press fills `overprint-wash`. The Terminal row above it is outlined and marked with the start triangle.
+Chats on Home, folders, commands, files, sessions and devices are ruled ink lists numbered in a 40px purple Condensed 700 column separated by a 1px ink rule. Home's chat list is boxed in 2px ink (dashed when empty, with a start-leg-control drawing). Row press fills `overprint-wash`. The Command window row above it is outlined and marked with the start triangle.
+
+### Home, top to bottom
+Home is ordered for someone who is not technical: what is running, who is in control, then everything else as plain rows.
+1. **Running on your PC** (only while an agent session runs on the PC): a purple Condensed title, then one card per session.
+2. **The Phone/PC slider** for the terminal, under a line that says who is in control.
+3. **Command window**, **Your chats** (a banner), **Earlier chats**, **Phones**, as outlined rows; **New chat** is the foot's primary button.
+
+### Phone / PC Slider (signature)
+A 64px two-sided track (`paper-low`, 2px ink outline) with PHONE and PC labels, and a thumb that is a popping overprint plate carrying the icon and name of the side in control. Drag it (it follows the finger, then lands on the nearer side over 240ms ease-out) or tap it (it flips). Any travel over 6px, sideways or up and down, means a drag, so a scroll that starts on it never flips it. The same component, 48px and right-aligned, sits at the foot of each running card. It is a `role="switch"` button; Enter and Space flip it.
+
+### Running Cards
+One per agent session the PC holds: a 2px ink card with the Pop shadow. The project folder in Condensed 700 22pt uppercase, Claude's latest reply in two clamped lines, then "Claude · working on the PC", "waiting on the PC", "on your phone" or "Moving to your phone…" in soft ink. Tapping the card opens the chat view as a read-only preview of the latest messages, refreshed whenever the latest reply changes; sliding its slider to Phone takes the session over, back to PC returns it.
+
+### Chats Banner
+"Your chats" is a `<details>` row like the others: a speech-bubble icon, the title, and a one-line summary of what is folded inside ("1 needs your OK", "2 working", "3 chats", "None yet"), which turns accent when a chat needs you. The chevron turns 180 degrees when open; open or folded is kept on the phone.
 
 ### State Marks
 24px control circles in a 2.5px purple ring: idle open, thinking dashed and turning (3s), needs-you filled purple with a halo, stopped red with a diagonal strike.
@@ -314,7 +338,9 @@ A 76x58 isometric figure drawn in map colors (paper top, open-land front, thicke
 - **Do** set labels, titles and buttons in Barlow Condensed uppercase and sentences in Barlow.
 - **Do** size reading text in `--pt` units and give fields 16px text.
 - **Do** keep the terminal dark and give every non-screen row `flex-shrink: 0`.
-- **Do** honor reduced motion and increased contrast (`ink-soft` #46403a, `rule` #8a877f).
+- **Do** honor reduced motion and increased contrast (`ink-soft` #46403a, `rule` #8a877f; at night #d3cbbd and #8a8072).
+- **Do** add color through tokens only, so night mode follows without extra rules; a new SVG mark in CSS becomes a `--mark-*` token with a night copy.
+- **Do** use the Phone/PC slider for anything that moves control between phone and PC.
 
 ### Don't:
 - **Don't** use blurred or soft shadows; depth here is printed.
