@@ -272,6 +272,7 @@
     const s = summaryOf(sid);
     if (s && (s.owner === "pc" || s.owner === "moving")) {
       c.preview = true;
+      c.previewLast = s.last;
       chatItems.replaceChildren(previewEl);
       previewEl.replaceChildren(listNote("Loading the latest messages…"));
       send({ type: "CHAT_PREVIEW", sid }, true);
@@ -319,12 +320,9 @@
     $("handoff-bar").hidden = !onPc;
     $("chat-input-bar").hidden = onPc;
     $("handoff-actions").hidden = owner !== "pc";
-    $("btn-watch").hidden = !!s.window; // a laptop window is not the terminal the phone can show
     $("handoff-text").textContent = owner === "moving"
       ? "Closing it on the PC and moving it here…"
-      : s.window
-        ? `${agents[s.agent] || "The agent"} is open in a window on your laptop. Take it over to continue here; Give back reopens it in that window.`
-        : `${agents[s.agent] || "The agent"} is running in the PC terminal. Watch it there, or take it over to continue here as a chat.`;
+      : `${agents[s.agent] || "The agent"} is running on your PC. Above are its latest messages, updating as it works. Take it over to continue here.`;
     $("btn-giveback").hidden = owner !== "phone";
     if (onPc) modeChip.hidden = true;
   }
@@ -806,7 +804,6 @@
       return listRow(d.name, d.current ? "This phone" : ago(d.seen) === "now" ? "Used just now" : "Last used " + ago(d.seen) + " ago", null, remove);
     }));
   }
-  $("btn-watch").addEventListener("click", () => go("#terminal"));
   $("btn-takeover").addEventListener("click", () => {
     if (current && send({ type: "CHAT_TAKEOVER", sid: current })) triggerHaptic(15);
   });
@@ -847,7 +844,15 @@
           // Taken over (or given back) while open: swap the preview and the live chat
           const k = chatFor(current), s = summaryOf(current);
           const held = !!s && (s.owner === "pc" || s.owner === "moving");
-          if (held !== !!k.preview) openChat(current); else renderHeader(k);
+          if (held !== !!k.preview) openChat(current);
+          else {
+            renderHeader(k);
+            // Watching a session the PC holds: its card's latest reply moved on, so fetch the messages again
+            if (held && s.last !== k.previewLast) {
+              k.previewLast = s.last;
+              send({ type: "CHAT_PREVIEW", sid: current }, true);
+            }
+          }
         }
         break;
       case "CHAT_PREVIEW":
