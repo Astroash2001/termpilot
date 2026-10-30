@@ -96,16 +96,20 @@
   const titleOf = (s) => s.title || (s.owner === "pc" ? (s.window ? "Open on the laptop" : "In the PC terminal") : "New chat");
   const folderName = (path) => (path || "").split(/[\\/]/).filter(Boolean).pop() || path;
 
+  const handedOff = (s) => !!s.owner; // pc, moving, or taken from the PC to this phone
+
   function renderHome() {
     $("terminal-card-sub").textContent = $("run-prompt").textContent || "Type commands on your PC";
+    renderRunning();
+    const listed = sessions.filter((s) => !handedOff(s));
     // The banner sums up what is folded under it, loudest news first
-    const count = (state) => sessions.filter((s) => s.state === state).length;
-    const needs = count("needs_you"), working = count("thinking"), n = sessions.length;
+    const count = (state) => listed.filter((s) => s.state === state).length;
+    const needs = count("needs_you"), working = count("thinking"), n = listed.length;
     $("chats-summary").dataset.state = needs ? "needs_you" : "";
     $("chats-sub").textContent = needs ? `${needs} need${needs > 1 ? "" : "s"} your OK`
       : working ? `${working} working`
       : n ? `${n} chat${n > 1 ? "s" : ""}` : "None yet";
-    if (!sessions.length) {
+    if (!listed.length) {
       const empty = document.createElement("p");
       empty.className = "home-empty";
       empty.textContent = Object.keys(agents).length
@@ -114,7 +118,7 @@
       homeSessions.replaceChildren(empty);
       return;
     }
-    homeSessions.replaceChildren(...sessions.map((s, i) => {
+    homeSessions.replaceChildren(...listed.map((s, i) => {
       const row = document.createElement("button");
       row.className = "home-row";
       row.dataset.state = s.state;
@@ -134,6 +138,50 @@
       row.append(dot, text);
       row.addEventListener("click", () => go("#chat/" + encodeURIComponent(s.sid)));
       return row;
+    }));
+  }
+
+  // ── Running on your PC: one card per session, slide it to take it over ──
+  const runningCards = $("running-cards");
+
+  function renderRunning() {
+    const running = sessions.filter(handedOff);
+    $("running").hidden = !running.length;
+    // Never rebuild under a finger mid-slide; the next update after it lands draws the cards
+    if (runningCards.querySelector(".dragging")) return;
+    runningCards.replaceChildren(...running.map((s) => {
+      const card = document.createElement("div");
+      card.className = "run-card";
+      card.dataset.owner = s.owner;
+      const open = document.createElement("button");
+      open.className = "run-open";
+      const folder = document.createElement("span");
+      folder.className = "run-folder";
+      folder.textContent = folderName(s.cwd) || titleOf(s);
+      const last = document.createElement("span");
+      last.className = "run-last";
+      last.textContent = s.owner === "phone" ? titleOf(s) : s.last || titleOf(s);
+      const meta = document.createElement("span");
+      meta.className = "run-meta";
+      const agent = agents[s.agent] || s.agent;
+      meta.textContent = s.owner === "moving" ? "Moving to your phone…"
+        : s.owner === "phone" ? `${agent} · on your phone`
+        : s.busy ? `${agent} · working on the PC` : `${agent} · waiting on the PC`;
+      open.append(folder, last, meta);
+      open.addEventListener("click", () => go("#chat/" + encodeURIComponent(s.sid)));
+      const slider = $("control-slider").cloneNode(true);
+      slider.removeAttribute("id");
+      slider.removeAttribute("aria-labelledby");
+      slider.setAttribute("aria-label", "Where " + folder.textContent + " runs");
+      slider.classList.add("slider-sm");
+      slider.disabled = s.owner === "moving";
+      setSlider(slider, s.owner === "phone" ? "phone" : "pc");
+      wireSlider(slider, (owner) => {
+        const ok = send({ type: owner === "phone" ? "CHAT_TAKEOVER" : "CHAT_GIVEBACK", sid: s.sid });
+        if (ok) triggerHaptic(15); else setSlider(slider, s.owner === "phone" ? "phone" : "pc");
+      });
+      card.append(open, slider);
+      return card;
     }));
   }
 
@@ -221,10 +269,35 @@
     if (current !== sid) clearAttachments();
     current = sid;
     const c = chatFor(sid);
+    const s = summaryOf(sid);
+    if (s && (s.owner === "pc" || s.owner === "moving")) {
+      c.preview = true;
+      chatItems.replaceChildren(previewEl);
+      previewEl.replaceChildren(listNote("Loading the latest messages…"));
+      send({ type: "CHAT_PREVIEW", sid }, true);
+      renderHeader(c);
+      return;
+    }
+    c.preview = false;
     chatItems.replaceChildren(c.el);
     renderHeader(c);
     // Ask only for what this phone hasn't seen; a reconnect never redraws or repeats the chat
     send({ type: "CHAT_OPEN", sid, since: c.seq }, true);  // offline: onConnected asks again
+    requestAnimationFrame(() => { chatScroll.scrollTop = chatScroll.scrollHeight; });
+  }
+
+  const previewEl = document.createElement("div");
+  previewEl.className = "chat-log chat-preview";
+
+  function renderPreview(items) {
+    previewEl.replaceChildren(...items.map((m) => {
+      const el = document.createElement("div");
+      el.className = "msg msg-" + m.role;
+      el._text = m.text;
+      drawText(el);
+      return el;
+    }));
+    if (!items.length) previewEl.replaceChildren(listNote("No messages yet."));
     requestAnimationFrame(() => { chatScroll.scrollTop = chatScroll.scrollHeight; });
   }
 
@@ -770,7 +843,15 @@
         sessions.forEach((s) => { const k = chats.get(s.sid); if (k) k.state = s.state; });
         if (document.body.dataset.view === "home") renderHome();
         if (newModal.style.display === "flex") renderAgentChoice();
-        if (current) renderHeader(chatFor(current));
+        if (current) {
+          // Taken over (or given back) while open: swap the preview and the live chat
+          const k = chatFor(current), s = summaryOf(current);
+          const held = !!s && (s.owner === "pc" || s.owner === "moving");
+          if (held !== !!k.preview) openChat(current); else renderHeader(k);
+        }
+        break;
+      case "CHAT_PREVIEW":
+        if (msg.sid === current && c.preview) renderPreview(msg.items || []);
         break;
       case "CHAT_DIRS":
         renderDirs(msg);

@@ -15,7 +15,7 @@
   <link rel="manifest" href="/manifest.json">
   <!-- Light or dark before first paint: the saved pick, else the phone's setting (app.js owns the switch) -->
   <script>{ let s; try { s = localStorage.getItem("termpilot_scheme"); } catch (e) {} document.documentElement.dataset.scheme = s || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); }</script>
-  <link rel="stylesheet" href="styles.css?v=81">
+  <link rel="stylesheet" href="styles.css?v=82">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -295,6 +295,11 @@
       </div>
     </header>
     <div class="view-scroll">
+      <!-- Agent sessions running on the PC right now: tap to look, slide to take one over -->
+      <section id="running" class="running" aria-labelledby="running-title" hidden>
+        <h2 id="running-title" class="running-title">Running on your PC</h2>
+        <div id="running-cards"></div>
+      </section>
       <!-- Who types into the PC: slide (or tap) toward the screen in your hand -->
       <div class="control-card">
         <p id="control-text" class="control-text">Your phone is in control</p>
@@ -450,10 +455,10 @@
 
   <div id="update-banner" class="update-banner" role="status" hidden>TermPilot was updated on the PC<button class="ask-btn" onclick="location.reload()">Reload</button></div>
 
-  <script src="app.js?v=80"></script>
+  <script src="app.js?v=82"></script>
   <!-- Agent replies are Markdown; DOMPurify strips anything executable before it is shown -->
   <script src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js" integrity="sha384-2vpGtuKqJvFlwJqYnf/wUMuzUfhUnYBt9oay0e2yaFcq0Dh6/aEbQ8YAOeKGzlYo" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js" integrity="sha384-a7SzOxErzJ3ZpQz0zJ32d67dSitNzPcbfybc/ykU9KJhMgZkwqfSxlhhdJRS+XGL" crossorigin="anonymous"></script>
-  <script src="chat.js?v=81"></script>
+  <script src="chat.js?v=82"></script>
 </body>
 </html>

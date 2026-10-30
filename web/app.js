@@ -293,56 +293,71 @@ function adaptFontSizeToPty() {
   } catch (e) {}
 }
 
-// ── Phone / PC slider (Home) ────────────────────────────────────────────
-// Drag the thumb, or tap, toward the screen that should type into the PC. The PC answers
-// with a PTY_SIZE naming the new owner, which is what finally sets the slider.
+// ── Phone / PC sliders ──────────────────────────────────────────────────
+// Drag the thumb, or tap, toward the screen that should have control. Used for the terminal
+// on Home and for each session running on the PC. The PC's answer is what finally sets one.
+
+function setSlider(el, owner) {
+  el.dataset.owner = owner;
+  el.setAttribute("aria-checked", String(owner === "pc"));
+  el.style.removeProperty("--x");
+  const thumb = el.querySelector(".slider-thumb");
+  thumb.querySelector("use").setAttribute("href", owner === "pc" ? "#i-monitor" : "#i-phone");
+  thumb.querySelector("span").textContent = owner === "pc" ? "PC" : "Phone";
+}
+
+// onPick(owner) runs only when the slider lands on the other side
+function wireSlider(el, onPick) {
+  let slide = null; // { x, from, moved } while a finger is on it
+  el.addEventListener("pointerdown", (e) => {
+    slide = { x: e.clientX, from: el.dataset.owner === "pc" ? 1 : 0, moved: false };
+    el.setPointerCapture(e.pointerId);
+    el.classList.add("dragging");
+  });
+  el.addEventListener("pointermove", (e) => {
+    if (!slide) return;
+    const dx = e.clientX - slide.x;
+    if (Math.abs(dx) > 6) slide.moved = true;
+    const x = Math.max(0, Math.min(1, slide.from + dx / (el.clientWidth / 2)));
+    el.style.setProperty("--x", x.toFixed(3));
+  });
+  const end = (e) => {
+    if (!slide) return;
+    const current = el.dataset.owner;
+    const x = parseFloat(el.style.getPropertyValue("--x") || slide.from);
+    // A drag lands on the nearer side; a tap flips
+    const owner = e.type === "pointercancel" ? current : slide.moved ? (x > 0.5 ? "pc" : "phone") : (current === "pc" ? "phone" : "pc");
+    slide = null;
+    el.classList.remove("dragging");
+    setSlider(el, owner);
+    if (owner !== current) onPick(owner);
+  };
+  el.addEventListener("pointerup", end);
+  el.addEventListener("pointercancel", end);
+  // Keyboard (Enter/Space) clicks carry detail 0; pointer taps are handled above
+  el.addEventListener("click", (e) => {
+    if (e.detail !== 0) return;
+    const owner = el.dataset.owner === "pc" ? "phone" : "pc";
+    setSlider(el, owner);
+    onPick(owner);
+  });
+}
+
+// Home: who types into the PC terminal, and so whose screen it is sized for
 const controlSlider = document.getElementById("control-slider");
-const controlThumb = controlSlider.querySelector(".slider-thumb");
 
 function showControl(owner) {
-  controlSlider.dataset.owner = owner;
-  controlSlider.setAttribute("aria-checked", String(owner === "pc"));
-  controlSlider.style.removeProperty("--x");
-  controlThumb.querySelector("use").setAttribute("href", owner === "pc" ? "#i-monitor" : "#i-phone");
-  controlThumb.querySelector("span").textContent = owner === "pc" ? "PC" : "Phone";
+  setSlider(controlSlider, owner);
   document.getElementById("control-text").textContent = owner === "pc" ? "Your PC is in control" : "Your phone is in control";
 }
 
-function takeControl(owner) {
-  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+wireSlider(controlSlider, (owner) => {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return showControl(ptyOwner || "phone");
   showControl(owner);
   ws.send(JSON.stringify({ type: "CONTROL", owner }));
   // Measure this screen afresh: the RESIZE that follows brings the PC the phone's size
   if (owner === "phone") { fitCols = fitRows = 0; adaptFontSizeToPty(); }
-}
-
-let slide = null; // { x, from, moved } while a finger is on the slider
-controlSlider.addEventListener("pointerdown", (e) => {
-  slide = { x: e.clientX, from: controlSlider.dataset.owner === "pc" ? 1 : 0, moved: false };
-  controlSlider.setPointerCapture(e.pointerId);
-  controlSlider.classList.add("dragging");
 });
-controlSlider.addEventListener("pointermove", (e) => {
-  if (!slide) return;
-  const dx = e.clientX - slide.x;
-  if (Math.abs(dx) > 6) slide.moved = true;
-  const x = Math.max(0, Math.min(1, slide.from + dx / (controlSlider.clientWidth / 2)));
-  controlSlider.style.setProperty("--x", x.toFixed(3));
-});
-const endSlide = (e) => {
-  if (!slide) return;
-  const current = controlSlider.dataset.owner;
-  const x = parseFloat(controlSlider.style.getPropertyValue("--x") || slide.from);
-  // A drag lands on the nearer side; a tap flips
-  const owner = e.type === "pointercancel" ? current : slide.moved ? (x > 0.5 ? "pc" : "phone") : (current === "pc" ? "phone" : "pc");
-  slide = null;
-  controlSlider.classList.remove("dragging");
-  if (owner !== current) takeControl(owner); else showControl(current);
-};
-controlSlider.addEventListener("pointerup", endSlide);
-controlSlider.addEventListener("pointercancel", endSlide);
-// Keyboard (Enter/Space) clicks carry detail 0; pointer taps are handled above
-controlSlider.addEventListener("click", (e) => { if (e.detail === 0) takeControl(controlSlider.dataset.owner === "pc" ? "phone" : "pc"); });
 
 // ── Coding agents ───────────────────────────────────────────────────────
 // TermPilot drives a plain terminal, so any coding agent can run in it. Each profile says

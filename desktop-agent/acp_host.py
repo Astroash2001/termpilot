@@ -148,13 +148,17 @@ class Session:
         # closes for the phone, "phone" once the phone has it. None for chats begun on the phone.
         self.owner = None
         # Same, for a plain `claude` in some laptop window instead of `tp`:
-        # {"pid": claude's pid, "shells": pids left in that window, "at": last change}
+        # {"pid": claude's pid, "shells": pids left in that window, "at": last change, "status": Claude's}
         self.window = None
+        # While the PC holds it: Claude's latest reply, so the phone's card says which session it is
+        self.last, self.last_mtime = "", 0
 
     def summary(self):
         return {"sid": self.sid, "agent": self.agent_id, "cwd": self.cwd, "title": self.title,
                 "state": self.state, "updated": self.updated, "live": self.adapter is not None,
-                "owner": self.owner, "window": self.window is not None}
+                "owner": self.owner, "window": self.window is not None, "last": self.last,
+                # A laptop Claude in the middle of a turn can't be taken over until it finishes
+                "busy": bool(self.window and self.window.get("status", "idle") != "idle")}
 
 
 def read_pc_session():
@@ -197,6 +201,17 @@ def transcript(sid):
     return found[0] if found else None
 
 
+def message_texts(d):
+    """The text a person would read in one transcript record: user or Claude, main thread only."""
+    if d.get("type") not in ("user", "assistant") or d.get("isMeta") or d.get("isSidechain"):
+        return []
+    content = (d.get("message") or {}).get("content")
+    texts = [content] if isinstance(content, str) else [
+        c.get("text", "") for c in content or [] if isinstance(c, dict) and c.get("type") == "text"]
+    # Skip slash-command echoes (<command-name>…), interruptions and resumed-session summaries
+    return [t for t in texts if t.strip() and not t.lstrip().startswith(("<", "[Request interrupted", "This session is being continued"))]
+
+
 def first_prompt(sid):
     """The first thing the user typed in a Claude session, as a chat title, or ""."""
     path = transcript(sid)
@@ -204,18 +219,41 @@ def first_prompt(sid):
         with open(path or "", encoding="utf-8") as f:
             for line in f:
                 d = json.loads(line)
-                if d.get("type") != "user" or d.get("isMeta") or d.get("isSidechain"):
-                    continue
-                content = (d.get("message") or {}).get("content")
-                texts = [content] if isinstance(content, str) else [
-                    c.get("text", "") for c in content or [] if isinstance(c, dict) and c.get("type") == "text"]
-                for text in texts:
-                    # Skip slash-command echoes (<command-name>…), interruptions and resumed-session summaries
-                    if text.strip() and not text.lstrip().startswith(("<", "[Request interrupted", "This session is being continued")):
+                if d.get("type") == "user":
+                    for text in message_texts(d):
                         return " ".join(text.split())[:80]
     except (OSError, ValueError):
         pass
     return ""
+
+
+TAIL = 2_000_000  # transcripts grow to many MB; the last messages are near the end
+
+
+def recent_messages(sid, n):
+    """The last n messages of a Claude session, oldest first: [{"role": "user"|"agent", "text"}]."""
+    path = transcript(sid)
+    try:
+        with open(path or "", "rb") as f:
+            size = f.seek(0, 2)
+            f.seek(max(0, size - TAIL))
+            lines = f.read().split(b"\n")
+    except OSError:
+        return []
+    if size > TAIL:
+        lines = lines[1:]  # cut in the middle
+    out = []
+    for raw in reversed(lines):
+        if len(out) >= n:
+            break
+        try:
+            d = json.loads(raw)
+        except ValueError:
+            continue
+        text = "\n\n".join(message_texts(d) if isinstance(d, dict) else [])
+        if text:
+            out.append({"role": "user" if d["type"] == "user" else "agent", "text": text[:4000]})
+    return out[::-1]
 
 
 def write_pc_owner(d, owner):
@@ -268,6 +306,11 @@ class AcpHost:
                 await self.set_mode(sid, msg.get("modeId"))
             elif kind == "CHAT_CLOSE":
                 await self.close(sid)
+            elif kind == "CHAT_PREVIEW":
+                # Read-only look at a session the PC still holds, before taking it over
+                s = self.session(sid)
+                items = await asyncio.to_thread(recent_messages, s.sid, 12)
+                self.send({"type": "CHAT_PREVIEW", "sid": s.sid, "items": items})
             elif kind == "CHAT_TAKEOVER":
                 await self.take_over(sid)
             elif kind == "CHAT_GIVEBACK":
@@ -484,8 +527,26 @@ class AcpHost:
                 if any(s.title for s in untitled):
                     self.save_index()
                     self.send_list()
+                if await self.refresh_last():
+                    self.send_list()
             except Exception:
                 pass  # a half-written file reads again next second
+
+    async def refresh_last(self):
+        """Re-read Claude's latest reply for sessions the PC holds, only when their transcript
+        changed. True when a card's text changed."""
+        changed = False
+        for s in [s for s in self.sessions.values() if s.owner in ("pc", "moving") and s.agent_id == "claude"]:
+            path = transcript(s.sid)
+            mtime = os.path.getmtime(path) if path else 0
+            if mtime == s.last_mtime:
+                continue
+            s.last_mtime = mtime
+            replies = [m["text"] for m in await asyncio.to_thread(recent_messages, s.sid, 4) if m["role"] == "agent"]
+            last = " ".join(replies[-1].split())[:160] if replies else ""
+            if last != s.last:
+                s.last, changed = last, True
+        return changed
 
     async def check_pc_session(self):
         d = read_pc_session()
@@ -542,6 +603,9 @@ class AcpHost:
             if s.owner != "pc" or not s.window or s.window["pid"] != rec["pid"]:
                 s.owner = "pc"
                 s.window = {"pid": rec["pid"], "shells": (s.window or {}).get("shells", []), "at": time.time()}
+                changed = True
+            if s.window.get("status") != rec["status"]:
+                s.window["status"] = rec["status"]
                 changed = True
         for s in list(self.sessions.values()):
             # Closed at the laptop. The grace period covers a resume that is starting. Never moved

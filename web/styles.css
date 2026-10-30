@@ -1144,6 +1144,22 @@ body[data-view="chat"] #chat-view { display: flex; }
 .slider.dragging .slider-thumb { transition: transform var(--press) var(--ease-out), box-shadow var(--press) var(--ease-out); }
 .slider:active:not(:disabled) .slider-thumb { box-shadow: 0 0 0 var(--ink); transform: translate(var(--pop), var(--pop)); }
 
+/* ---------- Running on your PC (Home) ---------- */
+/* One card per agent session the PC holds: which one it is, then a short slider to take it */
+.running { display: grid; gap: calc(var(--m) * 3); margin-bottom: calc(var(--m) * 5); }
+.running[hidden] { display: none; }
+.running-title { font: 700 calc(20 * var(--pt))/1.1 var(--font-label); letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-text); }
+#running-cards { display: grid; gap: calc(var(--m) * 3); }
+.run-card { display: grid; gap: calc(var(--m) * 3); padding: calc(var(--m) * 3); border: var(--line-w) solid var(--ink); background: var(--paper); box-shadow: var(--pop) var(--pop) 0 var(--ink); }
+.run-open { display: grid; gap: 4px; text-align: left; padding: 0; background: none; border: 0; color: inherit; min-height: 44px; }
+.run-folder { font: 700 calc(22 * var(--pt))/1.1 var(--font-label); text-transform: uppercase; letter-spacing: 0.03em; }
+.run-last { font-size: calc(15 * var(--pt)); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.run-meta { font-size: calc(13 * var(--pt)); color: var(--ink-soft); }
+/* Short, at the card's foot: the list still scrolls everywhere else under the finger */
+.slider.slider-sm { justify-self: end; width: min(240px, 100%); height: 48px; }
+.slider-sm .slider-side, .slider-sm .slider-thumb { font-size: 14px; }
+.chat-preview { opacity: 0.85; }
+
 /* ---------- Home ---------- */
 /* The chats banner: a row like the others; its chevron turns when the list is open */
 .chats-banner > summary { list-style: none; cursor: pointer; }
