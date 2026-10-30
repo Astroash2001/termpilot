@@ -2,6 +2,7 @@
 
 A fake push service on localhost receives a real push, decrypts it the way the phone
 would, and checks the VAPID signature against the key the relay gives the phone."""
+import asyncio
 import base64
 import json
 import threading
@@ -89,7 +90,30 @@ def check_round_trip():
     server.shutdown()
 
 
+def check_revoked_phone_gets_no_alerts():
+    """Security F2 (2026-10-30): a phone that was removed or expired gets no more alerts."""
+    sent = []
+    real_send, real_subs, real_phones = main.send_push, main.PUSH["subscriptions"], dict(main.PHONES)
+    main.send_push = lambda subs, alert: sent.append([s["phone"] for s in subs]) or []
+    main.PUSH["subscriptions"] = [{"endpoint": "https://push.example/a", "keys": {}, "phone": "kept"},
+                                  {"endpoint": "https://push.example/b", "keys": {}, "phone": "revoked"}]
+    main.PHONES.clear()
+    main.PHONES["kept"] = {"hash": "", "seen": 0}
+    m = main.ConnectionManager()
+    try:
+        asyncio.run(m.maybe_alert({"type": "CHAT_STATE", "sid": "s", "state": "error", "reason": "x"}))
+        assert sent == [["kept"]], sent
+        main.PHONES.clear()
+        asyncio.run(m.maybe_alert({"type": "CHAT_STATE", "sid": "t", "state": "error", "reason": "x"}))
+        assert sent == [["kept"]], "nobody left: nothing sent"
+    finally:
+        main.send_push, main.PUSH["subscriptions"] = real_send, real_subs
+        main.PHONES.clear()
+        main.PHONES.update(real_phones)
+
+
 check_alerts()
+check_revoked_phone_gets_no_alerts()
 check_subscription_validation()
 check_round_trip()
 print("push: all checks pass")

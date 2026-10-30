@@ -926,6 +926,14 @@ function connect() {
     wsAuthed = false;
     controlSlider.disabled = true;
     if (event.code === 4001) {
+      // A refused code from a link (maybe someone else's) must not cost this phone its own
+      // key: drop the code and log in with the key again
+      if (enroll && device) {
+        store(ENROLL_STORAGE, "");
+        setConnected(false);
+        connect();
+        return;
+      }
       // Removed, expired or used code: retrying with it would only fail again
       store(DEVICE_STORAGE, "");
       store(ENROLL_STORAGE, "");

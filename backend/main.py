@@ -1,4 +1,5 @@
 import os
+import socket
 import re
 import sys
 import json
@@ -373,9 +374,12 @@ class ConnectionManager:
 
     async def maybe_alert(self, message: dict):
         alert = self.alert_for(message)
-        if not alert or self.visible or not PUSH["subscriptions"]:
+        # Only phones that may still connect get alerts: a revoked or expired phone's
+        # subscription would otherwise keep receiving what the agents are doing
+        subs = [s for s in PUSH["subscriptions"] if s.get("phone") in PHONES]
+        if not alert or self.visible or not subs:
             return
-        gone = await asyncio.to_thread(send_push, list(PUSH["subscriptions"]), alert)
+        gone = await asyncio.to_thread(send_push, subs, alert)
         if gone:
             PUSH["subscriptions"] = [s for s in PUSH["subscriptions"] if s["endpoint"] not in gone]
             save_push(PUSH)
@@ -880,6 +884,12 @@ async def websocket_client(websocket: WebSocket):
 
 if __name__ == "__main__":
     if "--remove-all-phones" in sys.argv:
+        # A running relay holds every phone in memory and writes them all back at the next
+        # login, which would quietly undo this. So it only runs while the relay is down.
+        with socket.socket() as s:
+            if s.connect_ex(("127.0.0.1", 8000)) == 0:
+                print("TermPilot is running. Stop it first (Stop TermPilot), then run this again.")
+                sys.exit(1)
         PHONES.clear()
         save_phones()
         print("🚫 Every phone removed. Restart the server and scan the new QR code.")
