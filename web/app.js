@@ -59,6 +59,21 @@ try {
   console.warn("WebGL failed, using canvas renderer", e);
 }
 
+// Light or dark, switched on the Chats home and remembered on this phone. The head script
+// already applied it before first paint; this keeps the browser bar and the button in step.
+const btnScheme = document.getElementById("btn-scheme");
+function setScheme(name) {
+  document.documentElement.dataset.scheme = name;
+  document.querySelector('meta[name="theme-color"]').content = name === "dark" ? "#17140f" : "#fbfaf5";
+  btnScheme.setAttribute("aria-pressed", String(name === "dark"));
+}
+setScheme(document.documentElement.dataset.scheme);
+btnScheme.addEventListener("click", () => {
+  const name = document.documentElement.dataset.scheme === "dark" ? "light" : "dark";
+  setScheme(name);
+  try { localStorage.setItem("termpilot_scheme", name); } catch (e) {}
+});
+
 // ── DOM Elements ────────────────────────────────────────────────────────
 
 const overlay = document.getElementById("connection-overlay");

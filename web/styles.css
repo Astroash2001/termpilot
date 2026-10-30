@@ -67,41 +67,39 @@
   --pt: 1px;
 }
 
-/* Night: the same map on dark paper, following the phone's dark mode. Purple brightens to
-   stay readable; the yellow open land darkens to ochre so light text sits on it. Pressables
-   keep their hard shadow, now in light ink. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --ground: #17140f;
-    --paper: #17140f;
-    --paper-low: #221e18;
-    --ink: #f3efe4;            /* 16.0:1 on night paper */
-    --ink-soft: #b5ab9b;       /* 8.1:1 */
-    --rule: #4a4237;
-    --accent: #ff5cb8;
-    --accent-ink: #1d1a16;     /* 6.2:1 on the accent */
-    --accent-text: #ff7cc6;    /* 7.8:1 */
-    --accent-wash: #3d1531;
-    --shine: #ff9ad3;
-    --open: #5c4a12;           /* ink on it 7.5:1 */
-    --thicket: #4d6630;
-    --water: #8cc4f0;
-    --ok: #a9cf78;
-    --ok-text: #a9cf78;
-    --bad: #ff7a63;
-    --bad-text: #ff9d8a;
-    --muted-mark: #6f675b;
-    --contours:
-      repeating-radial-gradient(ellipse 130% 95% at 92% 4%, transparent 0 21px, rgba(214, 170, 120, 0.08) 21px 22px),
-      repeating-radial-gradient(ellipse 95% 130% at 4% 102%, transparent 0 25px, rgba(214, 170, 120, 0.06) 25px 26px);
-    --mark-terminal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 3 29.5 26h-27z' fill='none' stroke='%23ff5cb8' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E");
-    --mark-empty: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 72'%3E%3Cg fill='none' stroke='%23ff5cb8' stroke-width='2.5'%3E%3Cpath d='M24 20 38 44H10z' stroke-linejoin='round'/%3E%3Cpath d='M42 36 106 36' stroke-dasharray='7 6'/%3E%3Ccircle cx='126' cy='36' r='16' stroke-dasharray='6 5'/%3E%3C/g%3E%3C/svg%3E");
-    --mark-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 25 29.5 2h-27z' fill='%2317140f' stroke='%23ff5cb8' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E");
-    --mark-finish: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cg fill='%2317140f' stroke='%23ff5cb8' stroke-width='2.4'%3E%3Ccircle cx='17' cy='17' r='15'/%3E%3Ccircle cx='17' cy='17' r='9.5'/%3E%3C/g%3E%3C/svg%3E");
-    --scrim: rgb(0 0 0 / 0.6);
-    --del-text: #e8b48f;
-    color-scheme: dark;
-  }
+/* Night: the same map on dark paper, switched on the Chats home (a first visit follows the
+   phone). Purple brightens to stay readable; the yellow open land darkens to ochre so light
+   text sits on it. Pressables keep their hard shadow, now in light ink. */
+:root[data-scheme="dark"] {
+  --ground: #17140f;
+  --paper: #17140f;
+  --paper-low: #221e18;
+  --ink: #f3efe4;            /* 16.0:1 on night paper */
+  --ink-soft: #b5ab9b;       /* 8.1:1 */
+  --rule: #4a4237;
+  --accent: #ff5cb8;
+  --accent-ink: #1d1a16;     /* 6.2:1 on the accent */
+  --accent-text: #ff7cc6;    /* 7.8:1 */
+  --accent-wash: #3d1531;
+  --shine: #ff9ad3;
+  --open: #5c4a12;           /* ink on it 7.5:1 */
+  --thicket: #4d6630;
+  --water: #8cc4f0;
+  --ok: #a9cf78;
+  --ok-text: #a9cf78;
+  --bad: #ff7a63;
+  --bad-text: #ff9d8a;
+  --muted-mark: #6f675b;
+  --contours:
+    repeating-radial-gradient(ellipse 130% 95% at 92% 4%, transparent 0 21px, rgba(214, 170, 120, 0.08) 21px 22px),
+    repeating-radial-gradient(ellipse 95% 130% at 4% 102%, transparent 0 25px, rgba(214, 170, 120, 0.06) 25px 26px);
+  --mark-terminal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 3 29.5 26h-27z' fill='none' stroke='%23ff5cb8' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --mark-empty: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 72'%3E%3Cg fill='none' stroke='%23ff5cb8' stroke-width='2.5'%3E%3Cpath d='M24 20 38 44H10z' stroke-linejoin='round'/%3E%3Cpath d='M42 36 106 36' stroke-dasharray='7 6'/%3E%3Ccircle cx='126' cy='36' r='16' stroke-dasharray='6 5'/%3E%3C/g%3E%3C/svg%3E");
+  --mark-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 25 29.5 2h-27z' fill='%2317140f' stroke='%23ff5cb8' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --mark-finish: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cg fill='%2317140f' stroke='%23ff5cb8' stroke-width='2.4'%3E%3Ccircle cx='17' cy='17' r='15'/%3E%3Ccircle cx='17' cy='17' r='9.5'/%3E%3C/g%3E%3C/svg%3E");
+  --scrim: rgb(0 0 0 / 0.6);
+  --del-text: #e8b48f;
+  color-scheme: dark;
 }
 
 /* iOS: the root takes the Dynamic Type body size (17px at the default setting) */
@@ -1104,6 +1102,10 @@ body[data-view="chat"] #chat-view { display: flex; }
 .view-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: calc(var(--m) * 4) calc(var(--m) * 4) calc(var(--m) * 4); overscroll-behavior: contain; }
 .view-foot { flex-shrink: 0; padding: calc(var(--m) * 3) calc(var(--m) * 5) max(calc(var(--m) * 4), env(safe-area-inset-bottom)) calc(var(--m) * 4); }
 
+/* Light or dark: a moon in daylight, a sun at night */
+#btn-scheme .i-sun, :root[data-scheme="dark"] #btn-scheme .i-moon { display: none; }
+:root[data-scheme="dark"] #btn-scheme .i-sun { display: block; }
+
 /* ---------- Home ---------- */
 #home-view { background: var(--contours), var(--ground); }
 .home-row {
@@ -1426,8 +1428,8 @@ button.list-row:active { background: var(--accent-wash); }
     --rule: #8a877f;
   }
 }
-@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
-  :root {
+@media (prefers-contrast: more) {
+  :root[data-scheme="dark"] {
     --ink-soft: #d3cbbd;
     --rule: #8a8072;
   }
