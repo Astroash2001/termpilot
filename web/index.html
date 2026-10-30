@@ -15,7 +15,7 @@
   <link rel="manifest" href="/manifest.json">
   <!-- Light or dark before first paint: the saved pick, else the phone's setting (app.js owns the switch) -->
   <script>{ let s; try { s = localStorage.getItem("termpilot_scheme"); } catch (e) {} document.documentElement.dataset.scheme = s || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"); }</script>
-  <link rel="stylesheet" href="styles.css?v=80">
+  <link rel="stylesheet" href="styles.css?v=81">
   <!-- integrity= pins the exact CDN bytes: a tampered file is refused instead of run with shell access -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.css" integrity="sha384-8Xk9wy/gzEDUKrXtrmCFa2bBuK3BpjpDuL/p0SeKQX19Khl/M+lHOgD/CyYf7efP" crossorigin="anonymous" />
 
@@ -50,6 +50,7 @@
       <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></symbol>
       <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
       <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" stroke-linejoin="round"/></symbol>
       <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5.5"/><path d="M12 7.8v.1"/></symbol>
       <symbol id="i-swap" viewBox="0 0 24 24"><path d="M5 8h13l-3.5-3.5"/><path d="M19 16H6l3.5 3.5"/></symbol>
       <symbol id="i-clip" viewBox="0 0 24 24"><path d="M20 11.5l-7.8 7.8a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></symbol>
@@ -313,7 +314,15 @@
         <span class="row-icon"><svg class="i"><use href="#i-bell"/></svg></span>
         <span class="home-row-text"><span class="home-row-title">Turn on alerts</span><span id="alerts-sub" class="home-row-meta">Get a ping when the AI needs you or is done</span></span>
       </button>
-      <div id="chat-sessions" class="home-sessions"></div>
+      <!-- Your TermPilot chats fold under one banner; it says when one needs you -->
+      <details id="chats-banner" class="chats-banner">
+        <summary id="chats-summary" class="home-row terminal-row">
+          <span class="row-icon"><svg class="i"><use href="#i-chat"/></svg></span>
+          <span class="home-row-text"><span class="home-row-title">Your chats</span><span id="chats-sub" class="home-row-meta">None yet</span></span>
+          <svg class="i chevron"><use href="#i-down"/></svg>
+        </summary>
+        <div id="chat-sessions" class="home-sessions"></div>
+      </details>
       <button id="btn-history" class="home-row terminal-row">
         <span class="row-icon"><svg class="i"><use href="#i-history"/></svg></span>
         <span class="home-row-text"><span class="home-row-title">Earlier chats</span><span class="home-row-meta">Pick up a chat from before</span></span>
@@ -445,6 +454,6 @@
   <!-- Agent replies are Markdown; DOMPurify strips anything executable before it is shown -->
   <script src="https://cdn.jsdelivr.net/npm/marked@18.0.14/lib/marked.umd.js" integrity="sha384-2vpGtuKqJvFlwJqYnf/wUMuzUfhUnYBt9oay0e2yaFcq0Dh6/aEbQ8YAOeKGzlYo" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/dompurify@3.4.16/dist/purify.min.js" integrity="sha384-a7SzOxErzJ3ZpQz0zJ32d67dSitNzPcbfybc/ykU9KJhMgZkwqfSxlhhdJRS+XGL" crossorigin="anonymous"></script>
-  <script src="chat.js?v=80"></script>
+  <script src="chat.js?v=81"></script>
 </body>
 </html>

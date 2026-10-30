@@ -1145,6 +1145,11 @@ body[data-view="chat"] #chat-view { display: flex; }
 .slider:active:not(:disabled) .slider-thumb { box-shadow: 0 0 0 var(--ink); transform: translate(var(--pop), var(--pop)); }
 
 /* ---------- Home ---------- */
+/* The chats banner: a row like the others; its chevron turns when the list is open */
+.chats-banner > summary { list-style: none; cursor: pointer; }
+.chats-banner > summary::-webkit-details-marker { display: none; }
+.chats-banner .chevron { transition: rotate 200ms var(--ease-out); }
+.chats-banner[open] .chevron { rotate: 180deg; }
 #home-view { background: var(--contours), var(--ground); }
 .home-row {
   width: 100%;

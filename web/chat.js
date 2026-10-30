@@ -7,6 +7,10 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const homeSessions = $("chat-sessions");
+  // The chats banner stays open or folded as this phone last left it
+  const chatsBanner = $("chats-banner");
+  try { chatsBanner.open = localStorage.getItem("termpilot_chats_open") === "1"; } catch (e) {}
+  chatsBanner.addEventListener("toggle", () => { try { localStorage.setItem("termpilot_chats_open", chatsBanner.open ? "1" : ""); } catch (e) {} });
   const chatItems = $("chat-items");
   const chatScroll = $("chat-scroll");
   const chatInput = $("chat-input");
@@ -94,6 +98,13 @@
 
   function renderHome() {
     $("terminal-card-sub").textContent = $("run-prompt").textContent || "Type commands on your PC";
+    // The banner sums up what is folded under it, loudest news first
+    const count = (state) => sessions.filter((s) => s.state === state).length;
+    const needs = count("needs_you"), working = count("thinking"), n = sessions.length;
+    $("chats-summary").dataset.state = needs ? "needs_you" : "";
+    $("chats-sub").textContent = needs ? `${needs} need${needs > 1 ? "" : "s"} your OK`
+      : working ? `${working} working`
+      : n ? `${n} chat${n > 1 ? "s" : ""}` : "None yet";
     if (!sessions.length) {
       const empty = document.createElement("p");
       empty.className = "home-empty";
@@ -697,7 +708,7 @@
     listPreview.hidden = false;
   }
 
-  $("btn-history").addEventListener("click", () => openList("history", "Past sessions", { type: "CHAT_HISTORY" }));
+  $("btn-history").addEventListener("click", () => openList("history", "Earlier chats", { type: "CHAT_HISTORY" }));
   function renderHistory(items) {
     listBody.replaceChildren(...(items.length ? items.map((h) => listRow(h.title, [agents[h.agent] || h.agent, folderName(h.cwd), ago(h.updated)].join(" · "), () => {
       if (!send({ type: "CHAT_RESUME", agent: h.agent, sid: h.sid })) return;
