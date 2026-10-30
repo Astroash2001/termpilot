@@ -49,6 +49,14 @@
   --contours:
     repeating-radial-gradient(ellipse 130% 95% at 92% 4%, transparent 0 21px, rgba(122, 75, 42, 0.11) 21px 22px),
     repeating-radial-gradient(ellipse 95% 130% at 4% 102%, transparent 0 25px, rgba(122, 75, 42, 0.09) 25px 26px);
+  /* Course marks drawn in purple on paper (data URIs cannot read tokens, so night redraws them) */
+  --mark-terminal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 3 29.5 26h-27z' fill='none' stroke='%23c4007a' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --mark-empty: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 72'%3E%3Cg fill='none' stroke='%23c4007a' stroke-width='2.5'%3E%3Cpath d='M24 20 38 44H10z' stroke-linejoin='round'/%3E%3Cpath d='M42 36 106 36' stroke-dasharray='7 6'/%3E%3Ccircle cx='126' cy='36' r='16' stroke-dasharray='6 5'/%3E%3C/g%3E%3C/svg%3E");
+  --mark-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 25 29.5 2h-27z' fill='%23fbfaf5' stroke='%23c4007a' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E");
+  --mark-finish: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cg fill='%23fbfaf5' stroke='%23c4007a' stroke-width='2.4'%3E%3Ccircle cx='17' cy='17' r='15'/%3E%3Ccircle cx='17' cy='17' r='9.5'/%3E%3C/g%3E%3C/svg%3E");
+  --scrim: rgb(29 26 22 / 0.38);
+  --del-text: #5e3a20;
+  color-scheme: light;
 
   --m: 4px;
   --press: 120ms;
@@ -57,6 +65,43 @@
   /* One point of reading text. Reading text (help, menus, dialogs) is sized in --pt so it follows
      the phone's text-size setting; keys, the composer and the terminal keep fixed sizes. */
   --pt: 1px;
+}
+
+/* Night: the same map on dark paper, following the phone's dark mode. Purple brightens to
+   stay readable; the yellow open land darkens to ochre so light text sits on it. Pressables
+   keep their hard shadow, now in light ink. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #17140f;
+    --paper: #17140f;
+    --paper-low: #221e18;
+    --ink: #f3efe4;            /* 16.0:1 on night paper */
+    --ink-soft: #b5ab9b;       /* 8.1:1 */
+    --rule: #4a4237;
+    --accent: #ff5cb8;
+    --accent-ink: #1d1a16;     /* 6.2:1 on the accent */
+    --accent-text: #ff7cc6;    /* 7.8:1 */
+    --accent-wash: #3d1531;
+    --shine: #ff9ad3;
+    --open: #5c4a12;           /* ink on it 7.5:1 */
+    --thicket: #4d6630;
+    --water: #8cc4f0;
+    --ok: #a9cf78;
+    --ok-text: #a9cf78;
+    --bad: #ff7a63;
+    --bad-text: #ff9d8a;
+    --muted-mark: #6f675b;
+    --contours:
+      repeating-radial-gradient(ellipse 130% 95% at 92% 4%, transparent 0 21px, rgba(214, 170, 120, 0.08) 21px 22px),
+      repeating-radial-gradient(ellipse 95% 130% at 4% 102%, transparent 0 25px, rgba(214, 170, 120, 0.06) 25px 26px);
+    --mark-terminal: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 3 29.5 26h-27z' fill='none' stroke='%23ff5cb8' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mark-empty: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 72'%3E%3Cg fill='none' stroke='%23ff5cb8' stroke-width='2.5'%3E%3Cpath d='M24 20 38 44H10z' stroke-linejoin='round'/%3E%3Cpath d='M42 36 106 36' stroke-dasharray='7 6'/%3E%3Ccircle cx='126' cy='36' r='16' stroke-dasharray='6 5'/%3E%3C/g%3E%3C/svg%3E");
+    --mark-start: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 25 29.5 2h-27z' fill='%2317140f' stroke='%23ff5cb8' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E");
+    --mark-finish: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cg fill='%2317140f' stroke='%23ff5cb8' stroke-width='2.4'%3E%3Ccircle cx='17' cy='17' r='15'/%3E%3Ccircle cx='17' cy='17' r='9.5'/%3E%3C/g%3E%3C/svg%3E");
+    --scrim: rgb(0 0 0 / 0.6);
+    --del-text: #e8b48f;
+    color-scheme: dark;
+  }
 }
 
 /* iOS: the root takes the Dynamic Type body size (17px at the default setting) */
@@ -517,7 +562,7 @@ button {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: color-mix(in srgb, var(--ink) 38%, transparent);
+  background: var(--scrim);
   z-index: 90;
   display: flex;
   align-items: flex-end; /* Bottom sheet on mobile */
@@ -1164,7 +1209,7 @@ body[data-view="chat"] #chat-view { display: flex; }
 .diff-code { max-height: 360px; overflow: auto; padding: calc(var(--m) * 1.5) 0; font-family: var(--font-mono); font-size: 12px; line-height: 1.5; }
 .diff-line { padding: 0 calc(var(--m) * 2.5); white-space: pre-wrap; overflow-wrap: anywhere; }
 .diff-line.add { background: rgb(155 191 106 / 0.38); }
-.diff-line.del { background: rgb(122 75 42 / 0.16); color: #5e3a20; }
+.diff-line.del { background: rgb(122 75 42 / 0.16); color: var(--del-text); }
 .diff-fold { padding: 2px calc(var(--m) * 2.5); color: var(--ink-soft); font-family: var(--font-mono); font-size: 12px; }
 
 /* A question from the agent */
@@ -1267,7 +1312,7 @@ button.list-row:active { background: var(--accent-wash); }
 /* The Terminal row is the start triangle; the chats are a control-description sheet:
    numbered, ruled, a heavier rule every third row like the real thing */
 [data-theme="orienteering"] #open-terminal .row-icon .i { display: none; }
-[data-theme="orienteering"] #open-terminal .row-icon { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 3 29.5 26h-27z' fill='none' stroke='%23c4007a' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E") center / 28px no-repeat; }
+[data-theme="orienteering"] #open-terminal .row-icon { background: var(--mark-terminal) center / 28px no-repeat; }
 [data-theme="orienteering"] .home-sessions { margin-bottom: calc(var(--m) * 3); counter-reset: ctl; border: var(--line-w) solid var(--ink); background: var(--paper); }
 [data-theme="orienteering"] .home-sessions:has(.home-empty) { border-style: dashed; }
 [data-theme="orienteering"] .home-sessions .home-row { counter-increment: ctl; border-bottom: 1px solid var(--ink); padding-left: 0; gap: calc(var(--m) * 2.5); }
@@ -1283,7 +1328,7 @@ button.list-row:active { background: var(--accent-wash); }
   font: 700 20px/1 var(--font-label);
   color: var(--accent-text);
 }
-[data-theme="orienteering"] .home-sessions .home-empty::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 72'%3E%3Cg fill='none' stroke='%23c4007a' stroke-width='2.5'%3E%3Cpath d='M24 20 38 44H10z' stroke-linejoin='round'/%3E%3Cpath d='M42 36 106 36' stroke-dasharray='7 6'/%3E%3Ccircle cx='126' cy='36' r='16' stroke-dasharray='6 5'/%3E%3C/g%3E%3C/svg%3E"); }
+[data-theme="orienteering"] .home-sessions .home-empty::before { background-image: var(--mark-empty); }
 
 /* Sheet lists (folders, commands, files, sessions, devices) are numbered and ruled in ink like the description sheet */
 [data-theme="orienteering"] :is(.dir-list, #agent-commands) { counter-reset: ctl; }
@@ -1324,7 +1369,7 @@ button.list-row:active { background: var(--accent-wash); }
   top: 12px;
   width: 32px;
   height: 28px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 28'%3E%3Cpath d='M16 25 29.5 2h-27z' fill='%23fbfaf5' stroke='%23c4007a' stroke-width='2.6' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  background: var(--mark-start) center / contain no-repeat;
 }
 [data-theme="orienteering"] .tool { position: relative; isolation: isolate; counter-increment: ctl; border: 0; border-radius: 0; background: var(--rail); }
 [data-theme="orienteering"] .tool::after { content: ""; position: absolute; inset: 6px 0 6px 46px; z-index: -1; border: 1.5px solid var(--ink); background: var(--paper); }
@@ -1371,7 +1416,7 @@ button.list-row:active { background: var(--accent-wash); }
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent-text);
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Cg fill='%23fbfaf5' stroke='%23c4007a' stroke-width='2.4'%3E%3Ccircle cx='17' cy='17' r='15'/%3E%3Ccircle cx='17' cy='17' r='9.5'/%3E%3C/g%3E%3C/svg%3E") 1px 6px / 32px no-repeat, linear-gradient(var(--accent), var(--accent)) 16px 0 / 2.5px 8px no-repeat;
+  background: var(--mark-finish) 1px 6px / 32px no-repeat, linear-gradient(var(--accent), var(--accent)) 16px 0 / 2.5px 8px no-repeat;
 }
 
 /* Increased contrast: darker secondary ink and visible rules (3:1) */
@@ -1379,6 +1424,12 @@ button.list-row:active { background: var(--accent-wash); }
   :root {
     --ink-soft: #46403a;
     --rule: #8a877f;
+  }
+}
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+  :root {
+    --ink-soft: #d3cbbd;
+    --rule: #8a8072;
   }
 }
 
