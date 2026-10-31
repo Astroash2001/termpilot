@@ -547,6 +547,14 @@ def serve_favicon():
         content = f.read()
     return Response(content=content, media_type="image/svg+xml", headers=NO_CACHE_HEADERS)
 
+# Raster copies of favicon.svg: Android's home screen and iOS want PNGs
+@app.get("/icon-192.png")
+@app.get("/icon-512.png")
+def serve_icon(request: Request):
+    with open(os.path.join(WEB_DIR, request.url.path.lstrip("/")), "rb") as f:
+        content = f.read()
+    return Response(content=content, media_type="image/png", headers=NO_CACHE_HEADERS)
+
 def web_version() -> str:
     """A hash of the web app's files. An open page compares it on every reconnect and offers
     a reload when the PC serves a newer app."""

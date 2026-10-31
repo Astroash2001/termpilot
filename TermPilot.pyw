@@ -42,6 +42,7 @@ class App:
         self.relay = self.agent = None
         self.phone_url = ""
         root.title("TermPilot")
+        root.iconbitmap(os.path.join(ROOT, "TermPilot.ico"))
         root.configure(bg=PAPER, padx=24, pady=20)
         root.resizable(False, False)
 

@@ -157,6 +157,7 @@ $s = (New-Object -ComObject WScript.Shell).CreateShortcut("$([Environment]::GetF
 $s.TargetPath = "$PWD\backend\venv\Scripts\pythonw.exe"
 $s.Arguments = "`"$PWD\TermPilot.pyw`""
 $s.WorkingDirectory = "$PWD"
+$s.IconLocation = "$PWD\TermPilot.ico"
 $s.Save()
 ```
 Then double-click **TermPilot** on the desktop. Its window starts the relay and opens the PC terminal, shows when both are connected, copies the phone link, and opens the add-a-phone page for another phone. **Stop TermPilot** (or closing the window) stops everything. Nothing starts with Windows.
