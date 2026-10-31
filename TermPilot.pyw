@@ -32,7 +32,7 @@ def port_in_use(port=8000):
 def kill_tree(proc):
     # The relay owns ngrok; the PC terminal owns PowerShell and the chat agents
     if proc and proc.poll() is None:
-        subprocess.run(["taskkill", "/T", "/F", "/PID", str(proc.pid)], creationflags=NO_WINDOW,
+        subprocess.run([os.path.join(os.environ.get("SystemRoot", r"C:\Windows"), "System32", "taskkill.exe"), "/T", "/F", "/PID", str(proc.pid)], creationflags=NO_WINDOW,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
