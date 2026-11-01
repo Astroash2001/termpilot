@@ -183,7 +183,7 @@ Density is phone-instrument density: the terminal view is a fixed full-height co
 Paper and ink carry the structure, overprint purple carries meaning, and the map symbol colors appear only as tints and swatches.
 
 ### Primary
-- **Course Overprint Purple** (`overprint`): the primary button, Send, Allow, the chosen agent option, focus outlines, input carets, the leg line, control circles and numbers, the start triangle and finish, the 3px rule under view headers, and small accent text such as "needs you" meta and Running / Allow? statuses (5.5:1 on paper, so the same value serves as text). White on it (`overprint-ink`, 5.8:1). **Overprint Wash** (`overprint-wash`) fills the control that is waiting for your OK and the pressed or selected list row.
+- **Course Overprint Purple** (`overprint`): the primary button, Send, Allow, the chosen agent option, focus outlines, input carets, the leg line, control circles and numbers, the start triangle and finish, the 3px rule under view headers, and small accent text such as "needs you" meta and Running / Allow? statuses (5.5:1 on paper, so the same value serves as text). White on it (`overprint-ink`, 5.8:1). **Overprint Wash** (`overprint-wash`) fills the control that is waiting for your OK, and nothing else. Pressed or selected list rows fill with `pressed` (35% Open Land Yellow on paper).
 
 ### Secondary
 - **Open Land Yellow** (`open-land`): the / CMD key face, the start-triangle box behind your own messages, the handoff bar (30% into paper), attachment chips (45%), inline code badges in help text (55%), and row hover/press tints on Home (18% / 35%).
@@ -293,10 +293,10 @@ Equal-flex 46px paper keys, Pop, Condensed 700 16px or 18px icons. / CMD is 1.6x
 - **Focus:** a 2px overprint outline drawn over the ink at zero offset. Other controls focus with a 2px overprint outline at 3px offset.
 
 ### Status Capsule and Stamps (signature)
-A legend box: 36px paper block with a 2px ink outline, a 12px square swatch outlined in ink, and a Condensed 600 15px uppercase label. Swatch is olive for Connected, red for Offline, muted for Locked. JS animates its width (240ms) and it pops from 0.95 on change. Small **stamps** repeat the language (13px, 1.5px outline, 10px swatch) on the overlay, guide and Home.
+A legend box: 36px paper block with a 2px ink outline, a 12px square swatch outlined in ink, and a Condensed 600 15px uppercase label. Swatch is olive for Connected, red for Offline, muted for Locked. It pops from 0.95 on change. Small **stamps** repeat the language (13px, 1.5px outline, 10px swatch) on the overlay, guide and Home.
 
 ### Control-Description Lists
-Chats on Home, folders, commands, files, sessions and devices are ruled ink lists numbered in a 40px purple Condensed 700 column separated by a 1px ink rule. Home's chat list is boxed in 2px ink (dashed when empty, with a start-leg-control drawing). Row press fills `overprint-wash`. The Command window row above it is outlined and marked with the start triangle.
+Chats on Home, folders, commands, files, sessions and devices are ruled ink lists numbered in a 40px purple Condensed 700 column separated by a 1px ink rule. Home's chat list is boxed in 2px ink (dashed when empty, with a start-leg-control drawing). Row press fills `pressed`. The Command window row above it is outlined and marked with the start triangle.
 
 ### Home, top to bottom
 Home is ordered for someone who is not technical: what is running, who is in control, then everything else as plain rows.

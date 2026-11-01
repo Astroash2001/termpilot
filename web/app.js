@@ -648,20 +648,6 @@ let runChimes = true;
 
 const CAPSULE_LABELS = { READY: "Connected", OFFLINE: "Offline", "NO PC": "PC offline", LOCKED: "Locked" };
 
-// The capsule animates its width, which CSS can't do to "auto": measure the new content
-// on a hidden clone, pin the old width, then let the transition run to the new one.
-function sizeCapsule() {
-  const probe = runStamp.cloneNode(true);
-  probe.removeAttribute("id");
-  probe.querySelectorAll("[id]").forEach((el) => el.removeAttribute("id"));
-  probe.style.cssText = "position:absolute;visibility:hidden;width:auto;transition:none";
-  runStamp.parentNode.appendChild(probe);
-  const target = probe.offsetWidth;
-  probe.remove();
-  runStamp.style.width = runStamp.offsetWidth + "px";
-  requestAnimationFrame(() => { runStamp.style.width = target + "px"; });
-}
-
 function setStamp(state, label) {
   const text = CAPSULE_LABELS[label] || label;
   if (runStamp.dataset.state === state && capLabel.textContent === text) return;
@@ -669,7 +655,6 @@ function setStamp(state, label) {
   document.querySelectorAll(".conn-mirror").forEach((m) => { m.dataset.state = state; m.textContent = text; });
   runStamp.dataset.state = state;
   capLabel.textContent = text;
-  sizeCapsule();
   runStamp.classList.remove("pop");
   void runStamp.offsetWidth;
   runStamp.classList.add("pop");

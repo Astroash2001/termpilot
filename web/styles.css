@@ -62,6 +62,8 @@
   --press: 120ms;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  /* Pressed rows: open-land yellow, so pink stays only for what needs you */
+  --pressed: color-mix(in srgb, var(--open) 35%, var(--paper));
   /* One point of reading text. Reading text (help, menus, dialogs) is sized in --pt so it follows
      the phone's text-size setting; keys, the composer and the terminal keep fixed sizes. */
   --pt: 1px;
@@ -342,7 +344,7 @@ button {
 }
 
 /* ---------- Status capsule ---------- */
-/* A legend box. JS animates its width between labels. */
+/* A legend box. It pops when its label changes. */
 .capsule {
   justify-self: center;
   height: 36px;
@@ -360,7 +362,6 @@ button {
   text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
-  transition: width 240ms var(--ease-out);
 }
 .cap-dot { width: 12px; height: 12px; flex: none; background: var(--muted-mark); box-shadow: inset 0 0 0 1.5px var(--ink); }
 .capsule[data-state="ready"] .cap-dot { background: var(--ok); }
@@ -565,7 +566,7 @@ button {
   display: flex;
   align-items: flex-end; /* Bottom sheet on mobile */
   justify-content: center;
-  transition: opacity 200ms var(--ease-out);
+  transition: opacity 280ms var(--ease-drawer);
 }
 
 .modal-sheet {
@@ -837,7 +838,7 @@ button {
   border-bottom: 1px solid var(--rule);
 }
 .cmd-item:active,
-.cmd-item.selected { background: var(--accent-wash); }
+.cmd-item.selected { background: var(--pressed); }
 
 .cmd-tag {
   font-family: var(--font-mono);
@@ -1036,7 +1037,7 @@ button {
     max-height: 80vh;
     max-width: 560px;
     box-shadow: 6px 6px 0 var(--ink);
-    transition: transform 220ms var(--ease-out), opacity 220ms var(--ease-out);
+    transition: transform 280ms var(--ease-drawer), opacity 280ms var(--ease-drawer);
   }
   @starting-style { .modal-sheet { transform: scale(0.96); opacity: 0; } }
   .modal-header::before { display: none; }
@@ -1178,7 +1179,7 @@ body[data-view="chat"] #chat-view { display: flex; }
   text-align: left;
   transition: background-color var(--press);
 }
-.home-row:active { background: color-mix(in srgb, var(--open) 35%, var(--paper)); }
+.home-row:active { background: var(--pressed); }
 @media (hover: hover) and (pointer: fine) {
   .home-row:hover { background: color-mix(in srgb, var(--open) 18%, var(--paper)); }
 }
@@ -1285,10 +1286,11 @@ body[data-view="chat"] #chat-view { display: flex; }
 .plan { display: grid; gap: 4px; }
 .plan-title { font-family: var(--font-label); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
 .plan-row { position: relative; padding-left: 22px; font-size: calc(14 * var(--pt)); line-height: 1.4; }
-.plan-row::before { content: "○"; position: absolute; left: 0; color: var(--ink-soft); }
-.plan-row[data-status="in_progress"]::before { content: "◐"; color: var(--accent-text); }
+/* Swatches like the capsule's, not ○ ◐ ● glyphs that change shape with the phone's font */
+.plan-row::before { content: ""; position: absolute; left: 0; top: calc(0.7em - 5px); width: 10px; height: 10px; background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--ink-soft); }
+.plan-row[data-status="in_progress"]::before { background: linear-gradient(to top left, var(--accent) 50%, var(--paper) 50%); box-shadow: inset 0 0 0 1.5px var(--ink); }
 .plan-row[data-status="completed"] { color: var(--ink-soft); text-decoration: line-through; }
-.plan-row[data-status="completed"]::before { content: "●"; color: var(--ok-text); }
+.plan-row[data-status="completed"]::before { background: var(--ok); box-shadow: inset 0 0 0 1.5px var(--ink); }
 
 .chat-compose { flex-shrink: 0; padding-top: calc(var(--m) * 2); padding-bottom: env(safe-area-inset-bottom); border-top: 1px solid var(--rule); }
 .compose-chips { display: flex; gap: calc(var(--m) * 2.5); padding: 0 calc(var(--m) * 3); }
@@ -1312,7 +1314,7 @@ body[data-view="chat"] #chat-view { display: flex; }
 .attach-chip[data-busy] { border-style: dashed; color: var(--ink-soft); }
 /* Shared list sheet: Files, Past sessions, Devices */
 .list-row { position: relative; display: flex; align-items: center; gap: calc(var(--m) * 3); width: 100%; min-height: 56px; padding: calc(var(--m) * 2) calc(var(--m) * 3.5); border-bottom: 1px solid var(--rule); color: var(--ink); text-align: left; }
-button.list-row:active { background: var(--accent-wash); }
+button.list-row:active { background: var(--pressed); }
 .list-row-text { flex: 1; min-width: 0; display: grid; gap: 2px; }
 .list-row-text b { font-weight: 600; font-size: calc(15 * var(--pt)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .list-row-text small { color: var(--ink-soft); font-size: calc(13 * var(--pt)); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -1357,7 +1359,7 @@ button.list-row:active { background: var(--accent-wash); }
 .dir-current .i { width: 18px; height: 18px; }
 .dir-list { flex: 1; min-height: 120px; overflow-y: auto; border: 1.5px solid var(--ink); border-radius: var(--r-card); }
 .dir-row { display: block; width: 100%; min-height: 46px; padding: 0 calc(var(--m) * 3.5); border-bottom: 1px solid var(--rule); color: var(--ink); text-align: left; font-size: calc(15 * var(--pt)); }
-.dir-row:active { background: var(--accent-wash); }
+.dir-row:active { background: var(--pressed); }
 .dir-row.up { color: var(--ink-soft); }
 .dir-row.up::before { content: "\2191  "; }
 
